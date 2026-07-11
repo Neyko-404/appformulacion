@@ -1,4 +1,4 @@
-package com.example.appformulacion
+package com.neyko.focusly
 
 import io.flutter.embedding.android.FlutterActivity
 
