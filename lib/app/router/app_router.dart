@@ -9,6 +9,7 @@ import 'package:focusly/features/authentication/presentation/pages/verify_email_
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
 import 'package:focusly/features/onboarding/presentation/pages/home_placeholder_page.dart';
+import 'package:focusly/features/onboarding/presentation/pages/onboarding_error_page.dart';
 import 'package:focusly/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -49,6 +50,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       final onboarding = ref.read(onboardingNotifierProvider);
+      if (onboarding.isInitializing) {
+        return location == RoutePaths.authLoading
+            ? null
+            : RoutePaths.authLoading;
+      }
+      if (onboarding.errorMessage != null) {
+        return location == RoutePaths.onboardingError
+            ? null
+            : RoutePaths.onboardingError;
+      }
       if (!onboarding.isCompleted) {
         return location == RoutePaths.onboarding ? null : RoutePaths.onboarding;
       }
@@ -87,6 +98,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: RouteNames.onboarding,
         path: RoutePaths.onboarding,
         builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        name: RouteNames.onboardingError,
+        path: RoutePaths.onboardingError,
+        builder: (context, state) => const OnboardingErrorPage(),
       ),
       GoRoute(
         name: RouteNames.homePlaceholder,

@@ -7,13 +7,13 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 0 — Foundation Engineering:** completado.
 - **Sprint 1 — Firebase Authentication:** completado.
 - **Sprint 1.5 — Firebase Foundation:** completado.
-- **Sprint 2A — Onboarding:** en desarrollo con almacenamiento temporal en memoria.
-- **Persistencia definitiva de Onboarding:** pendiente para Sprint 2B.
+- **Sprint 2 — Onboarding:** completado con persistencia local.
 - **Firestore:** no configurado.
 - **Datos académicos:** todavía no implementados.
 - **Dashboard:** todavía no implementado.
+- **Sincronización remota:** pendiente.
 
-La sesión productiva utiliza Firebase Authentication. Las pruebas conservan un repositorio en memoria aislado.
+La sesión productiva utiliza Firebase Authentication y el onboarding utiliza persistencia local. Las pruebas pueden sustituir ambos repositorios por implementaciones aisladas en memoria.
 
 ## Sprint 1.5 — Firebase Foundation
 
