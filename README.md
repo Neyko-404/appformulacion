@@ -10,7 +10,10 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 2 — Onboarding:** completado con persistencia local.
 - **Firestore:** no configurado.
 - **Datos académicos:** todavía no implementados.
-- **Sprint 3A — Dashboard Foundation:** en desarrollo.
+- **Sprint 3A — Dashboard Foundation:** completado.
+- **Sprint 3B — Academic Courses:** implementado con persistencia local.
+- **Horarios y calificaciones:** pendientes.
+- **Pomodoro:** pendiente.
 - **Sincronización remota:** pendiente.
 
 La sesión productiva utiliza Firebase Authentication y el onboarding utiliza persistencia local. Las pruebas pueden sustituir ambos repositorios por implementaciones aisladas en memoria.

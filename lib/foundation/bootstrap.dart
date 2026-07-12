@@ -7,6 +7,7 @@ import 'package:focusly/app/app.dart';
 import 'package:focusly/config/firebase_config.dart';
 import 'package:focusly/core/errors/error_reporter.dart';
 import 'package:focusly/core/logging/app_logger.dart';
+import 'package:focusly/features/academic_tracker/data/models/course_local_model.dart';
 import 'package:focusly/features/onboarding/data/models/student_profile_local_model.dart';
 import 'package:focusly/features/onboarding/data/models/study_companion_local_model.dart';
 import 'package:focusly/services/local_database/local_database.dart';
@@ -52,6 +53,7 @@ void bootstrap() {
       try {
         final database = await LocalDatabase.open(
           schemas: const [
+            CourseLocalModelSchema,
             StudentProfileLocalModelSchema,
             StudyCompanionLocalModelSchema,
           ],

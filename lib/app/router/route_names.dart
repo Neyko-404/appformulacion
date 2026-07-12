@@ -7,6 +7,9 @@ abstract final class RouteNames {
   static const onboarding = 'onboarding';
   static const onboardingError = 'onboarding-error';
   static const dashboard = 'dashboard';
+  static const courses = 'courses';
+  static const courseNew = 'course-new';
+  static const courseEdit = 'course-edit';
 }
 
 abstract final class RoutePaths {
@@ -18,4 +21,8 @@ abstract final class RoutePaths {
   static const onboarding = '/onboarding';
   static const onboardingError = '/onboarding-error';
   static const dashboard = '/dashboard';
+  static const courses = '/courses';
+  static const courseNew = '/courses/new';
+  static const courseEditPattern = '/courses/:courseId/edit';
+  static String courseEdit(String courseId) => '/courses/$courseId/edit';
 }
