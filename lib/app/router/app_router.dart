@@ -7,8 +7,8 @@ import 'package:focusly/features/authentication/presentation/pages/login_page.da
 import 'package:focusly/features/authentication/presentation/pages/register_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/verify_email_page.dart';
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
+import 'package:focusly/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
-import 'package:focusly/features/onboarding/presentation/pages/home_placeholder_page.dart';
 import 'package:focusly/features/onboarding/presentation/pages/onboarding_error_page.dart';
 import 'package:focusly/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:go_router/go_router.dart';
@@ -64,9 +64,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == RoutePaths.onboarding ? null : RoutePaths.onboarding;
       }
 
-      return location == RoutePaths.homePlaceholder
-          ? null
-          : RoutePaths.homePlaceholder;
+      return location == RoutePaths.dashboard ? null : RoutePaths.dashboard;
     },
     routes: [
       GoRoute(
@@ -105,9 +103,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OnboardingErrorPage(),
       ),
       GoRoute(
-        name: RouteNames.homePlaceholder,
-        path: RoutePaths.homePlaceholder,
-        builder: (context, state) => const HomePlaceholderPage(),
+        name: RouteNames.dashboard,
+        path: RoutePaths.dashboard,
+        builder: (context, state) => const DashboardPage(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),

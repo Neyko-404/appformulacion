@@ -86,9 +86,7 @@ void main() {
     expect(find.text('Te damos la bienvenida'), findsOneWidget);
   });
 
-  testWidgets('completed onboarding redirects to home placeholder', (
-    tester,
-  ) async {
+  testWidgets('completed onboarding redirects to dashboard', (tester) async {
     final authRepository = InMemoryAuthRepository(
       seedAccounts: const {'student@focusly.dev': 'password123'},
     );
@@ -130,10 +128,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Configuración inicial completada. Dashboard pendiente.'),
-      findsOneWidget,
-    );
+    expect(find.text('Kumo'), findsNothing);
+    expect(find.text('Milo'), findsOneWidget);
+    expect(find.text('Comenzar sesión'), findsOneWidget);
   });
 
   testWidgets('storage failure redirects to recovery instead of onboarding', (

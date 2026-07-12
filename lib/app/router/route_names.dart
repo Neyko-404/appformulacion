@@ -6,7 +6,7 @@ abstract final class RouteNames {
   static const verifyEmail = 'verify-email';
   static const onboarding = 'onboarding';
   static const onboardingError = 'onboarding-error';
-  static const homePlaceholder = 'home-placeholder';
+  static const dashboard = 'dashboard';
 }
 
 abstract final class RoutePaths {
@@ -17,5 +17,5 @@ abstract final class RoutePaths {
   static const verifyEmail = '/verify-email';
   static const onboarding = '/onboarding';
   static const onboardingError = '/onboarding-error';
-  static const homePlaceholder = '/home-placeholder';
+  static const dashboard = '/dashboard';
 }
