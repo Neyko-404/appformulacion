@@ -13,6 +13,8 @@ import 'package:focusly/features/dashboard/presentation/pages/dashboard_page.dar
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
 import 'package:focusly/features/onboarding/presentation/pages/onboarding_error_page.dart';
 import 'package:focusly/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:focusly/features/study_engine/presentation/pages/focus_history_page.dart';
+import 'package:focusly/features/study_engine/presentation/pages/focus_page.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -71,7 +73,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           location == RoutePaths.courseNew ||
           (location.startsWith('${RoutePaths.courses}/') &&
               location.endsWith('/edit'));
-      return location == RoutePaths.dashboard || isCourseRoute
+      final isFocusRoute =
+          location == RoutePaths.focus || location == RoutePaths.focusHistory;
+      return location == RoutePaths.dashboard || isCourseRoute || isFocusRoute
           ? null
           : RoutePaths.dashboard;
     },
@@ -131,6 +135,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.courseEditPattern,
         builder: (context, state) =>
             CourseFormPage(courseId: state.pathParameters['courseId']),
+      ),
+      GoRoute(
+        name: RouteNames.focus,
+        path: RoutePaths.focus,
+        builder: (context, state) => const FocusPage(),
+      ),
+      GoRoute(
+        name: RouteNames.focusHistory,
+        path: RoutePaths.focusHistory,
+        builder: (context, state) => const FocusHistoryPage(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),

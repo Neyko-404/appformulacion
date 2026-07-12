@@ -10,6 +10,7 @@ import 'package:focusly/core/logging/app_logger.dart';
 import 'package:focusly/features/academic_tracker/data/models/course_local_model.dart';
 import 'package:focusly/features/onboarding/data/models/student_profile_local_model.dart';
 import 'package:focusly/features/onboarding/data/models/study_companion_local_model.dart';
+import 'package:focusly/features/study_engine/data/models/study_session_local_model.dart';
 import 'package:focusly/services/local_database/local_database.dart';
 import 'package:focusly/services/local_database/local_database_provider.dart';
 
@@ -56,6 +57,7 @@ void bootstrap() {
             CourseLocalModelSchema,
             StudentProfileLocalModelSchema,
             StudyCompanionLocalModelSchema,
+            StudySessionLocalModelSchema,
           ],
         );
         logger.info('Starting Focusly foundation');

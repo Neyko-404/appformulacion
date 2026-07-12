@@ -77,15 +77,12 @@ void main() {
     expect(find.text('Agregar cursos'), findsOneWidget);
   });
 
-  testWidgets('primary action only explains the future Pomodoro', (
+  testWidgets('primary action exposes Study Engine entry point', (
     tester,
   ) async {
     await pumpDashboard(tester);
     final button = find.widgetWithText(FilledButton, 'Comenzar sesión');
     await tester.ensureVisible(button);
-    await tester.tap(button);
-    await tester.pump();
-
-    expect(find.text('Pomodoro llegará en Sprint 4.'), findsOneWidget);
+    expect(button, findsOneWidget);
   });
 }

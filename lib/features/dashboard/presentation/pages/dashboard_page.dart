@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/dashboard/dashboard_providers.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/courses_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/focus_goal_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/focus_streak_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/study_companion_card.dart';
+import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -18,6 +21,7 @@ class DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(dashboardNotifierProvider);
     final email = ref.watch(publicAuthSessionProvider).user?.email;
+    final study = ref.watch(activeStudySummaryProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Focusly')),
@@ -76,15 +80,13 @@ class DashboardPage extends ConsumerWidget {
                         const SizedBox(height: _sectionSpacing),
                         FilledButton.icon(
                           onPressed: () =>
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Pomodoro llegará en Sprint 4.',
-                                  ),
-                                ),
-                              ),
+                              GoRouter.maybeOf(context)?.go(RoutePaths.focus),
                           icon: const Icon(Icons.play_arrow),
-                          label: const Text('Comenzar sesión'),
+                          label: Text(
+                            study.session == null
+                                ? 'Comenzar sesión'
+                                : 'Continuar sesión · ${study.isPaused ? 'Pausada' : _remaining(study.remaining)}',
+                          ),
                         ),
                       ],
                     ),
@@ -106,6 +108,12 @@ class DashboardPage extends ConsumerWidget {
     if (hour < 12) return 'Buenos días';
     if (hour < 19) return 'Buenas tardes';
     return 'Buenas noches';
+  }
+
+  String _remaining(Duration value) {
+    final minutes = value.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = value.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 }
 
