@@ -30,6 +30,8 @@ CRUD de cursos, Pomodoro, flashcards, IA, Analytics, calendario, estadísticas r
 
 `DashboardState` contiene únicamente `StudentProfile`, `StudyCompanion`, carga y error seguro. `DashboardNotifier` consulta ambos elementos mediante `OnboardingRepository`. `dashboardOnboardingRepositoryProvider` adapta la composición pública existente sin crear otro repositorio.
 
+La tarjeta de cursos consume `activeCoursesProvider`, muestra hasta tres cursos activos, la cantidad total o el estado vacío, y navega hacia Academic Tracker. Dashboard no es propietario de `Course` ni importa Data o Presentation de esa feature.
+
 ## Integración
 
 Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboarding conserva la propiedad del perfil, compañero y persistencia. Dashboard no importa Data, Firebase ni Isar y no navega desde su Notifier. GoRouter expone `/dashboard` después de sesión verificada y onboarding completo.

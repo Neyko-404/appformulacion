@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
+import 'package:focusly/features/academic_tracker/presentation/pages/course_form_page.dart';
+import 'package:focusly/features/academic_tracker/presentation/pages/course_list_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/auth_loading_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/forgot_password_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/login_page.dart';
@@ -64,7 +66,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == RoutePaths.onboarding ? null : RoutePaths.onboarding;
       }
 
-      return location == RoutePaths.dashboard ? null : RoutePaths.dashboard;
+      final isCourseRoute =
+          location == RoutePaths.courses ||
+          location == RoutePaths.courseNew ||
+          (location.startsWith('${RoutePaths.courses}/') &&
+              location.endsWith('/edit'));
+      return location == RoutePaths.dashboard || isCourseRoute
+          ? null
+          : RoutePaths.dashboard;
     },
     routes: [
       GoRoute(
@@ -106,6 +115,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: RouteNames.dashboard,
         path: RoutePaths.dashboard,
         builder: (context, state) => const DashboardPage(),
+      ),
+      GoRoute(
+        name: RouteNames.courses,
+        path: RoutePaths.courses,
+        builder: (context, state) => const CourseListPage(),
+      ),
+      GoRoute(
+        name: RouteNames.courseNew,
+        path: RoutePaths.courseNew,
+        builder: (context, state) => const CourseFormPage(),
+      ),
+      GoRoute(
+        name: RouteNames.courseEdit,
+        path: RoutePaths.courseEditPattern,
+        builder: (context, state) =>
+            CourseFormPage(courseId: state.pathParameters['courseId']),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),
