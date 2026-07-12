@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
-import 'package:focusly/shared/presentation/foundation_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/forgot_password_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/login_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/register_page.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
-    initialLocation: RoutePaths.foundation,
+    initialLocation: RoutePaths.login,
     routes: [
       GoRoute(
-        name: RouteNames.foundation,
-        path: RoutePaths.foundation,
-        builder: (context, state) => const FoundationPage(),
+        name: RouteNames.login,
+        path: RoutePaths.login,
+        builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        name: RouteNames.register,
+        path: RoutePaths.register,
+        builder: (context, state) => const RegisterPage(),
+      ),
+      GoRoute(
+        name: RouteNames.forgotPassword,
+        path: RoutePaths.forgotPassword,
+        builder: (context, state) => const ForgotPasswordPage(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),
@@ -51,7 +63,7 @@ class UnknownRoutePage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               FilledButton(
-                onPressed: () => context.goNamed(RouteNames.foundation),
+                onPressed: () => context.goNamed(RouteNames.login),
                 child: const Text('Volver al inicio'),
               ),
             ],
