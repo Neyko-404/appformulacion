@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
+import 'package:focusly/shared/presentation/app_spacing.dart';
 
 class FocusGoalCard extends StatelessWidget {
   const FocusGoalCard({required this.profile, super.key});
@@ -10,18 +11,26 @@ class FocusGoalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Objetivo principal',
-              style: Theme.of(context).textTheme.titleMedium,
+            Row(
+              children: [
+                const Icon(Icons.track_changes_outlined),
+                const SizedBox(width: AppSpacing.small),
+                Expanded(
+                  child: Text(
+                    'Tu objetivo actual',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.medium),
             Text(_goalLabel(profile.primaryGoal)),
-            const SizedBox(height: 4),
-            Text('${profile.preferredFocusMinutes} minutos'),
+            const SizedBox(height: AppSpacing.xSmall),
+            Text('${profile.preferredFocusMinutes} min por sesión'),
           ],
         ),
       ),
@@ -32,7 +41,7 @@ class FocusGoalCard extends StatelessWidget {
     PrimaryGoal.organization => 'Organizar mejor mis estudios',
     PrimaryGoal.concentration => 'Mejorar mi concentración',
     PrimaryGoal.examPreparation => 'Prepararme para evaluaciones',
-    PrimaryGoal.routine => 'Crear una rutina',
+    PrimaryGoal.routine => 'Construir una rutina de estudio',
     PrimaryGoal.memory => 'Recordar mejor lo aprendido',
   };
 }

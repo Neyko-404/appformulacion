@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
+import 'package:focusly/shared/presentation/app_spacing.dart';
 import 'package:go_router/go_router.dart';
 
 class CoursesCard extends ConsumerWidget {
@@ -12,24 +13,30 @@ class CoursesCard extends ConsumerWidget {
     final snapshot = ref.watch(activeCoursesProvider);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Cursos', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.menu_book_outlined),
+                const SizedBox(width: AppSpacing.small),
+                Text('Cursos', style: Theme.of(context).textTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.small),
             if (snapshot.isLoading)
               const LinearProgressIndicator()
             else if (snapshot.courses.isEmpty)
-              const Text('No hay cursos registrados')
+              const Text('Todavía no tienes cursos.\nAgrega uno para comenzar.')
             else ...[
-              Text('${snapshot.count} cursos activos'),
-              const SizedBox(height: 8),
+              Text(_activeCoursesLabel(snapshot.count)),
+              const SizedBox(height: AppSpacing.small),
               for (final course in snapshot.courses.take(3)) Text(course.name),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.large),
             OutlinedButton(
-              onPressed: () => context.go(
+              onPressed: () => context.push(
                 snapshot.courses.isEmpty
                     ? RoutePaths.courseNew
                     : RoutePaths.courses,
@@ -43,4 +50,7 @@ class CoursesCard extends ConsumerWidget {
       ),
     );
   }
+
+  String _activeCoursesLabel(int count) =>
+      count == 1 ? '1 curso activo' : '$count cursos activos';
 }

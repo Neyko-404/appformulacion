@@ -42,6 +42,10 @@ Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboar
 
 Las pruebas usan sesión y repositorio en memoria mediante overrides. No usan Firebase, red ni disco.
 
+## UX Guidelines
+
+Dashboard es la pantalla raíz y no muestra navegación hacia atrás. El saludo conserva contexto horario, el compañero usa lenguaje humano y las tarjetas mantienen iconografía y espaciados coherentes. Los accesos a Courses y Study Engine apilan rutas secundarias para preservar el regreso automático.
+
 ## AI CONTEXT
 
 Esta feature implementa solo Dashboard Foundation Sprint 3A. Una IA no puede añadir repositorios, progreso real, cursos, Pomodoro, IA, Analytics o sincronización sin autorización. Debe reutilizar los contratos públicos de Authentication y Onboarding.

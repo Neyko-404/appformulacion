@@ -43,6 +43,10 @@ Dashboard presenta hasta tres cursos activos y la cantidad total. Academic Track
 
 Las pruebas usan fakes herméticos sin Firebase, red o disco. La persistencia nativa y reapertura se validan manualmente o en CI preparado. Los cursos se separan por `ownerId`; no almacenan correo ni secretos. Los cambios futuros de schema deben ser aditivos o incluir una migración probada antes de release.
 
+## UX Guidelines
+
+Las pantallas de cursos usan AppBar y navegación secundaria con GoRouter. Los formularios siempre ofrecen guardar o cancelar, los estados vacíos orientan la siguiente acción y las cantidades visibles respetan singular y plural. Las acciones destructivas requieren confirmación explícita.
+
 ## AI CONTEXT
 
 Esta feature implementa únicamente cursos de RF-004 Sprint 3B. Una IA no puede añadir horarios, notas, tareas, OCR, sincronización o cascadas sin autorización. Debe preservar aislamiento, contratos públicos y modelos Isar dentro de Data.

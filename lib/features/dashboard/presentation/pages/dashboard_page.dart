@@ -8,13 +8,12 @@ import 'package:focusly/features/dashboard/presentation/widgets/focus_goal_card.
 import 'package:focusly/features/dashboard/presentation/widgets/focus_streak_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/study_companion_card.dart';
 import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
+import 'package:focusly/shared/presentation/app_spacing.dart';
 import 'package:go_router/go_router.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
-  static const _pagePadding = 24.0;
-  static const _sectionSpacing = 16.0;
   static const _maxContentWidth = 960.0;
 
   @override
@@ -24,7 +23,10 @@ class DashboardPage extends ConsumerWidget {
     final study = ref.watch(activeStudySummaryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Focusly')),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Focusly'),
+      ),
       body: SafeArea(
         child: state.isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -34,7 +36,7 @@ class DashboardPage extends ConsumerWidget {
                 onRetry: ref.read(dashboardNotifierProvider.notifier).load,
               )
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(_pagePadding),
+                padding: const EdgeInsets.all(AppSpacing.xLarge),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
@@ -43,13 +45,28 @@ class DashboardPage extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          '${_greeting()}, ${_displayName(email)}',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                        Semantics(
+                          header: true,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${_greeting()} 👋',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: AppSpacing.xSmall),
+                              Text(
+                                _displayName(email),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium,
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: _sectionSpacing),
+                        const SizedBox(height: AppSpacing.large),
                         StudyCompanionCard(companion: state.companion!),
-                        const SizedBox(height: _sectionSpacing),
+                        const SizedBox(height: AppSpacing.large),
                         LayoutBuilder(
                           builder: (context, constraints) {
                             final cards = [
@@ -60,7 +77,7 @@ class DashboardPage extends ConsumerWidget {
                               return Column(
                                 children: [
                                   cards.first,
-                                  const SizedBox(height: _sectionSpacing),
+                                  const SizedBox(height: AppSpacing.large),
                                   cards.last,
                                 ],
                               );
@@ -69,18 +86,18 @@ class DashboardPage extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(child: cards.first),
-                                const SizedBox(width: _sectionSpacing),
+                                const SizedBox(width: AppSpacing.large),
                                 Expanded(child: cards.last),
                               ],
                             );
                           },
                         ),
-                        const SizedBox(height: _sectionSpacing),
+                        const SizedBox(height: AppSpacing.large),
                         const CoursesCard(),
-                        const SizedBox(height: _sectionSpacing),
+                        const SizedBox(height: AppSpacing.large),
                         FilledButton.icon(
                           onPressed: () =>
-                              GoRouter.maybeOf(context)?.go(RoutePaths.focus),
+                              GoRouter.maybeOf(context)?.push(RoutePaths.focus),
                           icon: const Icon(Icons.play_arrow),
                           label: Text(
                             study.session == null
@@ -127,12 +144,12 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(DashboardPage._pagePadding),
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: DashboardPage._sectionSpacing),
+            const SizedBox(height: AppSpacing.large),
             FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
           ],
         ),

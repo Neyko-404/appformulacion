@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
+import 'package:focusly/shared/presentation/app_spacing.dart';
 
 class StudyCompanionCard extends StatelessWidget {
   const StudyCompanionCard({required this.companion, super.key});
@@ -10,7 +11,7 @@ class StudyCompanionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         child: Row(
           children: [
             Icon(
@@ -18,19 +19,22 @@ class StudyCompanionCard extends StatelessWidget {
               size: 40,
               color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.large),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    'Tu compañero de estudio',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.xSmall),
+                  Text(
                     companion.name,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 4),
-                  Text(_appearanceLabel(companion.appearance)),
-                  const SizedBox(height: 4),
-                  const Text('¿Listo para estudiar hoy?'),
+                  const SizedBox(height: AppSpacing.small),
+                  const Text('Estoy contigo. ¿Comenzamos a estudiar?'),
                 ],
               ),
             ),
@@ -39,11 +43,4 @@ class StudyCompanionCard extends StatelessWidget {
       ),
     );
   }
-
-  String _appearanceLabel(CompanionAppearance appearance) =>
-      switch (appearance) {
-        CompanionAppearance.indigo => 'Apariencia índigo',
-        CompanionAppearance.amber => 'Apariencia ámbar',
-        CompanionAppearance.emerald => 'Apariencia esmeralda',
-      };
 }

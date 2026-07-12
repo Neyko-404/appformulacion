@@ -5,11 +5,11 @@ import 'package:focusly/features/academic_tracker/academic_tracker_providers.dar
 import 'package:focusly/features/academic_tracker/domain/entities/course.dart';
 import 'package:focusly/features/academic_tracker/presentation/state/course_state.dart';
 import 'package:focusly/features/academic_tracker/presentation/widgets/course_visuals.dart';
+import 'package:focusly/shared/presentation/app_spacing.dart';
 import 'package:go_router/go_router.dart';
 
 class CourseListPage extends ConsumerWidget {
   const CourseListPage({super.key});
-  static const _padding = 24.0;
   static const _maxWidth = 760.0;
 
   @override
@@ -19,7 +19,7 @@ class CourseListPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Mis cursos')),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go(RoutePaths.courseNew),
+        onPressed: () => context.push(RoutePaths.courseNew),
         icon: const Icon(Icons.add),
         label: const Text('Crear curso'),
       ),
@@ -28,7 +28,7 @@ class CourseListPage extends ConsumerWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: _maxWidth),
             child: Padding(
-              padding: const EdgeInsets.all(_padding),
+              padding: const EdgeInsets.all(AppSpacing.xLarge),
               child: state.isInitializing
                   ? const Center(child: CircularProgressIndicator())
                   : Column(
@@ -48,20 +48,21 @@ class CourseListPage extends ConsumerWidget {
                           onSelectionChanged: (values) =>
                               notifier.setFilter(values.single),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppSpacing.xLarge),
                         Expanded(
                           child: state.visibleCourses.isEmpty
                               ? Center(
                                   child: Text(
                                     state.filter == CourseFilter.active
-                                        ? 'No hay cursos registrados'
-                                        : 'No hay cursos archivados',
+                                        ? 'Todavía no tienes cursos.\nAgrega uno para comenzar.'
+                                        : 'Todavía no tienes cursos archivados.',
+                                    textAlign: TextAlign.center,
                                   ),
                                 )
                               : ListView.separated(
                                   itemCount: state.visibleCourses.length,
                                   separatorBuilder: (_, _) =>
-                                      const SizedBox(height: 8),
+                                      const SizedBox(height: AppSpacing.small),
                                   itemBuilder: (context, index) => _CourseTile(
                                     course: state.visibleCourses[index],
                                   ),
@@ -95,18 +96,19 @@ class _CourseTile extends ConsumerWidget {
         subtitle: Text(
           [
             if (course.code != null) course.code!,
-            if (course.credits != null) '${course.credits} créditos',
+            if (course.credits != null) _creditsLabel(course.credits!),
             archived ? 'Archivado' : 'Activo',
           ].join(' · '),
         ),
         onTap: archived
             ? null
-            : () => context.go(RoutePaths.courseEdit(course.id)),
+            : () => context.push(RoutePaths.courseEdit(course.id)),
         trailing: PopupMenuButton<String>(
+          tooltip: 'Acciones del curso',
           onSelected: (action) async {
             switch (action) {
               case 'edit':
-                context.go(RoutePaths.courseEdit(course.id));
+                context.push(RoutePaths.courseEdit(course.id));
                 break;
               case 'archive':
                 if (await _confirm(context, '¿Archivar este curso?')) {
@@ -151,15 +153,18 @@ class _CourseTile extends ConsumerWidget {
           title: Text(message),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => context.pop(false),
               child: const Text('Cancelar'),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(context, true),
+              onPressed: () => context.pop(true),
               child: const Text('Confirmar'),
             ),
           ],
         ),
       ) ??
       false;
+
+  String _creditsLabel(int credits) =>
+      credits == 1 ? '1 crédito' : '$credits créditos';
 }

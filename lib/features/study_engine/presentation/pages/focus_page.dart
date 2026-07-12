@@ -4,6 +4,7 @@ import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 import 'package:focusly/features/study_engine/study_engine_providers.dart';
+import 'package:focusly/shared/presentation/app_spacing.dart';
 import 'package:go_router/go_router.dart';
 
 class FocusPage extends ConsumerStatefulWidget {
@@ -43,7 +44,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
         title: const Text('Modo enfoque'),
         actions: [
           IconButton(
-            onPressed: () => context.go(RoutePaths.focusHistory),
+            onPressed: () => context.push(RoutePaths.focusHistory),
             icon: const Icon(Icons.history),
             tooltip: 'Historial',
           ),
@@ -53,7 +54,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
         child: state.isInitializing
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(AppSpacing.xLarge),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 680),
@@ -81,7 +82,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                                   context,
                                 ).textTheme.headlineMedium,
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: AppSpacing.xLarge),
                               if (state.errorMessage != null) ...[
                                 Text(
                                   state.errorMessage!,
@@ -89,7 +90,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                                     color: Theme.of(context).colorScheme.error,
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: AppSpacing.medium),
                               ],
                               SegmentedButton<int>(
                                 segments: const [
@@ -116,7 +117,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                                       Duration(minutes: values.single),
                                     ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: AppSpacing.xLarge),
                               DropdownButtonFormField<String?>(
                                 initialValue: state.selectedCourseId,
                                 decoration: const InputDecoration(
@@ -136,11 +137,11 @@ class _FocusPageState extends ConsumerState<FocusPage>
                                 ],
                                 onChanged: notifier.selectCourse,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: AppSpacing.medium),
                               const Text(
                                 'El tiempo se reconcilia al volver a la aplicación.',
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: AppSpacing.xLarge),
                               FilledButton(
                                 onPressed: state.isOperating
                                     ? null
@@ -183,13 +184,13 @@ class _FinishedSessionView extends ConsumerWidget {
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.secondary,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.large),
         Text(
           completed ? 'Â¡SesiÃ³n completada!' : 'SesiÃ³n cancelada',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.medium),
         Text(
           completed
               ? 'Tiempo enfocado: $minutes min ${seconds.toString().padLeft(2, '0')} s'
@@ -197,18 +198,18 @@ class _FinishedSessionView extends ConsumerWidget {
           textAlign: TextAlign.center,
         ),
         if (session.courseId != null) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.small),
           Text(
             'Curso: ${courseName ?? 'Curso asociado'}',
             textAlign: TextAlign.center,
           ),
         ],
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.xLarge),
         FilledButton(
           onPressed: () => context.go(RoutePaths.dashboard),
           child: const Text('Volver al Dashboard'),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.medium),
         OutlinedButton(
           onPressed: ref
               .read(studyEngineNotifierProvider.notifier)
@@ -246,26 +247,26 @@ class _ActiveSessionView extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.displayLarge,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xLarge),
         LinearProgressIndicator(value: progress.clamp(0, 1)),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.medium),
         Text(
           session.courseId == null ? 'Sesión libre' : 'Curso seleccionado',
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.xLarge),
         FilledButton(
           onPressed: paused ? notifier.resume : notifier.pause,
           child: Text(paused ? 'Reanudar' : 'Pausar'),
         ),
         if (paused) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           OutlinedButton(
             onPressed: remaining == Duration.zero ? notifier.complete : null,
             child: const Text('Completar'),
           ),
         ],
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.medium),
         TextButton(
           onPressed: () async {
             final confirmed = await showDialog<bool>(
@@ -274,11 +275,11 @@ class _ActiveSessionView extends ConsumerWidget {
                 title: const Text('¿Cancelar esta sesión?'),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context, false),
+                    onPressed: () => context.pop(false),
                     child: const Text('Volver'),
                   ),
                   FilledButton(
-                    onPressed: () => Navigator.pop(context, true),
+                    onPressed: () => context.pop(true),
                     child: const Text('Cancelar sesión'),
                   ),
                 ],

@@ -41,6 +41,10 @@ Antes de iniciar, la selecciÃ³n se valida nuevamente contra los cursos activos
 
 No se guardan correos, tokens ni contenido completo de cursos. 4B, 4C y 4D mantienen pendientes mascota interactiva, capacidades anti-distracción, notificaciones y evolución avanzada.
 
+## UX Guidelines
+
+Focus e historial son pantallas secundarias con AppBar y regreso gestionado por GoRouter. Los controles mantienen jerarquía clara, los resultados terminales ofrecen una salida explícita y los estados vacíos explican cómo generar contenido. Las duraciones visibles respetan singular y plural.
+
 ## AI CONTEXT
 
 Esta feature implementa RF-005 Sprint 4A. Una IA debe preservar timestamps como fuente temporal, reloj inyectable, aislamiento y API pública. No puede añadir background permanente, notificaciones, bloqueo, estadísticas o gamificación sin autorización.
