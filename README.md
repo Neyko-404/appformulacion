@@ -4,7 +4,10 @@ Focusly es un compañero inteligente para aprender mejor.
 
 ## Estado
 
-**Foundation Engineering.** El repositorio contiene la base técnica de la aplicación. Las features del producto todavía no están implementadas.
+- **Sprint 0 — Foundation Engineering:** completado.
+- **Sprint 1 — Authentication:** en desarrollo con un repositorio temporal en memoria.
+
+Firebase todavía no está configurado; la sesión actual es exclusivamente de desarrollo y no persiste al cerrar la aplicación.
 
 ## Requisitos
 
