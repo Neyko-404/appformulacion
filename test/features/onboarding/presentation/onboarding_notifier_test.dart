@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:focusly/features/authentication/authentication_providers.dart';
 import 'package:focusly/features/authentication/data/repositories/in_memory_auth_repository.dart';
 import 'package:focusly/features/onboarding/data/repositories/in_memory_onboarding_repository.dart';
+import 'package:focusly/features/onboarding/domain/entities/onboarding_failure.dart';
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/features/onboarding/domain/repositories/onboarding_repository.dart';
@@ -57,6 +58,32 @@ void main() {
     expect(state.step, OnboardingStep.welcome);
     expect(state.userId, isNotNull);
     expect(state.isCompleted, isFalse);
+  });
+
+  test('initializes as completed when repository has durable data', () async {
+    final repository = InMemoryOnboardingRepository();
+    await repository.saveOnboarding(
+      profile: StudentProfile(
+        userId: 'memory-1',
+        university: 'UNJFSC',
+        career: 'Ingeniería',
+        currentCycle: 4,
+        primaryGoal: PrimaryGoal.organization,
+        preferredFocusMinutes: 25,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      companion: StudyCompanion(
+        id: 'cat-memory-1',
+        ownerId: 'memory-1',
+        name: 'Milo',
+        appearance: CompanionAppearance.indigo,
+        createdAt: now,
+      ),
+    );
+
+    final container = await createContainer(onboardingRepository: repository);
+    expect(container.read(onboardingNotifierProvider).isCompleted, isTrue);
   });
 
   test('session without user resolves to a safe state', () async {
@@ -150,6 +177,15 @@ void main() {
     repository.initialization.complete(false);
     await Future<void>.delayed(Duration.zero);
     expect(container.read(onboardingNotifierProvider).isInitializing, isFalse);
+  });
+
+  test('storage read failure exposes a recoverable state', () async {
+    final repository = _ControlledRepository(throwOnInitialization: true);
+    final container = await createContainer(onboardingRepository: repository);
+    final state = container.read(onboardingNotifierProvider);
+
+    expect(state.isCompleted, isFalse);
+    expect(state.errorMessage, contains('configuración guardada'));
   });
 
   test('updates partial data and advances valid steps', () async {
@@ -259,11 +295,13 @@ final class _ControlledRepository implements OnboardingRepository {
     this.blockInitialization = false,
     this.blockSave = false,
     this.throwOnSave = false,
+    this.throwOnInitialization = false,
   });
 
   final bool blockInitialization;
   final bool blockSave;
   final bool throwOnSave;
+  final bool throwOnInitialization;
   final initialization = Completer<bool>();
   final saveCompletion = Completer<void>();
   int saveCalls = 0;
@@ -272,6 +310,7 @@ final class _ControlledRepository implements OnboardingRepository {
 
   @override
   Future<bool> isCompleted(String userId) {
+    if (throwOnInitialization) throw OnboardingFailure.storage();
     if (blockInitialization) return initialization.future;
     return Future.value(profile != null && companion != null);
   }

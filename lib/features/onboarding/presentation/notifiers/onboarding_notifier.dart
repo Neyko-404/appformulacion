@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
+import 'package:focusly/features/onboarding/domain/entities/onboarding_failure.dart';
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
@@ -37,15 +38,27 @@ final class OnboardingNotifier extends Notifier<OnboardingState> {
         isCompleted: completed,
         clearMessages: true,
       );
-    } on Object {
+    } on OnboardingFailure catch (failure) {
       if (state.userId != userId) {
         return;
       }
       state = state.copyWith(
         isInitializing: false,
+        errorMessage: failure.safeMessage,
+      );
+    } on Object {
+      if (state.userId != userId) return;
+      state = state.copyWith(
+        isInitializing: false,
         errorMessage: 'No pudimos preparar la configuración inicial.',
       );
     }
+  }
+
+  void retryInitialization() {
+    if (state.isInitializing || state.isSaving) return;
+    state = OnboardingState(userId: state.userId);
+    unawaited(_initialize());
   }
 
   void updateUniversity(String value) =>
