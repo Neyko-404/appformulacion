@@ -102,7 +102,7 @@ class DashboardPage extends ConsumerWidget {
                           label: Text(
                             study.session == null
                                 ? 'Comenzar sesión'
-                                : 'Continuar sesión · ${study.isPaused ? 'Pausada' : _remaining(study.remaining)}',
+                                : 'Continuar sesión · ${study.isPaused ? 'En pausa' : _remaining(study.remaining)}',
                           ),
                         ),
                       ],

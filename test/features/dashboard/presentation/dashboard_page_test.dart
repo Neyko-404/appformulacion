@@ -13,9 +13,16 @@ import 'package:focusly/features/dashboard/presentation/widgets/study_companion_
 import 'package:focusly/features/onboarding/data/repositories/in_memory_onboarding_repository.dart';
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
+import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 
 void main() {
-  Future<void> pumpDashboard(WidgetTester tester) async {
+  Future<void> pumpDashboard(
+    WidgetTester tester, {
+    ActiveStudySummary study = const ActiveStudySummary(
+      remaining: Duration.zero,
+    ),
+  }) async {
     final now = DateTime.utc(2026, 7, 12);
     final repository = InMemoryOnboardingRepository();
     await repository.saveOnboarding(
@@ -47,6 +54,7 @@ void main() {
             ),
           ),
           dashboardOnboardingRepositoryProvider.overrideWithValue(repository),
+          activeStudySummaryProvider.overrideWithValue(study),
         ],
         child: const MaterialApp(home: DashboardPage()),
       ),
@@ -87,5 +95,45 @@ void main() {
     final button = find.widgetWithText(FilledButton, 'Comenzar sesión');
     await tester.ensureVisible(button);
     expect(button, findsOneWidget);
+  });
+
+  testWidgets('primary action distinguishes running and paused sessions', (
+    tester,
+  ) async {
+    final now = DateTime.utc(2026, 7, 12, 10);
+    final running = StudySession(
+      id: 'session-1',
+      ownerId: 'user-1',
+      mode: StudyMode.focus,
+      status: StudySessionStatus.running,
+      plannedDuration: const Duration(minutes: 25),
+      accumulatedFocusDuration: Duration.zero,
+      startedAt: now,
+      plannedEndAt: now.add(const Duration(minutes: 25)),
+      createdAt: now,
+      updatedAt: now,
+    );
+    await pumpDashboard(
+      tester,
+      study: ActiveStudySummary(
+        session: running,
+        remaining: const Duration(minutes: 12, seconds: 34),
+      ),
+    );
+    expect(find.text('Continuar sesión · 12:34'), findsOneWidget);
+
+    await pumpDashboard(
+      tester,
+      study: ActiveStudySummary(
+        session: running.copyWith(
+          status: StudySessionStatus.paused,
+          accumulatedFocusDuration: const Duration(minutes: 5),
+          pausedAt: now,
+          clearPlannedEndAt: true,
+        ),
+        remaining: const Duration(minutes: 20),
+      ),
+    );
+    expect(find.text('Continuar sesión · En pausa'), findsOneWidget);
   });
 }

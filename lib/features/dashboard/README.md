@@ -34,6 +34,8 @@ La tarjeta de cursos consume `activeCoursesProvider`, muestra hasta tres cursos 
 
 El botón de enfoque consume `activeStudySummaryProvider`, navega a `/focus` y cambia a “Continuar sesión” cuando existe una sesión activa. Dashboard no controla el ticker ni el temporizador.
 
+Durante una sesión running muestra el tiempo restante proporcionado por la API pública; durante una sesión paused muestra “En pausa”. Dashboard no recalcula progreso ni ejecuta controles de la sesión.
+
 ## Integración
 
 Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboarding conserva la propiedad del perfil, compañero y persistencia. Dashboard no importa Data, Firebase ni Isar y no navega desde su Notifier. GoRouter expone `/dashboard` después de sesión verificada y onboarding completo.
