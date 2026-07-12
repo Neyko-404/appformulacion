@@ -39,7 +39,10 @@ void main() {
     await pumpPage(tester, repository, const CourseListPage());
     await tester.pumpAndSettle();
     expect(find.text('Mis cursos'), findsOneWidget);
-    expect(find.text('No hay cursos registrados'), findsOneWidget);
+    expect(
+      find.text('Todavía no tienes cursos.\nAgrega uno para comenzar.'),
+      findsOneWidget,
+    );
 
     await pumpPage(tester, repository, const CourseFormPage());
     await tester.pumpAndSettle();

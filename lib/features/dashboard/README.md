@@ -32,6 +32,8 @@ CRUD de cursos, Pomodoro, flashcards, IA, Analytics, calendario, estadísticas r
 
 La tarjeta de cursos consume `activeCoursesProvider`, muestra hasta tres cursos activos, la cantidad total o el estado vacío, y navega hacia Academic Tracker. Dashboard no es propietario de `Course` ni importa Data o Presentation de esa feature.
 
+El botón de enfoque consume `activeStudySummaryProvider`, navega a `/focus` y cambia a “Continuar sesión” cuando existe una sesión activa. Dashboard no controla el ticker ni el temporizador.
+
 ## Integración
 
 Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboarding conserva la propiedad del perfil, compañero y persistencia. Dashboard no importa Data, Firebase ni Isar y no navega desde su Notifier. GoRouter expone `/dashboard` después de sesión verificada y onboarding completo.
@@ -39,6 +41,10 @@ Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboar
 ## Pruebas
 
 Las pruebas usan sesión y repositorio en memoria mediante overrides. No usan Firebase, red ni disco.
+
+## UX Guidelines
+
+Dashboard es la pantalla raíz y no muestra navegación hacia atrás. El saludo conserva contexto horario, el compañero usa lenguaje humano y las tarjetas mantienen iconografía y espaciados coherentes. Los accesos a Courses y Study Engine apilan rutas secundarias para preservar el regreso automático.
 
 ## AI CONTEXT
 

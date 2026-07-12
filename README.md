@@ -12,8 +12,10 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Datos académicos:** todavía no implementados.
 - **Sprint 3A — Dashboard Foundation:** completado.
 - **Sprint 3B — Academic Courses:** implementado con persistencia local.
+- **Sprint 4A — Study Engine Core:** implementado con temporizador persistente basado en timestamps e historial básico.
 - **Horarios y calificaciones:** pendientes.
 - **Pomodoro:** pendiente.
+- **Mascota interactiva, notificaciones y anti-distracciones:** pendientes.
 - **Sincronización remota:** pendiente.
 
 La sesión productiva utiliza Firebase Authentication y el onboarding utiliza persistencia local. Las pruebas pueden sustituir ambos repositorios por implementaciones aisladas en memoria.

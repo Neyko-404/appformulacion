@@ -66,26 +66,26 @@ void main() {
     expect(find.textContaining('Gary'), findsOneWidget);
     expect(find.byType(StudyCompanionCard), findsOneWidget);
     expect(find.text('Kumo'), findsOneWidget);
-    expect(find.text('Apariencia índigo'), findsOneWidget);
+    expect(find.text('Tu compañero de estudio'), findsOneWidget);
     expect(find.byType(FocusGoalCard), findsOneWidget);
     expect(find.text('Prepararme para evaluaciones'), findsOneWidget);
-    expect(find.text('25 minutos'), findsOneWidget);
+    expect(find.text('25 min por sesión'), findsOneWidget);
     expect(find.byType(FocusStreakCard), findsOneWidget);
     expect(find.text('0 días'), findsOneWidget);
     expect(find.byType(CoursesCard), findsOneWidget);
-    expect(find.text('No hay cursos registrados'), findsOneWidget);
+    expect(
+      find.text('Todavía no tienes cursos.\nAgrega uno para comenzar.'),
+      findsOneWidget,
+    );
     expect(find.text('Agregar cursos'), findsOneWidget);
   });
 
-  testWidgets('primary action only explains the future Pomodoro', (
+  testWidgets('primary action exposes Study Engine entry point', (
     tester,
   ) async {
     await pumpDashboard(tester);
     final button = find.widgetWithText(FilledButton, 'Comenzar sesión');
     await tester.ensureVisible(button);
-    await tester.tap(button);
-    await tester.pump();
-
-    expect(find.text('Pomodoro llegará en Sprint 4.'), findsOneWidget);
+    expect(button, findsOneWidget);
   });
 }

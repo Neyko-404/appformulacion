@@ -4,6 +4,7 @@ import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/academic_tracker/academic_tracker_providers.dart';
 import 'package:focusly/features/academic_tracker/domain/entities/course.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
+import 'package:focusly/shared/presentation/app_spacing.dart';
 import 'package:go_router/go_router.dart';
 
 class CourseFormPage extends ConsumerStatefulWidget {
@@ -85,14 +86,14 @@ class _CourseFormPageState extends ConsumerState<CourseFormPage> {
                     const Text('No pudimos encontrar ese curso.'),
                     const SizedBox(height: 16),
                     FilledButton(
-                      onPressed: () => context.go(RoutePaths.courses),
+                      onPressed: () => _leaveForm(context),
                       child: const Text('Volver a cursos'),
                     ),
                   ],
                 ),
               )
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(AppSpacing.xLarge),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 600),
@@ -108,7 +109,7 @@ class _CourseFormPageState extends ConsumerState<CourseFormPage> {
                             ),
                             validator: (value) => validator.name(value ?? ''),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppSpacing.large),
                           TextFormField(
                             controller: _code,
                             decoration: const InputDecoration(
@@ -116,7 +117,7 @@ class _CourseFormPageState extends ConsumerState<CourseFormPage> {
                             ),
                             validator: validator.code,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppSpacing.large),
                           TextFormField(
                             controller: _credits,
                             decoration: const InputDecoration(
@@ -133,7 +134,7 @@ class _CourseFormPageState extends ConsumerState<CourseFormPage> {
                                   : validator.credits(parsed);
                             },
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: AppSpacing.xLarge),
                           DropdownButtonFormField<CourseVisualIdentity>(
                             initialValue: _identity,
                             decoration: const InputDecoration(
@@ -154,7 +155,7 @@ class _CourseFormPageState extends ConsumerState<CourseFormPage> {
                             },
                           ),
                           if (courseState.errorMessage != null) ...[
-                            const SizedBox(height: 16),
+                            const SizedBox(height: AppSpacing.large),
                             Text(
                               courseState.errorMessage!,
                               style: TextStyle(
@@ -162,12 +163,29 @@ class _CourseFormPageState extends ConsumerState<CourseFormPage> {
                               ),
                             ),
                           ],
-                          const SizedBox(height: 24),
-                          FilledButton(
-                            onPressed: courseState.isWriting ? null : _submit,
-                            child: Text(
-                              editing ? 'Guardar cambios' : 'Crear curso',
-                            ),
+                          const SizedBox(height: AppSpacing.xLarge),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: courseState.isWriting
+                                      ? null
+                                      : () => _leaveForm(context),
+                                  child: const Text('Cancelar'),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.medium),
+                              Expanded(
+                                child: FilledButton(
+                                  onPressed: courseState.isWriting
+                                      ? null
+                                      : _submit,
+                                  child: Text(
+                                    editing ? 'Guardar cambios' : 'Crear curso',
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -191,6 +209,14 @@ class _CourseFormPageState extends ConsumerState<CourseFormPage> {
           credits: creditsText.isEmpty ? null : int.tryParse(creditsText),
           visualIdentity: _identity,
         );
-    if (saved && mounted) context.go(RoutePaths.courses);
+    if (saved && mounted) _leaveForm(context);
+  }
+
+  void _leaveForm(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(RoutePaths.courses);
+    }
   }
 }
