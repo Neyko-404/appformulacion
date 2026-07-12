@@ -7,8 +7,10 @@ import 'package:focusly/app/theme/theme_mode_provider.dart';
 import 'package:focusly/features/authentication/data/repositories/in_memory_auth_repository.dart';
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
 import 'package:focusly/features/onboarding/data/repositories/in_memory_onboarding_repository.dart';
+import 'package:focusly/features/onboarding/domain/entities/onboarding_failure.dart';
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
+import 'package:focusly/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
 
 void main() {
@@ -84,9 +86,7 @@ void main() {
     expect(find.text('Te damos la bienvenida'), findsOneWidget);
   });
 
-  testWidgets('completed onboarding redirects to home placeholder', (
-    tester,
-  ) async {
+  testWidgets('completed onboarding redirects to dashboard', (tester) async {
     final authRepository = InMemoryAuthRepository(
       seedAccounts: const {'student@focusly.dev': 'password123'},
     );
@@ -128,9 +128,64 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Kumo'), findsNothing);
+    expect(find.text('Milo'), findsOneWidget);
+    expect(find.text('Comenzar sesión'), findsOneWidget);
+  });
+
+  testWidgets('storage failure redirects to recovery instead of onboarding', (
+    tester,
+  ) async {
+    final authRepository = InMemoryAuthRepository(
+      seedAccounts: const {'student@focusly.dev': 'password123'},
+    );
+    await authRepository.signIn(
+      email: 'student@focusly.dev',
+      password: 'password123',
+    );
+    addTearDown(authRepository.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(authRepository),
+          onboardingRepositoryProvider.overrideWithValue(
+            const _FailingOnboardingRepository(),
+          ),
+        ],
+        child: const FocuslyApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Te damos la bienvenida'), findsNothing);
+    expect(find.text('Reintentar'), findsOneWidget);
     expect(
-      find.text('Configuración inicial completada. Dashboard pendiente.'),
+      find.text('No pudimos acceder a la configuración guardada.'),
       findsOneWidget,
     );
   });
+}
+
+final class _FailingOnboardingRepository implements OnboardingRepository {
+  const _FailingOnboardingRepository();
+
+  @override
+  Future<bool> isCompleted(String userId) =>
+      Future.error(OnboardingFailure.storage());
+
+  @override
+  Future<StudentProfile?> getProfile(String userId) async => null;
+
+  @override
+  Future<StudyCompanion?> getCompanion(String userId) async => null;
+
+  @override
+  Future<void> saveOnboarding({
+    required StudentProfile profile,
+    required StudyCompanion companion,
+  }) async {}
+
+  @override
+  Future<void> clear(String userId) async {}
 }

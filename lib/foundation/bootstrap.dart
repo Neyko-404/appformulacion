@@ -7,6 +7,10 @@ import 'package:focusly/app/app.dart';
 import 'package:focusly/config/firebase_config.dart';
 import 'package:focusly/core/errors/error_reporter.dart';
 import 'package:focusly/core/logging/app_logger.dart';
+import 'package:focusly/features/onboarding/data/models/student_profile_local_model.dart';
+import 'package:focusly/features/onboarding/data/models/study_companion_local_model.dart';
+import 'package:focusly/services/local_database/local_database.dart';
+import 'package:focusly/services/local_database/local_database_provider.dart';
 
 void bootstrap() {
   const logger = AppLogger();
@@ -45,8 +49,28 @@ void bootstrap() {
         logger.warning('Focusly will continue without Firebase services');
       }
 
-      logger.info('Starting Focusly foundation');
-      runApp(const ProviderScope(child: FocuslyApp()));
+      try {
+        final database = await LocalDatabase.open(
+          schemas: const [
+            StudentProfileLocalModelSchema,
+            StudyCompanionLocalModelSchema,
+          ],
+        );
+        logger.info('Starting Focusly foundation');
+        runApp(
+          ProviderScope(
+            overrides: [localDatabaseProvider.overrideWithValue(database)],
+            child: const FocuslyApp(),
+          ),
+        );
+      } on Object catch (error, stackTrace) {
+        errorReporter.report(
+          error,
+          stackTrace,
+          context: 'Local database initialization error',
+        );
+        rethrow;
+      }
     },
     (error, stackTrace) {
       errorReporter.report(error, stackTrace, context: 'Uncaught zone error');
