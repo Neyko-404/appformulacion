@@ -4,7 +4,31 @@ Focusly es un compañero inteligente para aprender mejor.
 
 ## Estado
 
-**Foundation Engineering.** El repositorio contiene la base técnica de la aplicación. Las features del producto todavía no están implementadas.
+- **Sprint 0 — Foundation Engineering:** completado.
+- **Sprint 1 — Firebase Authentication:** implementado; validación manual pendiente.
+- **Sprint 1.5 — Firebase Foundation:** completado.
+- **Onboarding:** pendiente.
+- **Firestore:** no configurado.
+- **Datos académicos:** todavía no implementados.
+
+La sesión productiva utiliza Firebase Authentication. Las pruebas conservan un repositorio en memoria aislado.
+
+## Sprint 1.5 — Firebase Foundation
+
+- Firebase Core integrado.
+- Proyecto Firebase configurado.
+- Aplicación Android registrada.
+- Firebase Authentication integrado.
+- Firestore pendiente.
+- Storage pendiente.
+
+Para regenerar la configuración oficial después de un cambio aprobado en plataformas o proyecto:
+
+```powershell
+flutterfire configure
+```
+
+No edites manualmente los archivos generados ni compartas su contenido fuera de los canales autorizados.
 
 ## Requisitos
 

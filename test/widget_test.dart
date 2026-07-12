@@ -4,31 +4,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:focusly/app/app.dart';
 import 'package:focusly/app/router/app_router.dart';
 import 'package:focusly/app/theme/theme_mode_provider.dart';
+import 'package:focusly/features/authentication/data/repositories/in_memory_auth_repository.dart';
+import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
 
 void main() {
-  testWidgets('FocuslyApp renders the technical foundation', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: FocuslyApp()));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Focusly'), findsWidgets);
-    expect(find.text('La fundación técnica está activa.'), findsOneWidget);
-  });
-
   test('theme mode can change without persistence', () {
     final container = ProviderContainer.test();
     addTearDown(container.dispose);
-
     expect(container.read(themeModeProvider), ThemeMode.system);
-
     container.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark);
-
     expect(container.read(themeModeProvider), ThemeMode.dark);
   });
 
-  testWidgets('router opens the initial route and handles an unknown route', (
+  testWidgets('unauthenticated session redirects to login without loops', (
     tester,
   ) async {
-    final container = ProviderContainer.test();
+    final repository = InMemoryAuthRepository();
+    addTearDown(repository.dispose);
+    final container = ProviderContainer.test(
+      overrides: [authRepositoryProvider.overrideWithValue(repository)],
+    );
     addTearDown(container.dispose);
 
     await tester.pumpWidget(
@@ -39,12 +34,54 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('La fundación técnica está activa.'), findsOneWidget);
-
+    expect(find.text('Inicia sesión'), findsOneWidget);
     container.read(routerProvider).go('/unknown');
     await tester.pumpAndSettle();
+    expect(find.text('Inicia sesión'), findsOneWidget);
+  });
 
-    expect(find.text('Ruta no encontrada'), findsOneWidget);
-    expect(find.text('/unknown'), findsOneWidget);
+  testWidgets('unverified session redirects to verify email', (tester) async {
+    final repository = InMemoryAuthRepository();
+    await repository.signUp(
+      email: 'student@focusly.dev',
+      password: 'password123',
+    );
+    addTearDown(repository.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authRepositoryProvider.overrideWithValue(repository)],
+        child: const FocuslyApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Verifica tu correo'), findsOneWidget);
+  });
+
+  testWidgets('verified session redirects to authenticated placeholder', (
+    tester,
+  ) async {
+    final repository = InMemoryAuthRepository(
+      seedAccounts: const {'student@focusly.dev': 'password123'},
+    );
+    await repository.signIn(
+      email: 'student@focusly.dev',
+      password: 'password123',
+    );
+    addTearDown(repository.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authRepositoryProvider.overrideWithValue(repository)],
+        child: const FocuslyApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Autenticación completada. Onboarding pendiente.'),
+      findsOneWidget,
+    );
   });
 }

@@ -1,17 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
-import 'package:focusly/shared/presentation/foundation_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/auth_loading_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/authenticated_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/forgot_password_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/login_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/register_page.dart';
+import 'package:focusly/features/authentication/presentation/pages/verify_email_page.dart';
+import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final refresh = ValueNotifier(0);
+  ref
+    ..onDispose(refresh.dispose)
+    ..listen(authNotifierProvider, (previous, next) => refresh.value++);
+
   final router = GoRouter(
-    initialLocation: RoutePaths.foundation,
+    initialLocation: RoutePaths.authLoading,
+    refreshListenable: refresh,
+    redirect: (context, routeState) {
+      final authState = ref.read(authNotifierProvider);
+      final location = routeState.matchedLocation;
+
+      if (authState.isInitializing) {
+        return location == RoutePaths.authLoading
+            ? null
+            : RoutePaths.authLoading;
+      }
+
+      final session = authState.session;
+      if (!session.isAuthenticated) {
+        const publicRoutes = {
+          RoutePaths.login,
+          RoutePaths.register,
+          RoutePaths.forgotPassword,
+        };
+        return publicRoutes.contains(location) ? null : RoutePaths.login;
+      }
+
+      if (!session.emailVerified) {
+        return location == RoutePaths.verifyEmail
+            ? null
+            : RoutePaths.verifyEmail;
+      }
+
+      return location == RoutePaths.authenticated
+          ? null
+          : RoutePaths.authenticated;
+    },
     routes: [
       GoRoute(
-        name: RouteNames.foundation,
-        path: RoutePaths.foundation,
-        builder: (context, state) => const FoundationPage(),
+        name: RouteNames.authLoading,
+        path: RoutePaths.authLoading,
+        builder: (context, state) => const AuthLoadingPage(),
+      ),
+      GoRoute(
+        name: RouteNames.login,
+        path: RoutePaths.login,
+        builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        name: RouteNames.register,
+        path: RoutePaths.register,
+        builder: (context, state) => const RegisterPage(),
+      ),
+      GoRoute(
+        name: RouteNames.forgotPassword,
+        path: RoutePaths.forgotPassword,
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
+        name: RouteNames.verifyEmail,
+        path: RoutePaths.verifyEmail,
+        builder: (context, state) => const VerifyEmailPage(),
+      ),
+      GoRoute(
+        name: RouteNames.authenticated,
+        path: RoutePaths.authenticated,
+        builder: (context, state) => const AuthenticatedPage(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),
@@ -41,19 +108,9 @@ class UnknownRoutePage extends StatelessWidget {
               Text(
                 'Ruta no encontrada',
                 style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Text(
-                location.path,
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: () => context.goNamed(RouteNames.foundation),
-                child: const Text('Volver al inicio'),
-              ),
+              Text(location.path),
             ],
           ),
         ),

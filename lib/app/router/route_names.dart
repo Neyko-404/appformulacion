@@ -1,7 +1,17 @@
 abstract final class RouteNames {
-  static const foundation = 'foundation';
+  static const login = 'login';
+  static const register = 'register';
+  static const forgotPassword = 'forgot-password';
+  static const authLoading = 'auth-loading';
+  static const verifyEmail = 'verify-email';
+  static const authenticated = 'authenticated';
 }
 
 abstract final class RoutePaths {
-  static const foundation = '/';
+  static const login = '/login';
+  static const register = '/register';
+  static const forgotPassword = '/forgot-password';
+  static const authLoading = '/auth-loading';
+  static const verifyEmail = '/verify-email';
+  static const authenticated = '/authenticated';
 }
