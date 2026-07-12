@@ -1,37 +1,63 @@
-import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 
-sealed class AuthState {
-  const AuthState();
+enum AuthOperation {
+  idle,
+  signIn,
+  signUp,
+  passwordReset,
+  emailVerification,
+  reloadSession,
+  signOut,
 }
 
-final class AuthInitial extends AuthState {
-  const AuthInitial();
-}
-
-final class AuthLoading extends AuthState {
-  const AuthLoading();
-}
-
-final class Authenticated extends AuthState {
-  const Authenticated(this.user);
-
-  final AuthUser user;
-}
-
-final class Unauthenticated extends AuthState {
-  const Unauthenticated();
-}
-
-final class PasswordResetSent extends AuthState {
-  const PasswordResetSent({
-    this.message = 'Si el correo está registrado, recibirás instrucciones.',
+final class AuthState {
+  const AuthState({
+    required this.session,
+    required this.isInitializing,
+    this.operation = AuthOperation.idle,
+    this.message,
+    this.errorMessage,
   });
 
-  final String message;
-}
+  const AuthState.initializing()
+    : this(session: const AuthSession.unauthenticated(), isInitializing: true);
 
-final class AuthError extends AuthState {
-  const AuthError(this.message);
+  final AuthSession session;
+  final bool isInitializing;
+  final AuthOperation operation;
+  final String? message;
+  final String? errorMessage;
 
-  final String message;
+  bool get isLoading => operation != AuthOperation.idle;
+
+  AuthState withSession(AuthSession value) => AuthState(
+    session: value,
+    isInitializing: false,
+    operation: operation,
+    message: message,
+    errorMessage: errorMessage,
+  );
+
+  AuthState begin(AuthOperation value) => AuthState(
+    session: session,
+    isInitializing: isInitializing,
+    operation: value,
+  );
+
+  AuthState finish({AuthSession? updatedSession, String? successMessage}) {
+    return AuthState(
+      session: updatedSession ?? session,
+      isInitializing: false,
+      message: successMessage,
+    );
+  }
+
+  AuthState fail(String safeMessage) => AuthState(
+    session: session,
+    isInitializing: false,
+    errorMessage: safeMessage,
+  );
+
+  AuthState clearFeedback() =>
+      AuthState(session: session, isInitializing: isInitializing);
 }

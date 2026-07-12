@@ -1,14 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:focusly/features/authentication/data/repositories/in_memory_auth_repository.dart';
+import 'package:focusly/features/authentication/data/repositories/firebase_auth_repository.dart';
+import 'package:focusly/features/authentication/data/services/firebase_auth_service.dart';
+import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/repositories/auth_repository.dart';
 
-/// Composition root temporal de Authentication para Sprint 1A.
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final repository = InMemoryAuthRepository();
-  ref.onDispose(repository.dispose);
-  return repository;
-});
+final firebaseAuthProvider = Provider<FirebaseAuth>(
+  (ref) => FirebaseAuth.instance,
+);
 
-final authSessionProvider = StreamProvider((ref) {
-  return ref.watch(authRepositoryProvider).watchAuthState();
-});
+final firebaseAuthServiceProvider = Provider<FirebaseAuthService>(
+  (ref) => FirebaseAuthService(ref.watch(firebaseAuthProvider)),
+);
+
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) => FirebaseAuthRepository(ref.watch(firebaseAuthServiceProvider)),
+);
+
+final authSessionProvider = StreamProvider<AuthSession>(
+  (ref) => ref.watch(authRepositoryProvider).watchAuthState(),
+);

@@ -1,15 +1,19 @@
-import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 
 abstract interface class AuthRepository {
-  Future<AuthUser?> getCurrentUser();
+  Future<AuthSession> getCurrentSession();
 
-  Stream<AuthUser?> watchAuthState();
+  Stream<AuthSession> watchAuthState();
 
-  Future<AuthUser> signIn({required String email, required String password});
+  Future<AuthSession> signIn({required String email, required String password});
 
-  Future<AuthUser> signUp({required String email, required String password});
+  Future<AuthSession> signUp({required String email, required String password});
 
   Future<void> requestPasswordReset({required String email});
+
+  Future<void> sendEmailVerification();
+
+  Future<AuthSession> reloadSession();
 
   Future<void> signOut();
 }

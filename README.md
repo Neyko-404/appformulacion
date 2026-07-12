@@ -5,16 +5,20 @@ Focusly es un compañero inteligente para aprender mejor.
 ## Estado
 
 - **Sprint 0 — Foundation Engineering:** completado.
-- **Sprint 1 — Authentication:** en desarrollo con un repositorio temporal en memoria.
+- **Sprint 1 — Firebase Authentication:** implementado; validación manual pendiente.
+- **Sprint 1.5 — Firebase Foundation:** completado.
+- **Onboarding:** pendiente.
+- **Firestore:** no configurado.
+- **Datos académicos:** todavía no implementados.
 
-La sesión de Authentication continúa siendo exclusivamente de desarrollo y no persiste al cerrar la aplicación.
+La sesión productiva utiliza Firebase Authentication. Las pruebas conservan un repositorio en memoria aislado.
 
 ## Sprint 1.5 — Firebase Foundation
 
 - Firebase Core integrado.
 - Proyecto Firebase configurado.
 - Aplicación Android registrada.
-- Authentication pendiente.
+- Firebase Authentication integrado.
 - Firestore pendiente.
 - Storage pendiente.
 

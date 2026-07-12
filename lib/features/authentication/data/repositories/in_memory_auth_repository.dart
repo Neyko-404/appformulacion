@@ -1,27 +1,30 @@
 import 'dart:async';
 
 import 'package:focusly/features/authentication/domain/entities/auth_failure.dart';
+import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
 import 'package:focusly/features/authentication/domain/repositories/auth_repository.dart';
 
-/// Adaptador temporal para desarrollo. No ofrece seguridad ni persistencia real.
+/// Fake determinista para pruebas. No ofrece seguridad ni persistencia real.
 final class InMemoryAuthRepository implements AuthRepository {
   InMemoryAuthRepository({Map<String, String> seedAccounts = const {}}) {
     for (final entry in seedAccounts.entries) {
-      _addAccount(email: entry.key, password: entry.value);
+      _addAccount(email: entry.key, password: entry.value, emailVerified: true);
     }
   }
 
-  final _sessionController = StreamController<AuthUser?>.broadcast(sync: true);
+  final _sessionController = StreamController<AuthSession>.broadcast(
+    sync: true,
+  );
   final Map<String, _AccountRecord> _accounts = {};
-  AuthUser? _currentUser;
+  _AccountRecord? _currentAccount;
   int _nextId = 1;
 
   @override
-  Future<AuthUser?> getCurrentUser() async => _currentUser;
+  Future<AuthSession> getCurrentSession() async => _currentSession;
 
   @override
-  Stream<AuthUser?> watchAuthState() {
+  Stream<AuthSession> watchAuthState() {
     return Stream.multi((controller) {
       final subscription = _sessionController.stream.listen(
         controller.add,
@@ -30,28 +33,26 @@ final class InMemoryAuthRepository implements AuthRepository {
       );
       controller
         ..onCancel = subscription.cancel
-        ..add(_currentUser);
+        ..add(_currentSession);
     });
   }
 
   @override
-  Future<AuthUser> signIn({
+  Future<AuthSession> signIn({
     required String email,
     required String password,
   }) async {
-    final normalizedEmail = _normalizeEmail(email);
-    final account = _accounts[normalizedEmail];
+    final account = _accounts[_normalizeEmail(email)];
     if (account == null ||
         account.passwordFingerprint != _fingerprint(password)) {
       throw AuthFailure.invalidCredentials();
     }
-
-    _setCurrentUser(account.user);
-    return account.user;
+    _setCurrentAccount(account);
+    return _currentSession;
   }
 
   @override
-  Future<AuthUser> signUp({
+  Future<AuthSession> signUp({
     required String email,
     required String password,
   }) async {
@@ -59,38 +60,75 @@ final class InMemoryAuthRepository implements AuthRepository {
     if (_accounts.containsKey(normalizedEmail)) {
       throw AuthFailure.emailAlreadyInUse();
     }
-
-    final user = _addAccount(email: normalizedEmail, password: password);
-    _setCurrentUser(user);
-    return user;
+    final account = _addAccount(
+      email: normalizedEmail,
+      password: password,
+      emailVerified: false,
+    );
+    _setCurrentAccount(account);
+    return _currentSession;
   }
 
   @override
   Future<void> requestPasswordReset({required String email}) async {
     _normalizeEmail(email);
-    // Intencionalmente no informa si la cuenta existe.
   }
 
   @override
-  Future<void> signOut() async => _setCurrentUser(null);
+  Future<void> sendEmailVerification() async {
+    if (_currentAccount == null) {
+      throw AuthFailure.unexpected();
+    }
+  }
+
+  @override
+  Future<AuthSession> reloadSession() async => _currentSession;
+
+  @override
+  Future<void> signOut() async => _setCurrentAccount(null);
+
+  void markCurrentEmailVerified() {
+    final account = _currentAccount;
+    if (account == null) {
+      return;
+    }
+    account.emailVerified = true;
+    _setCurrentAccount(account);
+  }
 
   void dispose() {
     unawaited(_sessionController.close());
   }
 
-  AuthUser _addAccount({required String email, required String password}) {
-    final normalizedEmail = _normalizeEmail(email);
-    final user = AuthUser(id: 'memory-${_nextId++}', email: normalizedEmail);
-    _accounts[normalizedEmail] = _AccountRecord(
-      user: user,
-      passwordFingerprint: _fingerprint(password),
+  AuthSession get _currentSession {
+    final account = _currentAccount;
+    if (account == null) {
+      return const AuthSession.unauthenticated();
+    }
+    return AuthSession.authenticated(
+      user: account.user,
+      emailVerified: account.emailVerified,
     );
-    return user;
   }
 
-  void _setCurrentUser(AuthUser? user) {
-    _currentUser = user;
-    _sessionController.add(user);
+  _AccountRecord _addAccount({
+    required String email,
+    required String password,
+    required bool emailVerified,
+  }) {
+    final normalizedEmail = _normalizeEmail(email);
+    final account = _AccountRecord(
+      user: AuthUser(id: 'memory-${_nextId++}', email: normalizedEmail),
+      passwordFingerprint: _fingerprint(password),
+      emailVerified: emailVerified,
+    );
+    _accounts[normalizedEmail] = account;
+    return account;
+  }
+
+  void _setCurrentAccount(_AccountRecord? account) {
+    _currentAccount = account;
+    _sessionController.add(_currentSession);
   }
 
   String _normalizeEmail(String email) => email.trim().toLowerCase();
@@ -106,8 +144,13 @@ final class InMemoryAuthRepository implements AuthRepository {
 }
 
 final class _AccountRecord {
-  const _AccountRecord({required this.user, required this.passwordFingerprint});
+  _AccountRecord({
+    required this.user,
+    required this.passwordFingerprint,
+    required this.emailVerified,
+  });
 
   final AuthUser user;
   final int passwordFingerprint;
+  bool emailVerified;
 }
