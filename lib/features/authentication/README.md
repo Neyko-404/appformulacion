@@ -33,15 +33,16 @@ Onboarding, perfiles, Dashboard, roles, eliminación definitiva de cuenta, prove
 - `data/repositories/`: adaptación Firebase–Domain y fake determinista en memoria.
 - `presentation/`: estado, Notifier, formularios y páginas de sesión.
 - `authentication_providers.dart`: composición productiva de SDK, servicio y repositorio.
+- `auth_session_provider.dart`: API pública de sesión observable y de solo lectura para otras features.
 - `presentation/providers/auth_providers.dart`: validación y estado de presentación.
 
 ## Contratos públicos
 
 - `AuthSession`: usuario opcional y verificación en una única ubicación.
 - `AuthRepository`: sesión actual/stream, login, registro, recuperación, verificación, recarga y logout.
-- `AuthState`: sesión global más operación temporal, mensaje y error seguro.
-- `authRepositoryProvider`: contrato reemplazable en pruebas.
-- `authNotifierProvider`: orquestación sin navegación ni tipos Firebase.
+- `publicAuthSessionProvider`: expone únicamente `AuthSession` observable. No permite ejecutar operaciones de autenticación ni filtra `AuthState` o `AuthNotifier`.
+
+`AuthState`, `authRepositoryProvider` y `authNotifierProvider` son detalles de composición interna y de Presentation. Otras features deben consumir únicamente `publicAuthSessionProvider`.
 
 `AuthUser` conserva únicamente `id` y `email`. `emailVerified` pertenece a `AuthSession` para no duplicar estado mutable del proveedor.
 

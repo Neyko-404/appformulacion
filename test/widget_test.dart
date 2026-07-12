@@ -6,6 +6,10 @@ import 'package:focusly/app/router/app_router.dart';
 import 'package:focusly/app/theme/theme_mode_provider.dart';
 import 'package:focusly/features/authentication/data/repositories/in_memory_auth_repository.dart';
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
+import 'package:focusly/features/onboarding/data/repositories/in_memory_onboarding_repository.dart';
+import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
+import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
+import 'package:focusly/features/onboarding/onboarding_providers.dart';
 
 void main() {
   test('theme mode can change without persistence', () {
@@ -59,9 +63,7 @@ void main() {
     expect(find.text('Verifica tu correo'), findsOneWidget);
   });
 
-  testWidgets('verified session redirects to authenticated placeholder', (
-    tester,
-  ) async {
+  testWidgets('verified session redirects to onboarding', (tester) async {
     final repository = InMemoryAuthRepository(
       seedAccounts: const {'student@focusly.dev': 'password123'},
     );
@@ -79,8 +81,55 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Te damos la bienvenida'), findsOneWidget);
+  });
+
+  testWidgets('completed onboarding redirects to home placeholder', (
+    tester,
+  ) async {
+    final authRepository = InMemoryAuthRepository(
+      seedAccounts: const {'student@focusly.dev': 'password123'},
+    );
+    await authRepository.signIn(
+      email: 'student@focusly.dev',
+      password: 'password123',
+    );
+    addTearDown(authRepository.dispose);
+    final onboardingRepository = InMemoryOnboardingRepository();
+    final now = DateTime.utc(2026, 7, 12);
+    await onboardingRepository.saveOnboarding(
+      profile: StudentProfile(
+        userId: 'memory-1',
+        university: 'UNJFSC',
+        career: 'Ingeniería',
+        currentCycle: 4,
+        primaryGoal: PrimaryGoal.concentration,
+        preferredFocusMinutes: 25,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      companion: StudyCompanion(
+        id: 'companion-memory-1',
+        ownerId: 'memory-1',
+        name: 'Milo',
+        appearance: CompanionAppearance.indigo,
+        createdAt: now,
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(authRepository),
+          onboardingRepositoryProvider.overrideWithValue(onboardingRepository),
+        ],
+        child: const FocuslyApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
     expect(
-      find.text('Autenticación completada. Onboarding pendiente.'),
+      find.text('Configuración inicial completada. Dashboard pendiente.'),
       findsOneWidget,
     );
   });

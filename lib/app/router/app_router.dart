@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/authentication/presentation/pages/auth_loading_page.dart';
-import 'package:focusly/features/authentication/presentation/pages/authenticated_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/forgot_password_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/login_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/register_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/verify_email_page.dart';
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
+import 'package:focusly/features/onboarding/onboarding_providers.dart';
+import 'package:focusly/features/onboarding/presentation/pages/home_placeholder_page.dart';
+import 'package:focusly/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
   ref
     ..onDispose(refresh.dispose)
-    ..listen(authNotifierProvider, (previous, next) => refresh.value++);
+    ..listen(authNotifierProvider, (previous, next) => refresh.value++)
+    ..listen(onboardingNotifierProvider, (previous, next) => refresh.value++);
 
   final router = GoRouter(
     initialLocation: RoutePaths.authLoading,
@@ -45,9 +48,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             : RoutePaths.verifyEmail;
       }
 
-      return location == RoutePaths.authenticated
+      final onboarding = ref.read(onboardingNotifierProvider);
+      if (!onboarding.isCompleted) {
+        return location == RoutePaths.onboarding ? null : RoutePaths.onboarding;
+      }
+
+      return location == RoutePaths.homePlaceholder
           ? null
-          : RoutePaths.authenticated;
+          : RoutePaths.homePlaceholder;
     },
     routes: [
       GoRoute(
@@ -76,9 +84,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const VerifyEmailPage(),
       ),
       GoRoute(
-        name: RouteNames.authenticated,
-        path: RoutePaths.authenticated,
-        builder: (context, state) => const AuthenticatedPage(),
+        name: RouteNames.onboarding,
+        path: RoutePaths.onboarding,
+        builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        name: RouteNames.homePlaceholder,
+        path: RoutePaths.homePlaceholder,
+        builder: (context, state) => const HomePlaceholderPage(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),
