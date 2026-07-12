@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
-import 'package:focusly/features/authentication/presentation/state/auth_state.dart';
 import 'package:focusly/features/authentication/presentation/widgets/auth_form_field.dart';
 import 'package:focusly/features/authentication/presentation/widgets/auth_page_layout.dart';
 import 'package:focusly/features/authentication/presentation/widgets/auth_status_message.dart';
@@ -43,7 +42,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final validator = ref.watch(authValidatorProvider);
-    final isLoading = authState is AuthLoading;
+    final isLoading = authState.isLoading;
 
     return AuthPageLayout(
       title: 'Inicia sesión',

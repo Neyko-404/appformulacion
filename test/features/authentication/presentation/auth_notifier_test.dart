@@ -3,206 +3,287 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_failure.dart';
+import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
 import 'package:focusly/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
-import 'package:focusly/features/authentication/presentation/state/auth_state.dart';
 
 void main() {
   const user = AuthUser(id: 'test-user', email: 'student@focusly.dev');
+  const unverified = AuthSession.authenticated(
+    user: user,
+    emailVerified: false,
+  );
+  const verified = AuthSession.authenticated(user: user, emailVerified: true);
 
-  ProviderContainer createContainer(AuthRepository repository) {
+  ProviderContainer createContainer(_FakeAuthRepository repository) {
     final container = ProviderContainer.test(
       overrides: [authRepositoryProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
+    addTearDown(repository.dispose);
     return container;
   }
 
-  test('starts with AuthInitial', () {
-    final container = createContainer(_FakeAuthRepository(user: user));
+  Future<void> initialize(ProviderContainer container) async {
+    final initialized = Completer<void>();
+    final subscription = container.listen(authNotifierProvider, (
+      previous,
+      next,
+    ) {
+      if (!next.isInitializing && !initialized.isCompleted) {
+        initialized.complete();
+      }
+    }, fireImmediately: true);
+    addTearDown(subscription.close);
+    await initialized.future;
+  }
 
-    expect(container.read(authNotifierProvider), isA<AuthInitial>());
-  });
+  test('starts initializing and resolves unauthenticated session', () async {
+    final container = createContainer(_FakeAuthRepository());
+    expect(container.read(authNotifierProvider).isInitializing, isTrue);
 
-  test('emits loading and authenticated on successful login', () async {
-    final container = createContainer(_FakeAuthRepository(user: user));
-    final notifier = container.read(authNotifierProvider.notifier);
+    await initialize(container);
 
-    final operation = notifier.signIn(
-      email: user.email,
-      password: 'password123',
-    );
-    expect(container.read(authNotifierProvider), isA<AuthLoading>());
-
-    await operation;
-
+    expect(container.read(authNotifierProvider).isInitializing, isFalse);
     expect(
-      container.read(authNotifierProvider),
-      isA<Authenticated>().having((state) => state.user, 'user', user),
+      container.read(authNotifierProvider).session.isAuthenticated,
+      isFalse,
     );
   });
 
-  test('emits a safe error on failed login', () async {
-    final container = createContainer(
-      _FakeAuthRepository(signInFailure: AuthFailure.invalidCredentials()),
+  test('reflects successful login', () async {
+    final repository = _FakeAuthRepository(signInResult: verified);
+    final container = createContainer(repository);
+    await initialize(container);
+
+    await container
+        .read(authNotifierProvider.notifier)
+        .signIn(email: user.email, password: 'password123');
+
+    expect(container.read(authNotifierProvider).session, verified);
+  });
+
+  test('reflects an external session change', () async {
+    final repository = _FakeAuthRepository();
+    final container = createContainer(repository);
+    await initialize(container);
+
+    repository.emitSession(unverified);
+    await Future<void>.value();
+
+    expect(container.read(authNotifierProvider).session, unverified);
+  });
+
+  test('exposes safe login failure without losing session', () async {
+    final repository = _FakeAuthRepository(
+      failure: AuthFailure.invalidCredentials(),
     );
+    final container = createContainer(repository);
+    await initialize(container);
 
     await container
         .read(authNotifierProvider.notifier)
         .signIn(email: user.email, password: 'incorrect-password');
 
     expect(
-      container.read(authNotifierProvider),
-      isA<AuthError>().having(
-        (state) => state.message,
-        'message',
-        'No pudimos iniciar sesión con esos datos.',
-      ),
+      container.read(authNotifierProvider).errorMessage,
+      'No pudimos iniciar sesión con esos datos.',
+    );
+    expect(
+      container.read(authNotifierProvider).session.isAuthenticated,
+      isFalse,
     );
   });
 
-  test('registers a user', () async {
-    final container = createContainer(_FakeAuthRepository(user: user));
+  test('registration sends verification and remains pending', () async {
+    final repository = _FakeAuthRepository(signUpResult: unverified);
+    final container = createContainer(repository);
+    await initialize(container);
 
     await container
         .read(authNotifierProvider.notifier)
         .signUp(email: user.email, password: 'password123');
 
-    expect(container.read(authNotifierProvider), isA<Authenticated>());
+    final state = container.read(authNotifierProvider);
+    expect(state.session, unverified);
+    expect(repository.verificationCalls, 1);
+    expect(state.message, 'Te enviamos un correo de verificación.');
   });
 
-  test('emits the safe password reset confirmation', () async {
-    final container = createContainer(_FakeAuthRepository(user: user));
+  test('resends email verification', () async {
+    final repository = _FakeAuthRepository(initial: unverified);
+    final container = createContainer(repository);
+    await initialize(container);
+
+    await container.read(authNotifierProvider.notifier).sendEmailVerification();
+
+    expect(repository.verificationCalls, 1);
+    expect(
+      container.read(authNotifierProvider).message,
+      'Enviamos un nuevo correo de verificación.',
+    );
+  });
+
+  test('reload reflects verified session', () async {
+    final repository = _FakeAuthRepository(
+      initial: unverified,
+      reloadResult: verified,
+    );
+    final container = createContainer(repository);
+    await initialize(container);
+
+    await container.read(authNotifierProvider.notifier).reloadSession();
+
+    expect(container.read(authNotifierProvider).session.emailVerified, isTrue);
+  });
+
+  test('password recovery uses non-revealing confirmation', () async {
+    final container = createContainer(_FakeAuthRepository());
+    await initialize(container);
 
     await container
         .read(authNotifierProvider.notifier)
         .requestPasswordReset(email: 'unknown@focusly.dev');
 
     expect(
-      container.read(authNotifierProvider),
-      isA<PasswordResetSent>().having(
-        (state) => state.message,
-        'message',
-        'Si el correo está registrado, recibirás instrucciones.',
-      ),
+      container.read(authNotifierProvider).message,
+      'Si el correo está registrado, recibirás instrucciones.',
     );
   });
 
-  test('signs out and becomes unauthenticated', () async {
-    final container = createContainer(_FakeAuthRepository(user: user));
+  test('logout becomes unauthenticated', () async {
+    final repository = _FakeAuthRepository(initial: verified);
+    final container = createContainer(repository);
+    await initialize(container);
 
     await container.read(authNotifierProvider.notifier).signOut();
 
-    expect(container.read(authNotifierProvider), isA<Unauthenticated>());
+    expect(
+      container.read(authNotifierProvider).session.isAuthenticated,
+      isFalse,
+    );
   });
 
-  test('ignores a concurrent submission while loading', () async {
-    final repository = _PendingAuthRepository();
+  test('prevents concurrent operations', () async {
+    final repository = _FakeAuthRepository(pendingSignIn: true);
     final container = createContainer(repository);
+    await initialize(container);
     final notifier = container.read(authNotifierProvider.notifier);
 
     final first = notifier.signIn(email: user.email, password: 'password123');
     final second = notifier.signIn(email: user.email, password: 'password123');
 
     expect(repository.signInCalls, 1);
-    repository.complete(user);
+    repository.completeSignIn(verified);
     await Future.wait([first, second]);
-  });
-
-  test('reset restores AuthInitial outside loading', () async {
-    final container = createContainer(
-      _FakeAuthRepository(signInFailure: AuthFailure.invalidCredentials()),
-    );
-    final notifier = container.read(authNotifierProvider.notifier);
-    await notifier.signIn(email: user.email, password: 'incorrect-password');
-    expect(container.read(authNotifierProvider), isA<AuthError>());
-
-    notifier.reset();
-
-    expect(container.read(authNotifierProvider), isA<AuthInitial>());
-  });
-
-  test('reset does not interrupt AuthLoading', () async {
-    final repository = _PendingAuthRepository();
-    final container = createContainer(repository);
-    final notifier = container.read(authNotifierProvider.notifier);
-    final operation = notifier.signIn(
-      email: user.email,
-      password: 'password123',
-    );
-    expect(container.read(authNotifierProvider), isA<AuthLoading>());
-
-    notifier.reset();
-
-    expect(container.read(authNotifierProvider), isA<AuthLoading>());
-    repository.complete(user);
-    await operation;
   });
 }
 
 class _FakeAuthRepository implements AuthRepository {
-  _FakeAuthRepository({this.user, this.signInFailure});
+  _FakeAuthRepository({
+    AuthSession initial = const AuthSession.unauthenticated(),
+    this.signInResult,
+    this.signUpResult,
+    this.reloadResult,
+    this.failure,
+    this.pendingSignIn = false,
+  }) : _session = initial;
 
-  final AuthUser? user;
-  final AuthFailure? signInFailure;
+  final _controller = StreamController<AuthSession>.broadcast(sync: true);
+  final _pendingCompleter = Completer<AuthSession>();
+  AuthSession _session;
+  final AuthSession? signInResult;
+  final AuthSession? signUpResult;
+  final AuthSession? reloadResult;
+  final AuthFailure? failure;
+  final bool pendingSignIn;
+  int signInCalls = 0;
+  int verificationCalls = 0;
+
+  void dispose() => unawaited(_controller.close());
+
+  void completeSignIn(AuthSession session) =>
+      _pendingCompleter.complete(session);
+
+  void emitSession(AuthSession session) => _setSession(session);
+
+  void _throwIfNeeded() {
+    final value = failure;
+    if (value != null) {
+      throw value;
+    }
+  }
+
+  void _setSession(AuthSession session) {
+    _session = session;
+    _controller.add(session);
+  }
 
   @override
-  Future<AuthUser?> getCurrentUser() async => user;
+  Future<AuthSession> getCurrentSession() async => _session;
 
   @override
-  Stream<AuthUser?> watchAuthState() => Stream.value(user);
+  Stream<AuthSession> watchAuthState() {
+    return Stream.multi((controller) {
+      final subscription = _controller.stream.listen(
+        controller.add,
+        onError: controller.addError,
+        onDone: controller.close,
+      );
+      controller
+        ..onCancel = subscription.cancel
+        ..add(_session);
+    });
+  }
 
   @override
-  Future<AuthUser> signIn({
+  Future<AuthSession> signIn({
     required String email,
     required String password,
   }) async {
-    final failure = signInFailure;
-    if (failure != null) {
-      throw failure;
-    }
-    return user!;
+    signInCalls++;
+    _throwIfNeeded();
+    final result = pendingSignIn
+        ? await _pendingCompleter.future
+        : signInResult ?? _session;
+    _setSession(result);
+    return result;
   }
 
   @override
-  Future<AuthUser> signUp({
+  Future<AuthSession> signUp({
     required String email,
     required String password,
-  }) async => user!;
-
-  @override
-  Future<void> requestPasswordReset({required String email}) async {}
-
-  @override
-  Future<void> signOut() async {}
-}
-
-class _PendingAuthRepository implements AuthRepository {
-  final _signInCompleter = Completer<AuthUser>();
-  int signInCalls = 0;
-
-  void complete(AuthUser user) => _signInCompleter.complete(user);
-
-  @override
-  Future<AuthUser?> getCurrentUser() async => null;
-
-  @override
-  Stream<AuthUser?> watchAuthState() => const Stream.empty();
-
-  @override
-  Future<AuthUser> signIn({required String email, required String password}) {
-    signInCalls++;
-    return _signInCompleter.future;
+  }) async {
+    _throwIfNeeded();
+    final result = signUpResult ?? _session;
+    _setSession(result);
+    return result;
   }
 
   @override
-  Future<AuthUser> signUp({required String email, required String password}) =>
-      _signInCompleter.future;
+  Future<void> requestPasswordReset({required String email}) async {
+    _throwIfNeeded();
+  }
 
   @override
-  Future<void> requestPasswordReset({required String email}) async {}
+  Future<void> sendEmailVerification() async {
+    _throwIfNeeded();
+    verificationCalls++;
+  }
 
   @override
-  Future<void> signOut() async {}
+  Future<AuthSession> reloadSession() async {
+    _throwIfNeeded();
+    final result = reloadResult ?? _session;
+    _setSession(result);
+    return result;
+  }
+
+  @override
+  Future<void> signOut() async {
+    _throwIfNeeded();
+    _setSession(const AuthSession.unauthenticated());
+  }
 }

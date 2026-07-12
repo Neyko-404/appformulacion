@@ -4,104 +4,114 @@
 | --- | --- |
 | Feature | Authentication |
 | Requisito | RF-001 |
-| Sprint | 1A |
-| Estado | En desarrollo |
+| Sprint | 1B |
+| Estado | Implementado; validación manual pendiente |
 
 ## Propósito
 
-Proporcionar los contratos y flujos públicos iniciales de acceso, registro, recuperación y cierre de sesión sin integrar todavía un proveedor de identidad de producción.
+Gestionar creación de cuenta, sesión persistente, recuperación, verificación de correo y cierre de sesión mediante contratos de dominio independientes del proveedor.
 
-## Alcance de Sprint 1A
+## Alcance Sprint 1B
 
-- entidad de usuario y contrato de repositorio independientes de frameworks;
-- validación de correo, contraseña, confirmación y campos obligatorios;
-- estados explícitos y orquestación con Riverpod;
-- rutas públicas `/login`, `/register` y `/forgot-password`;
-- páginas Material 3 responsive y accesibles;
-- repositorio determinista en memoria para desarrollo y pruebas;
-- errores funcionales seguros y confirmación de recuperación no reveladora.
+- Firebase Authentication como implementación productiva;
+- observación reactiva de sesión;
+- registro e inicio con correo y contraseña;
+- recuperación con confirmación no reveladora;
+- envío y reenvío de verificación;
+- recarga de sesión para confirmar verificación;
+- cierre de sesión;
+- guard central para rutas públicas, verificación y estado autenticado provisional.
 
 ## Fuera de alcance
 
-Firebase, persistencia de sesión, autenticación social o biométrica, eliminación real de cuenta, onboarding, rutas protegidas, perfiles, backend, analytics y deep links de recuperación.
+Onboarding, perfiles, Dashboard, roles, eliminación definitiva de cuenta, proveedores sociales, biometría, teléfono, Firestore, Storage, Analytics, Isar, backend y datos académicos.
 
-## Estructura
+## Estructura y responsabilidades
 
-```text
-authentication/
-├── authentication_providers.dart  # Composición temporal de la feature.
-├── presentation/  # Páginas, widgets, estado, Notifier y providers.
-├── domain/        # Entidad, errores, contrato y validaciones.
-├── data/          # Adaptador temporal en memoria.
-└── README.md
-```
-
-No se añadieron Use Cases en Sprint 1A: las operaciones solo reenviarían el contrato sin aportar política, coordinación reutilizable o aislamiento adicional. La validación permanece en `AuthValidator` y la orquestación de presentación en `AuthNotifier`.
-
-### Composición de providers
-
-- `authentication_providers.dart` es el composition root de la feature: conecta `AuthRepository` con el adaptador temporal en memoria y expone el stream de sesión.
-- `presentation/providers/auth_providers.dart` compone únicamente validación y estado de presentación: declara `AuthValidator` y `AuthNotifier`, y reexporta el contrato de composición para facilitar overrides en pruebas.
-
-No debe crearse un provider adicional para el mismo propósito. La sustitución futura del adaptador se realizará en `authentication_providers.dart` sin cambiar Presentation.
+- `domain/`: `AuthUser`, `AuthSession`, fallos, contrato y validaciones; no importa Firebase.
+- `data/services/`: acceso estrecho al SDK mediante `FirebaseAuthService`.
+- `data/repositories/`: adaptación Firebase–Domain y fake determinista en memoria.
+- `presentation/`: estado, Notifier, formularios y páginas de sesión.
+- `authentication_providers.dart`: composición productiva de SDK, servicio y repositorio.
+- `presentation/providers/auth_providers.dart`: validación y estado de presentación.
 
 ## Contratos públicos
 
-- `AuthUser`: identidad mínima e inmutable.
-- `AuthRepository`: sesión actual, stream de sesión, login, registro, recuperación y cierre.
-- `AuthValidator`: reglas funcionales de entrada.
-- `AuthState`: estados observables de la operación.
-- `authRepositoryProvider`: punto reemplazable de composición.
-- `authNotifierProvider`: orquestación de presentación.
+- `AuthSession`: usuario opcional y verificación en una única ubicación.
+- `AuthRepository`: sesión actual/stream, login, registro, recuperación, verificación, recarga y logout.
+- `AuthState`: sesión global más operación temporal, mensaje y error seguro.
+- `authRepositoryProvider`: contrato reemplazable en pruebas.
+- `authNotifierProvider`: orquestación sin navegación ni tipos Firebase.
 
-## Flujo de estado
+`AuthUser` conserva únicamente `id` y `email`. `emailVerified` pertenece a `AuthSession` para no duplicar estado mutable del proveedor.
+
+## Flujo de sesión
 
 ```text
-Initial → Loading → Authenticated
-                  → PasswordResetSent
-                  → Unauthenticated
-                  → Error seguro
+Firebase authStateChanges
+→ FirebaseAuthService
+→ FirebaseAuthRepository
+→ AuthSession
+→ AuthNotifier
+→ GoRouter refresh
 ```
 
-Mientras existe `Loading`, se ignoran envíos adicionales. Una nueva operación reemplaza cualquier error anterior por el estado de carga.
+La sesión global no se reemplaza por estados temporales de formulario. Carga, éxito y error se representan como operación y feedback sobre la sesión conocida.
 
-## Navegación
+## Verificación de correo
 
-GoRouter controla las tres rutas públicas. No existen guards, redirects de onboarding, dashboard ni rutas protegidas en esta fase.
+Después del registro se solicita verificación y la sesión permanece autenticada con `emailVerified: false`. `/verify-email` permite reenviar, recargar con “Ya verifiqué” y cerrar sesión. No se promete entrega inmediata ni se usan temporizadores complejos.
 
-## Repositorio temporal
+## Navegación y auth guard
 
-`InMemoryAuthRepository` no es una implementación de producción, no representa seguridad real y no persiste la sesión al cerrar la aplicación. Conserva únicamente fingerprints no seguros para simular credenciales y nunca almacena contraseñas en texto plano. Será sustituido por `FirebaseAuthRepository` en Sprint 1B.
+- `/auth-loading`: resolución inicial de sesión.
+- `/login`, `/register`, `/forgot-password`: públicas solo sin autenticación.
+- `/verify-email`: destino obligatorio para sesión no verificada.
+- `/authenticated`: placeholder temporal para sesión verificada; no es Dashboard.
+
+Los redirects están centralizados en GoRouter y reaccionan al estado de dominio, nunca a llamadas directas del SDK.
+
+## Errores
+
+La capa Data traduce códigos externos a fallos funcionales: credenciales, correo, duplicidad, contraseña débil, intentos, red, usuario deshabilitado, operación no permitida e inesperado. Los detalles técnicos se registran mediante `AppLogger` y no llegan a Presentation.
+
+La recuperación ignora de forma segura el caso de cuenta inexistente para no revelar registros.
+
+## Seguridad
+
+- contraseñas y tokens no se almacenan manualmente;
+- los tipos Firebase permanecen en Data;
+- Presentation depende solo de contratos y estado propios;
+- mensajes y logs no incluyen credenciales;
+- `InMemoryAuthRepository` es solo un fake, usa fingerprints no seguros y no persiste datos.
+
+## Dependencias
+
+Flutter, Dart, Riverpod, GoRouter, Firebase Core y Firebase Authentication. No se añadieron servicios Firebase adicionales.
 
 ## Estrategia de pruebas
 
-- unit tests para validaciones y entidad;
-- tests del contrato temporal, stream y mensajes seguros;
-- tests del Notifier, concurrencia y transiciones;
-- widget tests para formularios, carga y navegación;
-- tests del router para rutas públicas y fallback.
+Las pruebas usan fakes manuales, `InMemoryAuthRepository` y overrides de Riverpod. Cubren sesión, mapeo, errores, repositorio, Notifier, guards y widgets sin conexión, correos reales ni proyecto Firebase.
 
-Las pruebas no dependen de red, archivos, almacenamiento, Firebase ni temporizadores reales.
+## Validación manual pendiente
 
-## Reglas de seguridad
+1. Crear una cuenta real de prueba.
+2. Confirmar el usuario en Firebase Console.
+3. Verificar la pantalla y recepción del correo.
+4. Confirmar el correo y pulsar “Ya verifiqué”.
+5. Confirmar `/authenticated`, logout, nuevo login y recuperación.
 
-- no revelar si una cuenta existe durante recuperación;
-- no mostrar errores técnicos;
-- no conservar contraseñas en texto plano;
-- no registrar credenciales o datos personales;
-- mantener el proveedor real detrás de `AuthRepository`;
-- no tratar el adaptador en memoria como mecanismo seguro.
+## Pendientes
 
-## Dependencias permitidas
-
-Flutter, Dart, Riverpod y GoRouter ya aprobados por la arquitectura. La feature no añade paquetes.
+Onboarding deberá sustituir `/authenticated` en un sprint autorizado. La eliminación definitiva de cuenta y proveedores adicionales permanecen fuera de alcance.
 
 ## AI CONTEXT
 
-Esta feature implementa únicamente RF-001 en alcance Sprint 1A. Una IA puede ampliar pruebas o corregir el comportamiento aprobado, pero no puede integrar Firebase, añadir rutas protegidas, crear perfiles ni cambiar contratos o arquitectura sin autorización. Antes de modificarla debe leer los documentos maestros y este README.
+Esta feature implementa RF-001 con Firebase Authentication. Una IA no puede añadir onboarding, perfiles, otros proveedores o servicios Firebase sin autorización. Debe preservar `AuthSession`, los límites Domain/Data/Presentation y los mensajes no reveladores.
 
 ## Historial de cambios
 
 | Versión | Fecha | Estado | Descripción | Autor |
 | --- | --- | --- | --- | --- |
-| 0.1.0 | 11 de julio de 2026 | En desarrollo | Implementación inicial del vertical slice Authentication Sprint 1A. | Equipo Focusly |
+| 0.1.0 | 11 de julio de 2026 | Reemplazado | Adaptador temporal Sprint 1A. | Equipo Focusly |
+| 0.2.0 | 12 de julio de 2026 | Implementado | Firebase Authentication, sesión, verificación y guard central Sprint 1B. | Equipo Focusly |

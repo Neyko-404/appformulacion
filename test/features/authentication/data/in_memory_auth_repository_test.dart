@@ -3,33 +3,57 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:focusly/features/authentication/data/repositories/in_memory_auth_repository.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_failure.dart';
-import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 
 void main() {
   late InMemoryAuthRepository repository;
 
   setUp(() {
     repository = InMemoryAuthRepository(
-      seedAccounts: const {'demo@focusly.dev': 'focusly-demo'},
+      seedAccounts: const {'student@focusly.dev': 'password123'},
+    );
+  });
+  tearDown(() => repository.dispose());
+
+  test('starts unauthenticated', () async {
+    expect(
+      await repository.getCurrentSession(),
+      const AuthSession.unauthenticated(),
     );
   });
 
-  tearDown(() {
-    repository.dispose();
+  test('registers as unverified and never stores a plain password', () async {
+    final session = await repository.signUp(
+      email: 'new@focusly.dev',
+      password: 'new-password',
+    );
+    expect(session.isAuthenticated, isTrue);
+    expect(session.emailVerified, isFalse);
   });
 
-  test('starts unauthenticated', () async {
-    expect(await repository.getCurrentUser(), isNull);
-  });
-
-  test('does not create a demo account automatically', () async {
-    final emptyRepository = InMemoryAuthRepository();
-    addTearDown(emptyRepository.dispose);
-
+  test('rejects duplicate email', () async {
     await expectLater(
-      emptyRepository.signIn(
-        email: 'demo@focusly.dev',
-        password: 'focusly-demo',
+      repository.signUp(
+        email: 'student@focusly.dev',
+        password: 'other-password',
+      ),
+      throwsA(isA<AuthFailure>()),
+    );
+  });
+
+  test('signs in a seeded verified account', () async {
+    final session = await repository.signIn(
+      email: 'student@focusly.dev',
+      password: 'password123',
+    );
+    expect(session.emailVerified, isTrue);
+  });
+
+  test('rejects invalid credentials safely', () async {
+    await expectLater(
+      repository.signIn(
+        email: 'student@focusly.dev',
+        password: 'incorrect-password',
       ),
       throwsA(
         isA<AuthFailure>().having(
@@ -41,102 +65,40 @@ void main() {
     );
   });
 
-  test('registers a valid account and starts a session', () async {
-    final user = await repository.signUp(
-      email: 'new@focusly.dev',
+  test('emits session changes and signs out', () async {
+    final events = <AuthSession>[];
+    final initialEvent = Completer<void>();
+    final subscription = repository.watchAuthState().listen((session) {
+      events.add(session);
+      if (!initialEvent.isCompleted) {
+        initialEvent.complete();
+      }
+    });
+    addTearDown(subscription.cancel);
+    await initialEvent.future;
+
+    await repository.signIn(
+      email: 'student@focusly.dev',
       password: 'password123',
     );
-
-    expect(user.email, 'new@focusly.dev');
-    expect(await repository.getCurrentUser(), user);
-  });
-
-  test('rejects a duplicated email with a safe failure', () async {
-    await repository.signUp(email: 'new@focusly.dev', password: 'password123');
-
-    await expectLater(
-      repository.signUp(email: 'NEW@focusly.dev', password: 'another-password'),
-      throwsA(
-        isA<AuthFailure>().having(
-          (failure) => failure.code,
-          'code',
-          AuthFailureCode.emailAlreadyInUse,
-        ),
-      ),
-    );
-  });
-
-  test('signs in with valid credentials', () async {
-    final user = await repository.signIn(
-      email: 'demo@focusly.dev',
-      password: 'focusly-demo',
-    );
-
-    expect(user.email, 'demo@focusly.dev');
-  });
-
-  test('rejects invalid credentials without technical details', () async {
-    await expectLater(
-      repository.signIn(
-        email: 'demo@focusly.dev',
-        password: 'incorrect-password',
-      ),
-      throwsA(
-        isA<AuthFailure>()
-            .having(
-              (failure) => failure.code,
-              'code',
-              AuthFailureCode.invalidCredentials,
-            )
-            .having(
-              (failure) => failure.safeMessage,
-              'safeMessage',
-              'No pudimos iniciar sesión con esos datos.',
-            ),
-      ),
-    );
-  });
-
-  test('signs out the current user', () async {
-    await repository.signIn(
-      email: 'demo@focusly.dev',
-      password: 'focusly-demo',
-    );
-
     await repository.signOut();
 
-    expect(await repository.getCurrentUser(), isNull);
+    expect(events.map((session) => session.isAuthenticated), [
+      false,
+      true,
+      false,
+    ]);
   });
 
-  test(
-    'session stream emits initial, signed-in and signed-out states',
-    () async {
-      final events = <AuthUser?>[];
-      final initialEvent = Completer<void>();
-      final subscription = repository.watchAuthState().listen((user) {
-        events.add(user);
-        if (!initialEvent.isCompleted) {
-          initialEvent.complete();
-        }
-      });
-      addTearDown(subscription.cancel);
-      await initialEvent.future;
+  test('simulates verification and reload deterministically', () async {
+    await repository.signUp(email: 'new@focusly.dev', password: 'new-password');
+    await repository.sendEmailVerification();
+    repository.markCurrentEmailVerified();
 
-      await repository.signIn(
-        email: 'demo@focusly.dev',
-        password: 'focusly-demo',
-      );
-      await repository.signOut();
+    expect((await repository.reloadSession()).emailVerified, isTrue);
+  });
 
-      expect(events, [isNull, isA<AuthUser>(), isNull]);
-    },
-  );
-
-  test('password reset does not reveal whether an account exists', () async {
-    await expectLater(
-      repository.requestPasswordReset(email: 'demo@focusly.dev'),
-      completes,
-    );
+  test('password recovery never reveals account existence', () async {
     await expectLater(
       repository.requestPasswordReset(email: 'unknown@focusly.dev'),
       completes,

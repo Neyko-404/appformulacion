@@ -8,12 +8,8 @@ class AuthStatusMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (message, isError) = switch (state) {
-      AuthError(:final message) => (message, true),
-      PasswordResetSent(:final message) => (message, false),
-      Authenticated() => ('Sesión iniciada correctamente.', false),
-      _ => (null, false),
-    };
+    final message = state.errorMessage ?? state.message;
+    final isError = state.errorMessage != null;
 
     if (message == null) {
       return const SizedBox.shrink();
