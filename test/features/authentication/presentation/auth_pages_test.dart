@@ -70,7 +70,7 @@ void main() {
     );
   });
 
-  testWidgets('verify email renders actions and reaches authenticated route', (
+  testWidgets('verify email renders actions and reaches onboarding', (
     tester,
   ) async {
     final repository = InMemoryAuthRepository();
@@ -88,13 +88,10 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Ya verifiqué'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Autenticación completada. Onboarding pendiente.'),
-      findsOneWidget,
-    );
+    expect(find.text('Te damos la bienvenida'), findsOneWidget);
   });
 
-  testWidgets('authenticated provisional page logs out to login', (
+  testWidgets('sign out from a verified session returns to login', (
     tester,
   ) async {
     final repository = InMemoryAuthRepository(
@@ -106,11 +103,8 @@ void main() {
     );
     await pumpApp(tester, repository);
 
-    expect(
-      find.text('Autenticación completada. Onboarding pendiente.'),
-      findsOneWidget,
-    );
-    await tester.tap(find.text('Cerrar sesión'));
+    expect(find.text('Te damos la bienvenida'), findsOneWidget);
+    await repository.signOut();
     await tester.pumpAndSettle();
 
     expect(find.text('Inicia sesión'), findsOneWidget);
