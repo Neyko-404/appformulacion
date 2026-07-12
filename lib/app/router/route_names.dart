@@ -4,7 +4,8 @@ abstract final class RouteNames {
   static const forgotPassword = 'forgot-password';
   static const authLoading = 'auth-loading';
   static const verifyEmail = 'verify-email';
-  static const authenticated = 'authenticated';
+  static const onboarding = 'onboarding';
+  static const homePlaceholder = 'home-placeholder';
 }
 
 abstract final class RoutePaths {
@@ -13,5 +14,6 @@ abstract final class RoutePaths {
   static const forgotPassword = '/forgot-password';
   static const authLoading = '/auth-loading';
   static const verifyEmail = '/verify-email';
-  static const authenticated = '/authenticated';
+  static const onboarding = '/onboarding';
+  static const homePlaceholder = '/home-placeholder';
 }
