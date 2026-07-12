@@ -7,6 +7,8 @@ import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
 import 'package:focusly/features/onboarding/data/repositories/in_memory_onboarding_repository.dart';
+import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
+import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
 import 'package:focusly/features/study_engine/data/repositories/in_memory_study_session_repository.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
@@ -28,6 +30,10 @@ void main() {
     expect(find.text('Seleccionada: 25 minutos'), findsOneWidget);
     expect(find.text('Sesión libre'), findsOneWidget);
     expect(find.byTooltip('Ver historial de enfoque'), findsOneWidget);
+    expect(find.text('Mitsuky'), findsOneWidget);
+    expect(find.text('Todo listo. Comienza cuando quieras.'), findsOneWidget);
+    expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
+    expect(find.textContaining('apariencia'), findsNothing);
 
     await tester.tap(find.text('15 min'));
     await tester.pump();
@@ -42,11 +48,39 @@ void main() {
     await harness.notifier.start();
     await _pumpInteraction(tester);
     expect(find.text('En curso'), findsOneWidget);
+    expect(find.text('Ya comenzaste.'), findsOneWidget);
     expect(find.text('Pausar'), findsOneWidget);
     expect(find.text('15:00'), findsOneWidget);
     expect(
       (await harness.repository.getActive('user-1'))?.courseId,
       'course-1',
+    );
+  });
+
+  testWidgets('companion message changes only after a temporal threshold', (
+    tester,
+  ) async {
+    final harness = await _FocusHarness.pump(tester);
+    addTearDown(harness.dispose);
+    await harness.notifier.start();
+    await _pumpInteraction(tester);
+    expect(find.text('Ya comenzaste.'), findsOneWidget);
+
+    harness.clock.advance(const Duration(minutes: 10));
+    await harness.notifier.reconcile();
+    await _pumpInteraction(tester);
+    expect(find.text('Ya comenzaste.'), findsOneWidget);
+
+    harness.clock.advance(const Duration(minutes: 3));
+    await harness.notifier.reconcile();
+    await _pumpInteraction(tester);
+    expect(find.text('Buen ritmo.'), findsOneWidget);
+
+    await harness.notifier.pause();
+    await _pumpInteraction(tester);
+    expect(
+      find.text('Tómate un momento. Continúa cuando estés listo.'),
+      findsOneWidget,
     );
   });
 
@@ -200,6 +234,26 @@ final class _FocusHarness {
   }) async {
     final repository = InMemoryStudySessionRepository();
     final clock = _FakeClock(DateTime.utc(2026, 7, 12, 10));
+    final onboarding = InMemoryOnboardingRepository();
+    await onboarding.saveOnboarding(
+      profile: StudentProfile(
+        userId: 'user-1',
+        university: 'UNJFSC',
+        career: 'Ingeniería',
+        currentCycle: 4,
+        primaryGoal: PrimaryGoal.concentration,
+        preferredFocusMinutes: 25,
+        createdAt: clock.now(),
+        updatedAt: clock.now(),
+      ),
+      companion: StudyCompanion(
+        id: 'companion-1',
+        ownerId: 'user-1',
+        name: 'Mitsuky',
+        appearance: CompanionAppearance.indigo,
+        createdAt: clock.now(),
+      ),
+    );
     final router = GoRouter(
       initialLocation: '/dashboard',
       routes: [
@@ -221,9 +275,7 @@ final class _FocusHarness {
           emailVerified: true,
         ),
       ),
-      onboardingRepositoryProvider.overrideWithValue(
-        InMemoryOnboardingRepository(),
-      ),
+      onboardingRepositoryProvider.overrideWithValue(onboarding),
       studySessionRepositoryProvider.overrideWithValue(repository),
       studyClockProvider.overrideWithValue(clock),
       activeCoursesProvider.overrideWithValue(

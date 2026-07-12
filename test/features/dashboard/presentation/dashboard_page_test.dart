@@ -74,7 +74,9 @@ void main() {
     expect(find.textContaining('Gary'), findsOneWidget);
     expect(find.byType(StudyCompanionCard), findsOneWidget);
     expect(find.text('Kumo'), findsOneWidget);
-    expect(find.text('Tu compañero de estudio'), findsOneWidget);
+    expect(find.text('¿Listo para estudiar?'), findsOneWidget);
+    expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
+    expect(find.textContaining('apariencia'), findsNothing);
     expect(find.byType(FocusGoalCard), findsOneWidget);
     expect(find.text('Prepararme para evaluaciones'), findsOneWidget);
     expect(find.text('25 min por sesión'), findsOneWidget);
@@ -117,10 +119,11 @@ void main() {
       tester,
       study: ActiveStudySummary(
         session: running,
-        remaining: const Duration(minutes: 12, seconds: 34),
+        remaining: const Duration(minutes: 12),
       ),
     );
-    expect(find.text('Continuar sesión · 12:34'), findsOneWidget);
+    expect(find.text('Continuar sesión · 12:00'), findsOneWidget);
+    expect(find.text('Buen ritmo.'), findsOneWidget);
 
     await pumpDashboard(
       tester,
@@ -135,5 +138,9 @@ void main() {
       ),
     );
     expect(find.text('Continuar sesión · En pausa'), findsOneWidget);
+    expect(
+      find.text('Tómate un momento. Continúa cuando estés listo.'),
+      findsOneWidget,
+    );
   });
 }

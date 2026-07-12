@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
+import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
+import 'package:focusly/features/study_engine/companion_message_service.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 import 'package:focusly/features/study_engine/presentation/widgets/focus_experience_widgets.dart';
 import 'package:focusly/features/study_engine/study_engine_providers.dart';
 import 'package:focusly/shared/presentation/app_spacing.dart';
+import 'package:focusly/shared/presentation/focus_companion_card.dart';
 import 'package:go_router/go_router.dart';
 
 class FocusPage extends ConsumerStatefulWidget {
@@ -51,6 +54,8 @@ class _FocusPageState extends ConsumerState<FocusPage>
     final activeCourse = courses
         .where((course) => course.id == active?.courseId)
         .firstOrNull;
+    final companion = state.companion;
+    const messageService = CompanionMessageService();
 
     return PopScope<void>(
       canPop: active == null,
@@ -79,22 +84,44 @@ class _FocusPageState extends ConsumerState<FocusPage>
                       child:
                           state.activeSession == null &&
                               state.lastFinishedSession != null
-                          ? SessionResultCard(
-                              session: state.lastFinishedSession!,
-                              courseLabel:
-                                  courses
-                                      .where(
-                                        (course) =>
-                                            course.id ==
-                                            state.lastFinishedSession!.courseId,
-                                      )
-                                      .firstOrNull
-                                      ?.name ??
-                                  (state.lastFinishedSession!.courseId == null
-                                      ? 'Sesión libre'
-                                      : 'Curso asociado'),
-                              onHome: () => context.go(RoutePaths.dashboard),
-                              onRestart: notifier.clearFinishedResult,
+                          ? Column(
+                              children: [
+                                SessionResultCard(
+                                  session: state.lastFinishedSession!,
+                                  courseLabel:
+                                      courses
+                                          .where(
+                                            (course) =>
+                                                course.id ==
+                                                state
+                                                    .lastFinishedSession!
+                                                    .courseId,
+                                          )
+                                          .firstOrNull
+                                          ?.name ??
+                                      (state.lastFinishedSession!.courseId ==
+                                              null
+                                          ? 'Sesión libre'
+                                          : 'Curso asociado'),
+                                  onHome: () =>
+                                      context.go(RoutePaths.dashboard),
+                                  onRestart: notifier.clearFinishedResult,
+                                ),
+                                if (companion != null) ...[
+                                  const SizedBox(height: AppSpacing.large),
+                                  FocusCompanionCard(
+                                    name: companion.name,
+                                    appearance: companion.appearance,
+                                    message: messageService.message(
+                                      status: state.lastFinishedSession!.status,
+                                      remaining: Duration.zero,
+                                      plannedDuration: state
+                                          .lastFinishedSession!
+                                          .plannedDuration,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             )
                           : active == null
                           ? _PreparationView(
@@ -117,6 +144,13 @@ class _FocusPageState extends ConsumerState<FocusPage>
                                 await HapticFeedback.selectionClick();
                                 await notifier.start();
                               },
+                              companionName: companion?.name,
+                              companionAppearance: companion?.appearance,
+                              companionMessage: messageService.message(
+                                status: StudySessionStatus.ready,
+                                remaining: state.selectedDuration,
+                                plannedDuration: state.selectedDuration,
+                              ),
                             )
                           : _ActiveSessionView(
                               session: active,
@@ -136,6 +170,13 @@ class _FocusPageState extends ConsumerState<FocusPage>
                                 await notifier.resume();
                               },
                               onCancel: _confirmCancellation,
+                              companionName: companion?.name,
+                              companionAppearance: companion?.appearance,
+                              companionMessage: messageService.message(
+                                status: active.status,
+                                remaining: state.remaining,
+                                plannedDuration: active.plannedDuration,
+                              ),
                             ),
                     ),
                   ),
@@ -233,6 +274,9 @@ final class _PreparationView extends StatelessWidget {
     required this.onDurationSelected,
     required this.onCourseSelected,
     required this.onStart,
+    required this.companionName,
+    required this.companionAppearance,
+    required this.companionMessage,
   });
 
   final Duration selectedDuration;
@@ -244,6 +288,9 @@ final class _PreparationView extends StatelessWidget {
   final ValueChanged<Duration> onDurationSelected;
   final ValueChanged<String?> onCourseSelected;
   final VoidCallback onStart;
+  final String? companionName;
+  final CompanionAppearance? companionAppearance;
+  final String companionMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -313,6 +360,14 @@ final class _PreparationView extends StatelessWidget {
           icon: const Icon(Icons.play_arrow),
           label: const Text('Comenzar sesión'),
         ),
+        if (companionName != null && companionAppearance != null) ...[
+          const SizedBox(height: AppSpacing.large),
+          FocusCompanionCard(
+            name: companionName!,
+            appearance: companionAppearance!,
+            message: companionMessage,
+          ),
+        ],
       ],
     );
   }
@@ -327,6 +382,9 @@ final class _ActiveSessionView extends StatelessWidget {
     required this.onPause,
     required this.onResume,
     required this.onCancel,
+    required this.companionName,
+    required this.companionAppearance,
+    required this.companionMessage,
   });
 
   final StudySession session;
@@ -336,6 +394,9 @@ final class _ActiveSessionView extends StatelessWidget {
   final VoidCallback onPause;
   final VoidCallback onResume;
   final VoidCallback onCancel;
+  final String? companionName;
+  final CompanionAppearance? companionAppearance;
+  final String companionMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -364,6 +425,14 @@ final class _ActiveSessionView extends StatelessWidget {
               planned: session.plannedDuration,
             ),
           ),
+          if (companionName != null && companionAppearance != null) ...[
+            const SizedBox(height: AppSpacing.large),
+            FocusCompanionCard(
+              name: companionName!,
+              appearance: companionAppearance!,
+              message: companionMessage,
+            ),
+          ],
           const SizedBox(height: AppSpacing.large),
           Text(
             courseLabel,

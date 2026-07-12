@@ -36,6 +36,10 @@ El botón de enfoque consume `activeStudySummaryProvider`, navega a `/focus` y c
 
 Durante una sesión running muestra el tiempo restante proporcionado por la API pública; durante una sesión paused muestra “En pausa”. Dashboard no recalcula progreso ni ejecuta controles de la sesión.
 
+## Companion Integration
+
+Dashboard reutiliza `CompanionMessageService` y `FocusCompanionCard`. Sin sesión muestra “¿Listo para estudiar?”; con sesión utiliza el estado y tiempo suministrados por `activeStudySummaryProvider`. La tarjeta no consulta el repositorio de Study Engine ni calcula el temporizador.
+
 ## Integración
 
 Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboarding conserva la propiedad del perfil, compañero y persistencia. Dashboard no importa Data, Firebase ni Isar y no navega desde su Notifier. GoRouter expone `/dashboard` después de sesión verificada y onboarding completo.

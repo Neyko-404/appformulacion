@@ -55,6 +55,12 @@ Las microinteracciones utilizan únicamente APIs nativas breves, respetan la red
 
 Permanecen fuera de alcance: mascota animada, anti-distracción, notificaciones, sonidos, recompensas, estadísticas avanzadas, Pomodoro automático y Break Engine.
 
+## Companion Integration
+
+Sprint 4C integra al compañero de estudio como apoyo visual discreto en ready, running, paused, completed y cancelled. `CompanionMessageService` es puro, determinista y deriva mensajes exclusivamente del estado, tiempo restante y duración planificada. Durante running conserva el mismo mensaje dentro de cada fase y cambia únicamente al cruzar los umbrales de 50 %, 20 % y 5 % restante.
+
+`FocusCompanionCard` recibe avatar, nombre y mensaje; no consulta repositorios ni controla la sesión. La tarjeta permanece subordinada al temporizador y no incorpora IA, Random, chat, animaciones complejas, sonidos, recompensas, rachas ni notificaciones.
+
 ## AI CONTEXT
 
 Esta feature implementa RF-005 Sprint 4A. Una IA debe preservar timestamps como fuente temporal, reloj inyectable, aislamiento y API pública. No puede añadir background permanente, notificaciones, bloqueo, estadísticas o gamificación sin autorización.

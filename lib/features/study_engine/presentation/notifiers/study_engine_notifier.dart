@@ -53,6 +53,9 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
       final profile = await ref
           .read(onboardingRepositoryProvider)
           .getProfile(userId);
+      final companion = await ref
+          .read(onboardingRepositoryProvider)
+          .getCompanion(userId);
       final preferred = profile?.preferredFocusMinutes;
       final duration = {15, 25, 40, 50}.contains(preferred)
           ? Duration(minutes: preferred!)
@@ -62,6 +65,7 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
         isInitializing: false,
         selectedDuration: duration,
         recentSessions: recent,
+        companion: companion,
         clearFeedback: true,
       );
       _subscription = repository
