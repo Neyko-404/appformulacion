@@ -4,8 +4,8 @@
 | --- | --- |
 | Feature | Study Engine |
 | Requisito | RF-005 |
-| Sprint | 4A |
-| Estado | Core implementado |
+| Sprint | 4B |
+| Estado | Focus Experience implementada |
 
 ## Propósito y alcance
 
@@ -31,7 +31,7 @@ Las sesiones ready no se persisten; se guarda desde running. `StudySessionReposi
 
 Courses se consume mediante `activeCoursesProvider`; solo se persiste `courseId`. Dashboard consume `activeStudySummaryProvider` y no controla el temporizador. El ciclo de vida reconcilia al volver a foreground.
 
-Antes de iniciar, la selecciÃ³n se valida nuevamente contra los cursos activos del usuario. Una sesiÃ³n ya iniciada conserva su asociaciÃ³n aunque el curso cambie despuÃ©s. Al completar o cancelar, la sesiÃ³n deja de ser activa y Presentation conserva temporalmente el resultado mientras el registro terminal permanece en el historial.
+Antes de iniciar, la selección se valida nuevamente contra los cursos activos del usuario. Una sesión ya iniciada conserva su asociación aunque el curso cambie después. Al completar o cancelar, la sesión deja de ser activa y Presentation conserva temporalmente el resultado mientras el registro terminal permanece en el historial.
 
 ## Rutas y pruebas
 
@@ -44,6 +44,22 @@ No se guardan correos, tokens ni contenido completo de cursos. 4B, 4C y 4D manti
 ## UX Guidelines
 
 Focus e historial son pantallas secundarias con AppBar y regreso gestionado por GoRouter. Los controles mantienen jerarquía clara, los resultados terminales ofrecen una salida explícita y los estados vacíos explican cómo generar contenido. Las duraciones visibles respetan singular y plural.
+
+## Sprint 4B — Focus Experience
+
+La preparación presenta duración, curso opcional y sesión libre con controles accesibles. Running y paused derivan tiempo y progreso del estado actual; las animaciones no calculan ni persisten tiempo. El regreso durante una sesión exige decidir entre continuar, salir manteniéndola activa o cancelar con confirmación.
+
+Completed presenta resumen, actividad y una sugerencia conceptual de descanso de 5 o 10 minutos sin crear temporizadores ni persistencia. Cancelled utiliza lenguaje neutral y conserva el registro actual. El historial muestra estados naturales, duración, curso y fecha, con carga, vacío y recuperación de error.
+
+Las microinteracciones utilizan únicamente APIs nativas breves, respetan la reducción de movimiento y nunca alteran timestamps. El temporizador tiene Semantics, cifras tabulares, progreso limitado y layout centrado responsive.
+
+Permanecen fuera de alcance: mascota animada, anti-distracción, notificaciones, sonidos, recompensas, estadísticas avanzadas, Pomodoro automático y Break Engine.
+
+## Companion Integration
+
+Sprint 4C integra al compañero de estudio como apoyo visual discreto en ready, running, paused, completed y cancelled. `CompanionMessageService` es puro, determinista y deriva mensajes exclusivamente del estado, tiempo restante y duración planificada. Durante running conserva el mismo mensaje dentro de cada fase y cambia únicamente al cruzar los umbrales de 50 %, 20 % y 5 % restante.
+
+`FocusCompanionCard` recibe avatar, nombre y mensaje; no consulta repositorios ni controla la sesión. La tarjeta permanece subordinada al temporizador y no incorpora IA, Random, chat, animaciones complejas, sonidos, recompensas, rachas ni notificaciones.
 
 ## AI CONTEXT
 

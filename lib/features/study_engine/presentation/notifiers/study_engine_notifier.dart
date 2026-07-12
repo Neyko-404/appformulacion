@@ -27,7 +27,7 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
           )) {
         state = state.copyWith(
           clearCourse: true,
-          errorMessage: 'El curso seleccionado ya no estÃ¡ disponible.',
+          errorMessage: 'El curso seleccionado ya no está disponible.',
         );
       }
     });
@@ -53,6 +53,9 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
       final profile = await ref
           .read(onboardingRepositoryProvider)
           .getProfile(userId);
+      final companion = await ref
+          .read(onboardingRepositoryProvider)
+          .getCompanion(userId);
       final preferred = profile?.preferredFocusMinutes;
       final duration = {15, 25, 40, 50}.contains(preferred)
           ? Duration(minutes: preferred!)
@@ -62,6 +65,7 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
         isInitializing: false,
         selectedDuration: duration,
         recentSessions: recent,
+        companion: companion,
         clearFeedback: true,
       );
       _subscription = repository
@@ -95,6 +99,23 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
   void clearFinishedResult() =>
       state = state.copyWith(clearLastFinished: true, clearFeedback: true);
 
+  Future<void> refreshHistory() async {
+    final ownerId = ref.read(publicAuthSessionProvider).user?.id;
+    if (ownerId == null || state.isOperating) return;
+    state = state.copyWith(isOperating: true, clearFeedback: true);
+    try {
+      final history = await ref
+          .read(studySessionRepositoryProvider)
+          .recent(ownerId);
+      state = state.copyWith(isOperating: false, recentSessions: history);
+    } on Object {
+      state = state.copyWith(
+        isOperating: false,
+        errorMessage: 'No pudimos actualizar el historial.',
+      );
+    }
+  }
+
   Future<void> start() async {
     if (state.isOperating || state.activeSession != null) return;
     final ownerId = ref.read(publicAuthSessionProvider).user?.id;
@@ -111,7 +132,7 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
       if (!isValid) {
         state = state.copyWith(
           clearCourse: true,
-          errorMessage: 'El curso seleccionado ya no estÃ¡ disponible.',
+          errorMessage: 'El curso seleccionado ya no está disponible.',
         );
         return;
       }

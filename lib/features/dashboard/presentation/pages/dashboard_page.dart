@@ -7,6 +7,7 @@ import 'package:focusly/features/dashboard/presentation/widgets/courses_card.dar
 import 'package:focusly/features/dashboard/presentation/widgets/focus_goal_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/focus_streak_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/study_companion_card.dart';
+import 'package:focusly/features/study_engine/companion_message_service.dart';
 import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 import 'package:focusly/shared/presentation/app_spacing.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,13 @@ class DashboardPage extends ConsumerWidget {
     final state = ref.watch(dashboardNotifierProvider);
     final email = ref.watch(publicAuthSessionProvider).user?.email;
     final study = ref.watch(activeStudySummaryProvider);
+    final companionMessage = study.session == null
+        ? '¿Listo para estudiar?'
+        : const CompanionMessageService().message(
+            status: study.session!.status,
+            remaining: study.remaining,
+            plannedDuration: study.session!.plannedDuration,
+          );
 
     return Scaffold(
       appBar: AppBar(
@@ -65,7 +73,10 @@ class DashboardPage extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.large),
-                        StudyCompanionCard(companion: state.companion!),
+                        StudyCompanionCard(
+                          companion: state.companion!,
+                          message: companionMessage,
+                        ),
                         const SizedBox(height: AppSpacing.large),
                         LayoutBuilder(
                           builder: (context, constraints) {
@@ -102,7 +113,7 @@ class DashboardPage extends ConsumerWidget {
                           label: Text(
                             study.session == null
                                 ? 'Comenzar sesión'
-                                : 'Continuar sesión · ${study.isPaused ? 'Pausada' : _remaining(study.remaining)}',
+                                : 'Continuar sesión · ${study.isPaused ? 'En pausa' : _remaining(study.remaining)}',
                           ),
                         ),
                       ],

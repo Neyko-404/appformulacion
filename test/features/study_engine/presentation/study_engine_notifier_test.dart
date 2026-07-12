@@ -209,7 +209,7 @@ Course _course() {
   return Course(
     id: 'course-1',
     ownerId: 'user-1',
-    name: 'MatemÃ¡tica',
+    name: 'Matemática',
     visualIdentity: CourseVisualIdentity.ocean,
     status: CourseStatus.active,
     createdAt: now,

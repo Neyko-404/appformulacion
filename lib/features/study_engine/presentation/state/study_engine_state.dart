@@ -1,3 +1,4 @@
+import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 
 final class StudyEngineState {
@@ -12,6 +13,7 @@ final class StudyEngineState {
     this.selectedCourseId,
     this.errorMessage,
     this.message,
+    this.companion,
   });
   final bool isInitializing;
   final StudySession? activeSession;
@@ -23,6 +25,7 @@ final class StudyEngineState {
   final bool isOperating;
   final String? errorMessage;
   final String? message;
+  final StudyCompanion? companion;
 
   StudyEngineState copyWith({
     bool? isInitializing,
@@ -39,6 +42,7 @@ final class StudyEngineState {
     String? errorMessage,
     String? message,
     bool clearFeedback = false,
+    StudyCompanion? companion,
   }) => StudyEngineState(
     isInitializing: isInitializing ?? this.isInitializing,
     activeSession: clearActive ? null : activeSession ?? this.activeSession,
@@ -54,5 +58,6 @@ final class StudyEngineState {
     isOperating: isOperating ?? this.isOperating,
     errorMessage: clearFeedback ? null : errorMessage ?? this.errorMessage,
     message: clearFeedback ? null : message ?? this.message,
+    companion: companion ?? this.companion,
   );
 }
