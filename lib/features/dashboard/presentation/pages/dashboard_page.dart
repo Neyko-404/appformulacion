@@ -6,6 +6,8 @@ import 'package:focusly/features/analytics/analytics_public_providers.dart';
 import 'package:focusly/features/analytics/domain/entities/study_insight.dart';
 import 'package:focusly/features/analytics/insights_public_widgets.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
+import 'package:focusly/features/companion/companion_public_providers.dart';
+import 'package:focusly/features/companion/domain/entities/companion_state.dart';
 import 'package:focusly/features/dashboard/dashboard_providers.dart';
 import 'package:focusly/features/dashboard/presentation/models/dashboard_insight.dart';
 import 'package:focusly/features/dashboard/presentation/services/dashboard_insight_service.dart';
@@ -40,6 +42,7 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
     final study = ref.watch(activeStudySummaryProvider);
     final courses = ref.watch(activeCoursesProvider);
     final analyticsAsync = ref.watch(dashboardTodayAnalyticsProvider);
+    final companionSnapshot = ref.watch(companionSnapshotProvider);
     final analyticsValue = analyticsAsync.value;
     final analytics = analyticsValue == null
         ? TodayAnalyticsProjection(
@@ -106,6 +109,7 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
                           study: study,
                           courses: courses,
                           analytics: analytics,
+                          companionSnapshot: companionSnapshot,
                           analyticsAvailable:
                               analyticsAsync.hasValue &&
                               !analyticsAsync.hasError,
@@ -150,6 +154,7 @@ final class _DashboardContent extends StatelessWidget {
     required this.study,
     required this.courses,
     required this.analytics,
+    required this.companionSnapshot,
     required this.analyticsAvailable,
     required this.onRefreshAnalytics,
   });
@@ -159,6 +164,7 @@ final class _DashboardContent extends StatelessWidget {
   final ActiveStudySummary study;
   final ActiveCoursesSnapshot courses;
   final TodayAnalyticsProjection analytics;
+  final CompanionSnapshot? companionSnapshot;
   final bool analyticsAvailable;
   final VoidCallback onRefreshAnalytics;
 
@@ -214,7 +220,8 @@ final class _DashboardContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.large),
         StudyCompanionCard(
           companion: state.companion!,
-          message: companionMessage,
+          message: companionSnapshot?.message ?? companionMessage,
+          snapshot: companionSnapshot,
         ),
         const SizedBox(height: AppSpacing.large),
         AnalyticsSummaryCard(

@@ -45,6 +45,22 @@ final class DashboardTrendProjection {
   final TrendDirection direction;
 }
 
+final class CompanionAnalyticsProjection {
+  const CompanionAnalyticsProjection({
+    required this.focusMinutesToday,
+    required this.completedSessionsToday,
+    required this.interruptionCountToday,
+    required this.activeDaysThisWeek,
+    required this.weeklyTrend,
+  });
+
+  final int focusMinutesToday;
+  final int completedSessionsToday;
+  final int interruptionCountToday;
+  final int activeDaysThisWeek;
+  final TrendDirection? weeklyTrend;
+}
+
 final todayAnalyticsProvider = Provider<TodayAnalyticsProjection>((ref) {
   final state = ref.watch(analyticsNotifierProvider);
   final daily = state.summary?.daily;
@@ -72,6 +88,23 @@ final analyticsInsightsProvider = Provider<InsightCollection>((ref) {
     summary,
     ref.watch(activeCoursesProvider),
     ref.watch(activeStudySummaryProvider),
+  );
+});
+
+final companionAnalyticsProvider = Provider<CompanionAnalyticsProjection?>((
+  ref,
+) {
+  final summary = ref.watch(analyticsNotifierProvider).summary;
+  if (summary == null) return null;
+  final weeklyFocus = summary.trends.weekly.focusedMinutes;
+  return CompanionAnalyticsProjection(
+    focusMinutesToday: summary.daily.focusedDuration.inMinutes,
+    completedSessionsToday: summary.daily.completedSessions,
+    interruptionCountToday: summary.daily.interruptionCount,
+    activeDaysThisWeek: summary.weekly.activeStudyDays,
+    weeklyTrend: weeklyFocus.currentValue == 0 && weeklyFocus.previousValue == 0
+        ? null
+        : weeklyFocus.direction,
   );
 });
 

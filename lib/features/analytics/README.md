@@ -55,6 +55,8 @@ Las únicas reglas actuales son: ausencia de actividad hoy, varias interrupcione
 
 `AnalyticsNotifier` modela carga, datos, error y refresh conservando el último resumen válido. `analytics_public_providers.dart` expone proyecciones read-only de resumen, tendencia e insights sin Notifier ni operaciones de escritura. `/analytics` muestra cards de hoy, semana, mes, comparaciones, hasta tres insights y cursos sin gráficos.
 
+Para Companion, `companionAnalyticsProvider` expone exclusivamente `focusMinutesToday`, `completedSessionsToday`, `interruptionCountToday`, `activeDaysThisWeek` y `weeklyTrend`. `activeDaysThisWeek` reutiliza el valor semanal ya calculado; no introduce métricas, lecturas ni cálculos nuevos y no expone el resumen interno.
+
 La estrategia carga al montar el consumidor, permite invalidación explícita desde Dashboard y escucha una revisión pública de Study Engine. La revisión cambia únicamente ante sesiones persistentes o conteos de interrupciones relevantes; excluye el tiempo restante, por lo que los ticks normales no consultan Analytics. Las señales simultáneas se agrupan en una sola recarga pendiente.
 
 ## Dashboard, privacidad y limitaciones
