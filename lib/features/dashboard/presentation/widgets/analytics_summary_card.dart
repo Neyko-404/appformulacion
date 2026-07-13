@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:focusly/features/analytics/analytics_public_providers.dart';
+import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
 import 'package:focusly/shared/presentation/app_spacing.dart';
 
 final class AnalyticsSummaryCard extends StatelessWidget {
@@ -46,7 +47,7 @@ final class AnalyticsSummaryCard extends StatelessWidget {
             ),
           if (analytics.errorMessage != null)
             _SectionError(onRetry: onRetry)
-          else if (analytics.hasData)
+          else if (analytics.hasData) ...[
             Wrap(
               spacing: AppSpacing.large,
               runSpacing: AppSpacing.medium,
@@ -73,6 +74,19 @@ final class AnalyticsSummaryCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (analytics.weeklyTrend case final trend?) ...[
+              const Divider(height: AppSpacing.xLarge),
+              Text('Tendencia', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: AppSpacing.small),
+              Row(
+                children: [
+                  Icon(_trendIcon(trend.direction)),
+                  const SizedBox(width: AppSpacing.small),
+                  Expanded(child: Text(trend.message)),
+                ],
+              ),
+            ],
+          ],
         ],
       ),
     ),
@@ -85,6 +99,12 @@ final class AnalyticsSummaryCard extends StatelessWidget {
     final remainder = minutes.remainder(60);
     return remainder == 0 ? '$hours h' : '$hours h $remainder min';
   }
+
+  IconData _trendIcon(TrendDirection direction) => switch (direction) {
+    TrendDirection.up => Icons.trending_up,
+    TrendDirection.down => Icons.trending_down,
+    TrendDirection.stable => Icons.trending_flat,
+  };
 }
 
 final class _TodayMetric extends StatelessWidget {

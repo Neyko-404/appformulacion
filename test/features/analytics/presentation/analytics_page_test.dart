@@ -9,6 +9,8 @@ import 'package:focusly/features/analytics/presentation/pages/analytics_page.dar
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
+import 'package:focusly/features/study_engine/study_analytics_reader.dart';
 
 void main() {
   testWidgets('empty page is accessible in dark mode at high text scale', (
@@ -79,6 +81,58 @@ void main() {
     expect(find.textContaining('No pudimos preparar'), findsOneWidget);
     expect(find.text('Reintentar'), findsOneWidget);
   });
+
+  testWidgets('page presents weekly and monthly comparisons', (tester) async {
+    final completedAt = DateTime(2026, 7, 10, 10);
+    final session = StudySession(
+      id: 'session-1',
+      ownerId: 'user-1',
+      mode: StudyMode.focus,
+      status: StudySessionStatus.completed,
+      plannedDuration: const Duration(minutes: 30),
+      accumulatedFocusDuration: const Duration(minutes: 30),
+      startedAt: completedAt.subtract(const Duration(minutes: 30)),
+      completedAt: completedAt,
+      createdAt: completedAt.subtract(const Duration(minutes: 30)),
+      updatedAt: completedAt,
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          publicAuthSessionProvider.overrideWithValue(
+            const AuthSession.authenticated(
+              user: AuthUser(id: 'user-1', email: 'test@focusly.dev'),
+              emailVerified: true,
+            ),
+          ),
+          getAnalyticsSummaryProvider.overrideWithValue(
+            GetAnalyticsSummary(
+              repository: _Repository(
+                records: [
+                  StudyAnalyticsRecord(
+                    session: session,
+                    interruptions: const [],
+                  ),
+                ],
+              ),
+              clock: _Clock(DateTime(2026, 7, 12)),
+            ),
+          ),
+        ],
+        child: const MaterialApp(home: AnalyticsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Comparación semanal'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Comparación mensual'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Comparación mensual'), findsOneWidget);
+    expect(find.textContaining('nuevo registro'), findsWidgets);
+  });
 }
 
 final class _Clock implements AnalyticsClock {
@@ -89,11 +143,12 @@ final class _Clock implements AnalyticsClock {
 }
 
 final class _Repository implements AnalyticsRepository {
-  const _Repository({this.fail = false});
+  const _Repository({this.fail = false, this.records = const []});
   final bool fail;
+  final List<StudyAnalyticsRecord> records;
   @override
   Future<AnalyticsSourceSnapshot> read(String ownerId) async {
     if (fail) throw StateError('source');
-    return const AnalyticsSourceSnapshot(records: [], courses: []);
+    return AnalyticsSourceSnapshot(records: records, courses: const []);
   }
 }

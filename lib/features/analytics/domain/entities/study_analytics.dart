@@ -1,3 +1,5 @@
+import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
+
 final class MostStudiedCourse {
   const MostStudiedCourse({
     required this.courseId,
@@ -110,16 +112,24 @@ final class StudyAnalyticsSummary {
     required this.weekly,
     required this.monthly,
     required this.courses,
+    required this.trends,
   });
 
   final DailyStudyAnalytics daily;
   final WeeklyStudyAnalytics weekly;
   final MonthlyStudyAnalytics monthly;
   final List<CourseStudyAnalytics> courses;
+  final StudyTrendSummary trends;
 
   bool get isEmpty =>
       monthly.completedSessions == 0 &&
       monthly.cancelledSessions == 0 &&
       monthly.interruptionCount == 0 &&
-      daily.activeSessions == 0;
+      daily.activeSessions == 0 &&
+      trends.weekly.focusedMinutes.previousValue == 0 &&
+      trends.weekly.completedSessions.previousValue == 0 &&
+      trends.weekly.interruptions.previousValue == 0 &&
+      trends.monthly.focusedMinutes.previousValue == 0 &&
+      trends.monthly.completedSessions.previousValue == 0 &&
+      trends.monthly.interruptions.previousValue == 0;
 }

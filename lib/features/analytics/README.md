@@ -4,8 +4,8 @@
 | --- | --- |
 | Feature | Analytics |
 | Requisito | RF-009 |
-| Sprint | 5A |
-| Estado | Analytics Foundation implementada |
+| Sprint | 5C |
+| Estado | Trends & Progress implementado |
 
 ## Propósito y alcance
 
@@ -35,13 +35,17 @@ Todos los rangos usan `[startInclusive, endExclusive)` en hora local. Sus límit
 
 `DailyStudyAnalytics`, `WeeklyStudyAnalytics`, `MonthlyStudyAnalytics`, `CourseStudyAnalytics` y `StudyAnalyticsSummary` son inmutables e independientes de Flutter, Riverpod, Isar y Firebase. `AnalyticsCalculator` concentra filtrado, agregación y desempates sin consultar repositorios.
 
+`TrendComparison`, `WeeklyTrend`, `MonthlyTrend`, `CourseTrend` y `StudyTrendSummary` modelan comparaciones inmutables. `TrendCalculator` recibe resúmenes ya calculados, produce valores actuales y anteriores, diferencia firmada, diferencia absoluta, porcentaje y dirección, y no accede a fuentes. `signedDifference` es `actual - anterior`; `absoluteDifference` es siempre su magnitud no negativa y nunca se usa para inferir crecimiento. Si el valor anterior es cero, el porcentaje es `null`: se comunica actividad nueva o falta de datos sin inventar un porcentaje ni dividir por cero. Cuando ambos periodos son cero, Dashboard omite la tendencia semanal.
+
+Sprint 5C compara semana actual con anterior y mes actual con anterior para tiempo, sesiones, promedio, interrupciones, días activos y curso dominante. Los cursos se comparan por identidad y el mayor crecimiento se ordena por diferencia firmada descendente, nombre e identificador para resolver empates de forma estable. Las semanas anteriores parten de fechas civiles y conservan rangos `[startInclusive, endExclusive)` sin restar duraciones a medianoche.
+
 ## Repositorio y casos de uso
 
 `AnalyticsRepository` ofrece una única lectura normalizada por propietario. `GetAnalyticsSummary` coordina reloj, rangos, lectura y calculador. No existen casos de uso que solo reenvíen llamadas.
 
 ## Estado, API pública y navegación
 
-`AnalyticsNotifier` modela carga, datos, error y refresh conservando el último resumen válido. `analytics_public_providers.dart` expone a Dashboard únicamente `dashboardTodayAnalyticsProvider`, una proyección futura read-only de hoy, sin Notifier ni operaciones de escritura. `/analytics` muestra cards de hoy, semana, mes y cursos sin gráficos.
+`AnalyticsNotifier` modela carga, datos, error y refresh conservando el último resumen válido. `analytics_public_providers.dart` expone a Dashboard `dashboardTodayAnalyticsProvider`, una proyección futura read-only de hoy y una tendencia semanal resumida, sin Notifier ni operaciones de escritura. `/analytics` muestra cards de hoy, semana, mes, comparaciones y cursos sin gráficos.
 
 La estrategia carga al montar el consumidor, permite invalidación explícita desde Dashboard y escucha una revisión pública de Study Engine. La revisión cambia únicamente ante sesiones persistentes o conteos de interrupciones relevantes; excluye el tiempo restante, por lo que los ticks normales no consultan Analytics. Las señales simultáneas se agrupan en una sola recarga pendiente.
 
@@ -53,7 +57,7 @@ El lector público actual solicita un máximo alto al contrato histórico existe
 
 ## Fuera de alcance
 
-Gráficos, IA, predicciones, recomendaciones, rankings entre usuarios, gamificación, rachas nuevas, sincronización, exportación, filtros, notificaciones y persistencia analítica.
+Gráficos interactivos, IA, predicciones, recomendaciones automáticas, rankings entre usuarios, gamificación, logros, sincronización, exportación, filtros, notificaciones y persistencia analítica.
 
 ## Pruebas
 
@@ -61,7 +65,7 @@ Las pruebas usan reloj y fuentes fake, sin Firebase, Isar, red ni paquetes de mo
 
 ## AI CONTEXT
 
-Analytics implementa RF-009 Sprint 5A y es estrictamente read-only. Una IA debe mantener las agregaciones en `AnalyticsCalculator`, consumir contratos públicos, aislar por `ownerId` y no añadir persistencia, gráficos, IA o gamificación sin autorización.
+Analytics implementa RF-009 hasta Sprint 5C y es estrictamente read-only. Una IA debe mantener agregaciones y tendencias en servicios puros, consumir contratos públicos, aislar por `ownerId` y no añadir persistencia, gráficos, predicciones, IA o gamificación sin autorización.
 
 ## Historial de cambios
 
@@ -69,3 +73,4 @@ Analytics implementa RF-009 Sprint 5A y es estrictamente read-only. Una IA debe 
 | --- | --- | --- | --- | --- |
 | 0.1.0 | 12 de julio de 2026 | Implementado | Analytics Foundation read-only. | Equipo Focusly |
 | 0.1.1 | 12 de julio de 2026 | Implementado | Proyección diaria read-only para Dashboard Intelligence. | Equipo Focusly |
+| 0.2.0 | 12 de julio de 2026 | Implementado | Comparaciones locales de Trends & Progress. | Equipo Focusly |

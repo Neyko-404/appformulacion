@@ -56,6 +56,8 @@ final class AnalyticsPage extends ConsumerWidget {
                       interruptionCount: summary.weekly.interruptionCount,
                       interruptionDuration: summary.weekly.interruptionDuration,
                     ),
+                    const SizedBox(height: AppSpacing.large),
+                    TrendComparisonCard.weekly(summary.trends.weekly),
                     AnalyticsPeriodCard(
                       title: 'Este mes',
                       focusedDuration: summary.monthly.focusedDuration,
@@ -64,6 +66,8 @@ final class AnalyticsPage extends ConsumerWidget {
                       interruptionDuration:
                           summary.monthly.interruptionDuration,
                     ),
+                    const SizedBox(height: AppSpacing.large),
+                    TrendComparisonCard.monthly(summary.trends.monthly),
                     if (summary.courses.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.large),
                       Text(
