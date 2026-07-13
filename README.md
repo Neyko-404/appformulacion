@@ -17,12 +17,13 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 4C — Companion Integration:** completado con mensajes deterministas y apoyo visual discreto.
 - **Sprint 4D — Anti-Distraction Foundation:** implementado con detección de visibilidad, interrupciones locales y retorno neutral.
 - **Sprint 5A — Analytics Foundation:** implementado con resumen diario, semanal, mensual y por curso.
+- **Sprint 5B — Dashboard Intelligence:** implementado con jerarquía accionable, resumen diario e insights deterministas basados en datos locales.
 - **Horarios y calificaciones:** pendientes.
 - **Pomodoro:** pendiente.
 - **Mascota interactiva:** pendiente.
 - **Detección de aplicaciones específicas:** no implementada.
 - **Notificaciones:** pendientes.
-- **Gráficos, insights personalizados e IA:** pendientes.
+- **Gráficos, predicciones e IA:** pendientes.
 - **Sincronización remota:** pendiente.
 
 La sesión productiva utiliza Firebase Authentication y el onboarding utiliza persistencia local. Las pruebas pueden sustituir ambos repositorios por implementaciones aisladas en memoria.

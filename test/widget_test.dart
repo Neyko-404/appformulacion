@@ -145,7 +145,7 @@ void main() {
 
     expect(find.text('Kumo'), findsNothing);
     expect(find.text('Milo'), findsOneWidget);
-    expect(find.text('Comenzar sesión'), findsOneWidget);
+    expect(find.text('Comenzar sesión'), findsWidgets);
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(FocuslyApp)),

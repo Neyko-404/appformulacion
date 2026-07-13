@@ -21,7 +21,7 @@ class FocusGoalCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.small),
                 Expanded(
                   child: Text(
-                    'Tu objetivo actual',
+                    'Tu objetivo',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -30,7 +30,7 @@ class FocusGoalCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.medium),
             Text(_goalLabel(profile.primaryGoal)),
             const SizedBox(height: AppSpacing.xSmall),
-            Text('${profile.preferredFocusMinutes} min por sesión'),
+            Text('Sesiones sugeridas de ${profile.preferredFocusMinutes} min'),
           ],
         ),
       ),

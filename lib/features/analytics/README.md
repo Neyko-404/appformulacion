@@ -41,15 +41,15 @@ Todos los rangos usan `[startInclusive, endExclusive)` en hora local. Sus límit
 
 ## Estado, API pública y navegación
 
-`AnalyticsNotifier` modela carga, datos, error y refresh conservando el último resumen válido. `analytics_public_providers.dart` expone a Dashboard únicamente la proyección de hoy, sin Notifier ni operaciones. `/analytics` muestra cards de hoy, semana, mes y cursos sin gráficos.
+`AnalyticsNotifier` modela carga, datos, error y refresh conservando el último resumen válido. `analytics_public_providers.dart` expone a Dashboard únicamente `dashboardTodayAnalyticsProvider`, una proyección futura read-only de hoy, sin Notifier ni operaciones de escritura. `/analytics` muestra cards de hoy, semana, mes y cursos sin gráficos.
 
-La estrategia carga al montar el consumidor, permite actualización explícita y escucha una revisión pública de Study Engine. La revisión cambia únicamente ante sesiones persistentes o conteos de interrupciones relevantes; excluye el tiempo restante, por lo que los ticks normales no consultan Analytics. Las señales simultáneas se agrupan en una sola recarga pendiente.
+La estrategia carga al montar el consumidor, permite invalidación explícita desde Dashboard y escucha una revisión pública de Study Engine. La revisión cambia únicamente ante sesiones persistentes o conteos de interrupciones relevantes; excluye el tiempo restante, por lo que los ticks normales no consultan Analytics. Las señales simultáneas se agrupan en una sola recarga pendiente.
 
 ## Dashboard, privacidad y limitaciones
 
 Dashboard consume la API pública y no calcula métricas. Solo se procesan datos locales del propietario autenticado; no hay comparación entre usuarios ni envío remoto.
 
-El lector público actual solicita un máximo alto al contrato histórico existente porque Study Engine todavía no ofrece paginación temporal. Sprint 5B deberá incorporar lectura paginada o por rango antes de volúmenes extensos.
+El lector público actual solicita un máximo alto al contrato histórico existente porque Study Engine todavía no ofrece paginación temporal. La lectura paginada o por rango sigue pendiente antes de volúmenes extensos.
 
 ## Fuera de alcance
 
@@ -68,3 +68,4 @@ Analytics implementa RF-009 Sprint 5A y es estrictamente read-only. Una IA debe 
 | Versión | Fecha | Estado | Descripción | Autor |
 | --- | --- | --- | --- | --- |
 | 0.1.0 | 12 de julio de 2026 | Implementado | Analytics Foundation read-only. | Equipo Focusly |
+| 0.1.1 | 12 de julio de 2026 | Implementado | Proyección diaria read-only para Dashboard Intelligence. | Equipo Focusly |
