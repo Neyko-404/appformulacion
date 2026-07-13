@@ -1,8 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/analytics/application/providers/analytics_providers.dart';
+import 'package:focusly/features/analytics/domain/entities/study_analytics.dart';
+import 'package:focusly/features/analytics/domain/entities/study_insight.dart';
 import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
+import 'package:focusly/features/analytics/domain/services/study_insight_engine.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/study_engine/study_analytics_read_api.dart';
+import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 
 final class TodayAnalyticsProjection {
   const TodayAnalyticsProjection({
@@ -15,6 +20,7 @@ final class TodayAnalyticsProjection {
     this.mostStudiedCourseName,
     this.errorMessage,
     this.weeklyTrend,
+    this.insights = const InsightCollection.empty(),
   });
 
   final bool isLoading;
@@ -26,6 +32,7 @@ final class TodayAnalyticsProjection {
   final String? mostStudiedCourseName;
   final String? errorMessage;
   final DashboardTrendProjection? weeklyTrend;
+  final InsightCollection insights;
 }
 
 final class DashboardTrendProjection {
@@ -58,10 +65,22 @@ final todayAnalyticsProvider = Provider<TodayAnalyticsProjection>((ref) {
   );
 });
 
+final analyticsInsightsProvider = Provider<InsightCollection>((ref) {
+  final summary = ref.watch(analyticsNotifierProvider).summary;
+  if (summary == null) return const InsightCollection.empty();
+  return _insights(
+    summary,
+    ref.watch(activeCoursesProvider),
+    ref.watch(activeStudySummaryProvider),
+  );
+});
+
 final dashboardTodayAnalyticsProvider =
     FutureProvider<TodayAnalyticsProjection>((ref) async {
       ref.watch(studyAnalyticsRevisionProvider);
       final ownerId = ref.watch(publicAuthSessionProvider).user?.id;
+      final courses = ref.watch(activeCoursesProvider);
+      final study = ref.watch(activeStudySummaryProvider);
       final summary = await ref.watch(getAnalyticsSummaryProvider)(ownerId);
       final daily = summary.daily;
       return TodayAnalyticsProjection(
@@ -74,8 +93,23 @@ final dashboardTodayAnalyticsProvider =
         weeklyTrend: projectDashboardWeeklyTrend(
           summary.trends.weekly.focusedMinutes,
         ),
+        insights: _insights(summary, courses, study),
       );
     });
+
+InsightCollection _insights(
+  StudyAnalyticsSummary summary,
+  ActiveCoursesSnapshot courses,
+  ActiveStudySummary study,
+) => const StudyInsightEngine().generate(
+  analyticsSummary: summary,
+  trendSummary: summary.trends,
+  dashboardSummary: InsightDashboardSummary(
+    hasActiveSession: study.session != null,
+    hasCourses: courses.courses.isNotEmpty,
+  ),
+  profileProjection: const InsightProfileProjection(),
+);
 
 DashboardTrendProjection? projectDashboardWeeklyTrend(TrendComparison value) {
   final percentage = value.percentageVariation;

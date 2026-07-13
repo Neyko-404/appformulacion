@@ -132,6 +132,13 @@ void main() {
     );
     expect(find.text('Comparación mensual'), findsOneWidget);
     expect(find.textContaining('nuevo registro'), findsWidgets);
+    await tester.scrollUntilVisible(
+      find.text('Insights'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Insights'), findsOneWidget);
+    expect(find.text('Organiza tus materias'), findsOneWidget);
   });
 }
 

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/analytics/analytics_public_providers.dart';
+import 'package:focusly/features/analytics/domain/entities/study_insight.dart';
+import 'package:focusly/features/analytics/insights_public_widgets.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/dashboard/dashboard_providers.dart';
 import 'package:focusly/features/dashboard/presentation/models/dashboard_insight.dart';
@@ -63,6 +65,7 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
                 ? 'No pudimos actualizar el resumen de hoy.'
                 : analyticsValue.errorMessage,
             weeklyTrend: analyticsValue.weeklyTrend,
+            insights: analyticsValue.insights,
           );
 
     return Scaffold(
@@ -219,6 +222,15 @@ final class _DashboardContent extends StatelessWidget {
           onOpen: () => context.push(RoutePaths.analytics),
           onRetry: onRefreshAnalytics,
         ),
+        if (analytics.insights.values.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.large),
+          StudyInsightsSection(
+            title: 'Recomendaciones',
+            collection: analytics.insights,
+            maxItems: 2,
+            onAction: (action) => _openRecommendation(context, action),
+          ),
+        ],
         const SizedBox(height: AppSpacing.large),
         FocusGoalCard(profile: profile),
         const SizedBox(height: AppSpacing.large),
@@ -241,6 +253,18 @@ final class _DashboardContent extends StatelessWidget {
       DashboardInsightAction.openCourses => RoutePaths.courseNew,
       DashboardInsightAction.openAnalytics => RoutePaths.analytics,
       DashboardInsightAction.none => null,
+    };
+    if (path != null) context.push(path);
+  }
+
+  void _openRecommendation(BuildContext context, InsightAction action) {
+    final path = switch (action) {
+      InsightAction.continueFocus ||
+      InsightAction.startFocus => RoutePaths.focus,
+      InsightAction.openCourses => RoutePaths.courses,
+      InsightAction.openAnalytics ||
+      InsightAction.reviewProgress => RoutePaths.analytics,
+      InsightAction.none => null,
     };
     if (path != null) context.push(path);
   }

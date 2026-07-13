@@ -19,6 +19,7 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 5A — Analytics Foundation:** implementado con resumen diario, semanal, mensual y por curso.
 - **Sprint 5B — Dashboard Intelligence:** implementado con jerarquía accionable, resumen diario e insights deterministas basados en datos locales.
 - **Sprint 5C — Trends & Progress:** implementado con comparaciones locales semanales, mensuales y por curso.
+- **Sprint 5D — Personalized Insights Engine:** implementado con reglas deterministas, locales y no persistentes.
 - **Horarios y calificaciones:** pendientes.
 - **Pomodoro:** pendiente.
 - **Mascota interactiva:** pendiente.
