@@ -12,6 +12,7 @@ abstract final class RouteNames {
   static const courseEdit = 'course-edit';
   static const focus = 'focus';
   static const focusHistory = 'focus-history';
+  static const analytics = 'analytics';
 }
 
 abstract final class RoutePaths {
@@ -29,4 +30,5 @@ abstract final class RoutePaths {
   static String courseEdit(String courseId) => '/courses/$courseId/edit';
   static const focus = '/focus';
   static const focusHistory = '/focus/history';
+  static const analytics = '/analytics';
 }

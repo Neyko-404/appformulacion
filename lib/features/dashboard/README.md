@@ -44,6 +44,10 @@ Dashboard reutiliza `CompanionMessageService` y `FocusCompanionCard`. Sin sesió
 
 Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboarding conserva la propiedad del perfil, compañero y persistencia. Dashboard no importa Data, Firebase ni Isar y no navega desde su Notifier. GoRouter expone `/dashboard` después de sesión verificada y onboarding completo.
 
+## Analytics Foundation
+
+Dashboard muestra el resumen read-only de hoy: tiempo estudiado, sesiones completadas, curso con mayor tiempo e interrupciones registradas. Consume exclusivamente `todayAnalyticsProvider`; no consulta fuentes ni calcula métricas. “Ver progreso” navega a `/analytics`.
+
 ## Pruebas
 
 Las pruebas usan sesión y repositorio en memoria mediante overrides. No usan Firebase, red ni disco.

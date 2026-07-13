@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/academic_tracker/presentation/pages/course_form_page.dart';
 import 'package:focusly/features/academic_tracker/presentation/pages/course_list_page.dart';
+import 'package:focusly/features/analytics/presentation/pages/analytics_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/auth_loading_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/forgot_password_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/login_page.dart';
@@ -75,7 +76,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               location.endsWith('/edit'));
       final isFocusRoute =
           location == RoutePaths.focus || location == RoutePaths.focusHistory;
-      return location == RoutePaths.dashboard || isCourseRoute || isFocusRoute
+      return location == RoutePaths.dashboard ||
+              location == RoutePaths.analytics ||
+              isCourseRoute ||
+              isFocusRoute
           ? null
           : RoutePaths.dashboard;
     },
@@ -145,6 +149,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: RouteNames.focusHistory,
         path: RoutePaths.focusHistory,
         builder: (context, state) => const FocusHistoryPage(),
+      ),
+      GoRoute(
+        name: RouteNames.analytics,
+        path: RoutePaths.analytics,
+        builder: (context, state) => const AnalyticsPage(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:focusly/features/analytics/analytics_public_providers.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
@@ -21,6 +22,13 @@ void main() {
     WidgetTester tester, {
     ActiveStudySummary study = const ActiveStudySummary(
       remaining: Duration.zero,
+    ),
+    TodayAnalyticsProjection analytics = const TodayAnalyticsProjection(
+      isLoading: false,
+      focusedDuration: Duration.zero,
+      completedSessions: 0,
+      interruptionCount: 0,
+      interruptionDuration: Duration.zero,
     ),
   }) async {
     final now = DateTime.utc(2026, 7, 12);
@@ -55,6 +63,7 @@ void main() {
           ),
           dashboardOnboardingRepositoryProvider.overrideWithValue(repository),
           activeStudySummaryProvider.overrideWithValue(study),
+          todayAnalyticsProvider.overrideWithValue(analytics),
         ],
         child: const MaterialApp(home: DashboardPage()),
       ),
@@ -83,11 +92,37 @@ void main() {
     expect(find.byType(FocusStreakCard), findsOneWidget);
     expect(find.text('0 días'), findsOneWidget);
     expect(find.byType(CoursesCard), findsOneWidget);
+    expect(find.text('Resumen de hoy'), findsOneWidget);
+    expect(find.text('Tiempo estudiado: 0 minutos'), findsOneWidget);
+    expect(find.text('Sesiones completadas: 0'), findsOneWidget);
+    expect(find.textContaining('Sin datos todavía'), findsOneWidget);
+    expect(find.textContaining('Tiempo perdido'), findsNothing);
     expect(
       find.text('Todavía no tienes cursos.\nAgrega uno para comenzar.'),
       findsOneWidget,
     );
     expect(find.text('Agregar cursos'), findsOneWidget);
+  });
+
+  testWidgets('shows read-only analytics values without calculating them', (
+    tester,
+  ) async {
+    await pumpDashboard(
+      tester,
+      analytics: const TodayAnalyticsProjection(
+        isLoading: false,
+        focusedDuration: Duration(minutes: 85),
+        completedSessions: 3,
+        interruptionCount: 2,
+        interruptionDuration: Duration(minutes: 4),
+        mostStudiedCourseName: 'Cálculo',
+      ),
+    );
+    expect(find.text('Tiempo estudiado: 1 h 25 min'), findsOneWidget);
+    expect(find.text('Sesiones completadas: 3'), findsOneWidget);
+    expect(find.textContaining('Cálculo'), findsOneWidget);
+    expect(find.textContaining('2 (4 minutos)'), findsOneWidget);
+    expect(find.text('Ver progreso'), findsOneWidget);
   });
 
   testWidgets('primary action exposes Study Engine entry point', (
