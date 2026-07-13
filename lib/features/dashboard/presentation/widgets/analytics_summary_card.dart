@@ -6,11 +6,13 @@ final class AnalyticsSummaryCard extends StatelessWidget {
   const AnalyticsSummaryCard({
     required this.analytics,
     required this.onOpen,
+    this.onRetry,
     super.key,
   });
 
   final TodayAnalyticsProjection analytics;
   final VoidCallback onOpen;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -25,31 +27,52 @@ final class AnalyticsSummaryCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.small),
               Expanded(
                 child: Text(
-                  'Resumen de hoy',
+                  'Hoy',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              TextButton(onPressed: onOpen, child: const Text('Ver progreso')),
             ],
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: onOpen,
+              child: const Text('Ver progreso'),
+            ),
           ),
           if (analytics.isLoading)
             const LinearProgressIndicator(
               semanticsLabel: 'Cargando resumen de hoy',
-            )
-          else ...[
-            Text(
-              'Tiempo estudiado: ${_durationLabel(analytics.focusedDuration)}',
             ),
-            Text('Sesiones completadas: ${analytics.completedSessions}'),
-            Text(
-              'Curso con más tiempo: '
-              '${analytics.mostStudiedCourseName ?? 'Sin datos todavía'}',
+          if (analytics.errorMessage != null)
+            _SectionError(onRetry: onRetry)
+          else if (analytics.hasData)
+            Wrap(
+              spacing: AppSpacing.large,
+              runSpacing: AppSpacing.medium,
+              children: [
+                _TodayMetric(
+                  icon: Icons.timer_outlined,
+                  label: 'Tiempo de estudio',
+                  value: _durationLabel(analytics.focusedDuration),
+                ),
+                _TodayMetric(
+                  icon: Icons.check_circle_outline,
+                  label: 'Sesiones',
+                  value: '${analytics.completedSessions}',
+                ),
+                _TodayMetric(
+                  icon: Icons.pause_circle_outline,
+                  label: 'Interrupciones',
+                  value: '${analytics.interruptionCount}',
+                ),
+                _TodayMetric(
+                  icon: Icons.school_outlined,
+                  label: 'Curso destacado',
+                  value: analytics.mostStudiedCourseName ?? 'Sin datos todavía',
+                ),
+              ],
             ),
-            Text(
-              'Interrupciones registradas: ${analytics.interruptionCount} '
-              '(${_durationLabel(analytics.interruptionDuration)})',
-            ),
-          ],
         ],
       ),
     ),
@@ -62,4 +85,53 @@ final class AnalyticsSummaryCard extends StatelessWidget {
     final remainder = minutes.remainder(60);
     return remainder == 0 ? '$hours h' : '$hours h $remainder min';
   }
+}
+
+final class _TodayMetric extends StatelessWidget {
+  const _TodayMetric({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: '$label: $value',
+    child: SizedBox(
+      width: 190,
+      child: Row(
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: AppSpacing.small),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: Theme.of(context).textTheme.labelMedium),
+                Text(value, overflow: TextOverflow.ellipsis, maxLines: 2),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+final class _SectionError extends StatelessWidget {
+  const _SectionError({this.onRetry});
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('No pudimos actualizar el resumen de hoy.'),
+      if (onRetry != null)
+        TextButton(onPressed: onRetry, child: const Text('Reintentar')),
+    ],
+  );
 }

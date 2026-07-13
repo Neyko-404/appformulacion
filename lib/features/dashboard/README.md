@@ -3,28 +3,30 @@
 | Campo | Valor |
 | --- | --- |
 | Feature | Dashboard |
-| Sprint | 3A |
-| Estado | Foundation en desarrollo |
+| Sprint | 5B |
+| Estado | Dashboard Intelligence implementado |
 
 ## Objetivo
 
-Ofrecer una base responsive para presentar el contexto inicial del estudiante después de Authentication y Onboarding.
+Ofrecer una pantalla de inicio accionable que reúna el estado de estudio, una recomendación determinista y el progreso diario sin asumir propiedad sobre datos de otras features.
 
 ## Alcance
 
-Incluye saludo derivado de la sesión, compañero, objetivo de enfoque, racha provisional, estado vacío de cursos y acceso informativo a una futura sesión.
+Incluye saludo, acción principal de estudio, insight contextual, compañero, resumen de hoy, objetivo y cursos activos. Cada bloque consume contratos públicos de solo lectura y conserva errores secundarios de forma localizada.
 
 ## Fuera de alcance
 
-CRUD de cursos, Pomodoro, flashcards, IA, Analytics, calendario, estadísticas reales, sincronización, notificaciones y backend.
+CRUD de cursos, control del temporizador, gráficos, predicciones, IA generativa, calendario, sincronización, notificaciones y backend.
 
 ## Estructura y widgets
 
-- `DashboardPage`: composición responsive y estados de carga o error.
+- `DashboardPage`: composición responsive, actualización manual y estados parciales.
+- `PrimaryStudyActionCard`: inicia, continúa o retoma la sesión según el estado público.
+- `DashboardInsightCard`: presenta una recomendación determinista y su acción asociada.
 - `StudyCompanionCard`: nombre y mensaje del compañero.
 - `FocusGoalCard`: objetivo y duración preferida.
-- `FocusStreakCard`: placeholder fijo de cero días, reemplazable por datos reales.
-- `CoursesCard`: estado vacío; su acción permanece deshabilitada.
+- `AnalyticsSummaryCard`: resumen compacto de tiempo, sesiones, interrupciones y curso destacado.
+- `CoursesCard`: vista resumida de cursos activos y acceso a Academic Tracker.
 
 ## Estado y providers
 
@@ -46,7 +48,17 @@ Authentication aporta `AuthSession` mediante `publicAuthSessionProvider`. Onboar
 
 ## Analytics Foundation
 
-Dashboard muestra el resumen read-only de hoy: tiempo estudiado, sesiones completadas, curso con mayor tiempo e interrupciones registradas. Consume exclusivamente `todayAnalyticsProvider`; no consulta fuentes ni calcula métricas. “Ver progreso” navega a `/analytics`.
+Dashboard muestra el resumen read-only de hoy: tiempo estudiado, sesiones completadas, curso con mayor tiempo e interrupciones registradas. Consume exclusivamente `dashboardTodayAnalyticsProvider`; no consulta fuentes ni calcula métricas. “Ver progreso” navega a `/analytics`.
+
+## Dashboard Intelligence
+
+La jerarquía visual es: encabezado, acción principal, insight, compañero, resumen de hoy, objetivo y cursos. La acción principal se deriva de `activeStudySummaryProvider`: inicia cuando no hay sesión, continúa una sesión activa o retoma una sesión pausada.
+
+`DashboardInsightService` es puro y aplica prioridades explícitas sobre datos ya disponibles: sesión activa, sesión pausada, ausencia de cursos, ausencia de actividad, interrupciones elevadas, progreso significativo y actividad completada. La entrada representa explícitamente si Analytics y Courses están disponibles; carga o error nunca se interpretan como cero o lista vacía. Si una fuente secundaria es desconocida y no hay sesión activa, muestra un insight neutral sin acción. No usa aleatoriedad, red, IA ni persistencia.
+
+La carga inicial solo bloquea por perfil y compañero, datos esenciales de esta pantalla. Analytics y Courses muestran carga o error dentro de su propia sección; un fallo parcial no oculta la acción de estudio ni el resto del Dashboard. La actualización manual se serializa, solicita otra lectura de perfil y compañero y fuerza una lectura nueva de Analytics. Conserva el resumen anterior mientras Analytics actualiza y aísla un fallo de esa fuente. Courses y Study Engine permanecen reactivos mediante sus notifiers; el gesto no invalida decorativamente sus proyecciones ni escribe en repositorios.
+
+Dashboard integra Authentication, Onboarding, Study Engine, Academic Tracker y Analytics exclusivamente mediante APIs públicas. No importa capas Data o Presentation ajenas, no duplica cálculos analíticos y no controla el temporizador.
 
 ## Pruebas
 
@@ -54,14 +66,15 @@ Las pruebas usan sesión y repositorio en memoria mediante overrides. No usan Fi
 
 ## UX Guidelines
 
-Dashboard es la pantalla raíz y no muestra navegación hacia atrás. El saludo conserva contexto horario, el compañero usa lenguaje humano y las tarjetas mantienen iconografía y espaciados coherentes. Los accesos a Courses y Study Engine apilan rutas secundarias para preservar el regreso automático.
+Dashboard es la pantalla raíz y no muestra navegación hacia atrás. La acción principal aparece antes que la información secundaria; el compañero usa lenguaje humano y las tarjetas mantienen semántica, iconografía, contraste temático y adaptación a texto ampliado. Los accesos a Focus, Courses y Analytics usan rutas existentes y preservan el regreso.
 
 ## AI CONTEXT
 
-Esta feature implementa solo Dashboard Foundation Sprint 3A. Una IA no puede añadir repositorios, progreso real, cursos, Pomodoro, IA, Analytics o sincronización sin autorización. Debe reutilizar los contratos públicos de Authentication y Onboarding.
+Esta feature implementa Dashboard Intelligence Sprint 5B mediante reglas deterministas y contratos públicos read-only. Una IA no puede añadir repositorios, recalcular Analytics, controlar Study Engine, generar recomendaciones con IA, crear rachas, gráficos o sincronización sin autorización.
 
 ## Historial de cambios
 
 | Versión | Fecha | Estado | Descripción | Autor |
 | --- | --- | --- | --- | --- |
 | 0.1.0 | 12 de julio de 2026 | En desarrollo | Base responsive del Dashboard Sprint 3A. | Equipo Focusly |
+| 0.2.0 | 12 de julio de 2026 | Implementado | Dashboard Intelligence Sprint 5B. | Equipo Focusly |

@@ -6,6 +6,8 @@ import 'package:focusly/features/dashboard/dashboard_providers.dart';
 import 'package:focusly/features/dashboard/presentation/state/dashboard_state.dart';
 
 final class DashboardNotifier extends Notifier<DashboardState> {
+  Future<void>? _loadOperation;
+
   @override
   DashboardState build() {
     ref.watch(publicAuthSessionProvider).user?.id;
@@ -13,7 +15,18 @@ final class DashboardNotifier extends Notifier<DashboardState> {
     return const DashboardState();
   }
 
-  Future<void> load() async {
+  Future<void> load() {
+    final activeOperation = _loadOperation;
+    if (activeOperation != null) return activeOperation;
+    final operation = _performLoad();
+    _loadOperation = operation;
+    operation.whenComplete(() {
+      if (identical(_loadOperation, operation)) _loadOperation = null;
+    });
+    return operation;
+  }
+
+  Future<void> _performLoad() async {
     final userId = ref.read(publicAuthSessionProvider).user?.id;
     if (userId == null) {
       state = const DashboardState(
@@ -23,7 +36,10 @@ final class DashboardNotifier extends Notifier<DashboardState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, clearError: true);
+    final hasContent = state.profile != null && state.companion != null;
+    if (!hasContent) {
+      state = state.copyWith(isLoading: true, clearError: true);
+    }
     try {
       final repository = ref.read(dashboardOnboardingRepositoryProvider);
       final profileFuture = repository.getProfile(userId);
@@ -45,10 +61,13 @@ final class DashboardNotifier extends Notifier<DashboardState> {
       );
     } on Object {
       if (ref.read(publicAuthSessionProvider).user?.id != userId) return;
-      state = const DashboardState(
-        isLoading: false,
-        errorMessage: 'No pudimos preparar tu inicio. Inténtalo nuevamente.',
-      );
+      state = hasContent
+          ? state.copyWith(isLoading: false)
+          : const DashboardState(
+              isLoading: false,
+              errorMessage:
+                  'No pudimos preparar tu inicio. Inténtalo nuevamente.',
+            );
     }
   }
 }

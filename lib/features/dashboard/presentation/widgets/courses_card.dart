@@ -26,8 +26,15 @@ class CoursesCard extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.small),
             if (snapshot.isLoading)
-              const LinearProgressIndicator()
-            else if (snapshot.courses.isEmpty)
+              const LinearProgressIndicator(semanticsLabel: 'Cargando cursos')
+            else if (snapshot.errorMessage != null) ...[
+              const Text('No pudimos actualizar tus cursos.'),
+              const SizedBox(height: AppSpacing.small),
+              OutlinedButton(
+                onPressed: () => context.push(RoutePaths.courses),
+                child: const Text('Abrir cursos'),
+              ),
+            ] else if (snapshot.courses.isEmpty)
               const Text('Todavía no tienes cursos.\nAgrega uno para comenzar.')
             else ...[
               Text(_activeCoursesLabel(snapshot.count)),
