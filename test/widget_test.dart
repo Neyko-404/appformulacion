@@ -41,6 +41,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Inicia sesión'), findsOneWidget);
+    container.read(routerProvider).go('/analytics');
+    await tester.pumpAndSettle();
+    expect(find.text('Inicia sesión'), findsOneWidget);
     container.read(routerProvider).go('/unknown');
     await tester.pumpAndSettle();
     expect(find.text('Inicia sesión'), findsOneWidget);
@@ -63,6 +66,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Verifica tu correo'), findsOneWidget);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(FocuslyApp)),
+    );
+    container.read(routerProvider).go('/analytics');
+    await tester.pumpAndSettle();
+    expect(find.text('Verifica tu correo'), findsOneWidget);
   });
 
   testWidgets('verified session redirects to onboarding', (tester) async {
@@ -83,6 +92,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Te damos la bienvenida'), findsOneWidget);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(FocuslyApp)),
+    );
+    container.read(routerProvider).go('/analytics');
+    await tester.pumpAndSettle();
     expect(find.text('Te damos la bienvenida'), findsOneWidget);
   });
 
@@ -131,6 +146,13 @@ void main() {
     expect(find.text('Kumo'), findsNothing);
     expect(find.text('Milo'), findsOneWidget);
     expect(find.text('Comenzar sesión'), findsOneWidget);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(FocuslyApp)),
+    );
+    container.read(routerProvider).go('/analytics');
+    await tester.pumpAndSettle();
+    expect(find.text('Progreso de estudio'), findsOneWidget);
   });
 
   testWidgets('storage failure redirects to recovery instead of onboarding', (

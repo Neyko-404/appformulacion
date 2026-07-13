@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/app/router/route_names.dart';
+import 'package:focusly/features/analytics/analytics_public_providers.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/dashboard/dashboard_providers.dart';
+import 'package:focusly/features/dashboard/presentation/widgets/analytics_summary_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/courses_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/focus_goal_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/focus_streak_card.dart';
@@ -22,6 +24,7 @@ class DashboardPage extends ConsumerWidget {
     final state = ref.watch(dashboardNotifierProvider);
     final email = ref.watch(publicAuthSessionProvider).user?.email;
     final study = ref.watch(activeStudySummaryProvider);
+    final analytics = ref.watch(todayAnalyticsProvider);
     final companionMessage = study.session == null
         ? '¿Listo para estudiar?'
         : const CompanionMessageService().message(
@@ -105,6 +108,11 @@ class DashboardPage extends ConsumerWidget {
                         ),
                         const SizedBox(height: AppSpacing.large),
                         const CoursesCard(),
+                        const SizedBox(height: AppSpacing.large),
+                        AnalyticsSummaryCard(
+                          analytics: analytics,
+                          onOpen: () => context.push(RoutePaths.analytics),
+                        ),
                         const SizedBox(height: AppSpacing.large),
                         FilledButton.icon(
                           onPressed: () =>
