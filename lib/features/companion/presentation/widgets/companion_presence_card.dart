@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:focusly/features/companion/domain/entities/companion_presentation_model.dart';
 import 'package:focusly/features/companion/presentation/companion_visual_mapper.dart';
-
-enum CompanionCardVariant { compact, standard, focus }
+import 'package:focusly/features/companion/presentation/models/companion_card_variant.dart';
+import 'package:focusly/features/companion/presentation/widgets/animated_companion_avatar.dart';
 
 class CompanionPresenceCard extends StatelessWidget {
   const CompanionPresenceCard({
@@ -29,31 +29,11 @@ class CompanionPresenceCard extends StatelessWidget {
     final content = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            CircleAvatar(
-              radius: visual.iconSize / 2,
-              backgroundColor: visual.background,
-              foregroundColor: visual.foreground,
-              child: Icon(visual.icon),
-            ),
-            Positioned(
-              right: -4,
-              bottom: -4,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: visual.border),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: Icon(visual.expressionIcon, size: 16),
-                ),
-              ),
-            ),
-          ],
+        AnimatedCompanionAvatar(
+          model: model,
+          variant: variant,
+          size: variant == CompanionCardVariant.focus ? 72 : 64,
+          semanticLabel: '${model.displayName}, ${model.semanticLabel}',
         ),
         const SizedBox(width: 16),
         Expanded(

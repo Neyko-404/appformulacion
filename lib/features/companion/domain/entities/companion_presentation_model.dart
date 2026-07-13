@@ -14,6 +14,7 @@ final class CompanionPresentationModel {
     this.semanticLabel = '',
     this.emphasis = CompanionEmphasis.normal,
     this.supportingMessage,
+    this.context = CompanionContext.dashboardIdle,
   });
 
   final String displayName;
@@ -26,4 +27,5 @@ final class CompanionPresentationModel {
   final String semanticLabel;
   final CompanionEmphasis emphasis;
   final String? supportingMessage;
+  final CompanionContext context;
 }

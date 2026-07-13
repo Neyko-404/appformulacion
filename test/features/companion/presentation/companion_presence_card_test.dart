@@ -4,6 +4,7 @@ import 'package:focusly/features/companion/domain/entities/companion_customizati
 import 'package:focusly/features/companion/domain/entities/companion_expression_state.dart';
 import 'package:focusly/features/companion/domain/entities/companion_presentation_model.dart';
 import 'package:focusly/features/companion/domain/entities/companion_state.dart';
+import 'package:focusly/features/companion/presentation/models/companion_card_variant.dart';
 import 'package:focusly/features/companion/presentation/widgets/companion_presence_card.dart';
 
 void main() {
@@ -45,7 +46,7 @@ void main() {
       expect(find.text('Continúa cuando estés listo.'), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp('Mitsuky.*Buen ritmo')),
-        findsOneWidget,
+        findsWidgets,
       );
     });
   }

@@ -35,7 +35,7 @@ void main() {
     expect(find.byTooltip('Ver historial de enfoque'), findsOneWidget);
     expect(find.text('Mitsuky'), findsOneWidget);
     expect(find.text('Comienza cuando quieras.'), findsOneWidget);
-    expect(find.byIcon(Icons.pets), findsOneWidget);
+    expect(find.byType(CustomPaint), findsWidgets);
     expect(find.textContaining('apariencia'), findsNothing);
 
     await tester.tap(find.text('15 min'));
@@ -409,7 +409,15 @@ final class _FocusHarness {
           builder: (context) {
             container = ProviderScope.containerOf(context);
             return StudyLifecycleObserver(
-              child: MaterialApp.router(routerConfig: router),
+              child: MaterialApp.router(
+                routerConfig: router,
+                builder: (context, child) => MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(disableAnimations: true),
+                  child: child!,
+                ),
+              ),
             );
           },
         ),

@@ -32,6 +32,7 @@ final class CompanionPresentationMapper {
     semanticLabel: expressionState.semanticLabel,
     emphasis: expressionState.emphasis,
     supportingMessage: expressionState.supportingMessage,
+    context: expressionState.context,
     accentColorKey: customization.identity.selectedTheme.name,
   );
 }

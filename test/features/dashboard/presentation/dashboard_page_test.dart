@@ -150,7 +150,10 @@ void main() {
         child: MaterialApp(
           theme: theme,
           home: MediaQuery(
-            data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+            data: MediaQueryData(
+              textScaler: TextScaler.linear(textScale),
+              disableAnimations: true,
+            ),
             child: const DashboardPage(),
           ),
         ),
