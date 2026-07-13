@@ -3,8 +3,8 @@
 | Campo | Valor |
 | --- | --- |
 | Feature | Companion |
-| Sprint | 6B |
-| Estado | Companion Personalization implementado |
+| Sprint | 6C |
+| Estado | Expressions & Contextual Presence implementado |
 
 ## Objetivo
 
@@ -30,6 +30,14 @@ Onboarding proporciona el nombre inicial mediante una API pública mínima y rea
 
 La identidad permite editar explícitamente el nombre, elegir uno de cinco temas (classic, forest, ocean, sunset y night) y uno de cinco avatares Material. Domain conserva únicamente enums y texto; el mapeo a `IconData` y colores temáticos vive en Presentation. La vista previa no escribe datos y Guardar es la única acción persistente.
 
+## Presencia contextual Sprint 6C
+
+`CompanionContext` representa Dashboard, preparación, fases running, pausa, retorno, resultado, progreso y ausencia de actividad sin duplicar `StudySessionStatus`. `CompanionExpressionEngine` es puro, determinista y aplica prioridad: completed, retorno, cancelled, paused, final, steady, start, ready, progreso, sin actividad y Dashboard neutral. Los umbrales running son 50 %, 20 % y 5 %; no cambian por segundo dentro de una fase.
+
+`CompanionExpressionState` contiene mood, expression, copy, semántica y emphasis no negativo. `CompanionPresentationMapper` lo combina con la identidad visual sin persistir estados derivados. `CompanionPresenceCard` ofrece variantes compact, standard y focus, usa un único mapper visual, Semantics y microtransiciones nativas de hasta 250 ms que respetan animaciones reducidas.
+
+Dashboard y Focus consumen la API pública de Companion y no calculan mood o expression. Si faltan Analytics o Study Engine se usa contexto neutral; si falta personalización se conserva el fallback inicial de Onboarding. Animaciones avanzadas, assets, sonidos, IA, Random, chat y gamificación permanecen fuera de alcance.
+
 ## Fuera de alcance
 
 Hambre, sueño como necesidad, vida, muerte, monedas, inventario, logros, niveles, batallas, microtransacciones, IA, predicciones, notificaciones y persistencia remota.
@@ -44,3 +52,4 @@ Companion Sprint 6A refleja exclusivamente contexto académico local. Una IA no 
 | --- | --- | --- | --- | --- |
 | 0.2.0 | 12 de julio de 2026 | Implementado | Companion Personalization Sprint 6B. | Equipo Focusly |
 | 0.1.0 | 12 de julio de 2026 | Implementado | Companion State & Progression Sprint 6A. | Equipo Focusly |
+| 0.3.0 | 12 de julio de 2026 | Implementado | Companion Expressions & Contextual Presence Sprint 6C. | Equipo Focusly |

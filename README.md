@@ -22,12 +22,13 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 5D — Personalized Insights Engine:** implementado con reglas deterministas, locales y no persistentes.
 - **Sprint 6A — Companion State & Progression:** implementado como estado académico derivado, neutral y no persistente.
 - **Sprint 6B — Companion Personalization:** implementado con identidad visual y personalización local explícita.
+- **Sprint 6C — Companion Expressions:** implementado con presencia contextual determinista y microtransiciones nativas accesibles.
 - **Horarios y calificaciones:** pendientes.
 - **Pomodoro:** pendiente.
 - **Mascota interactiva:** pendiente.
 - **Detección de aplicaciones específicas:** no implementada.
 - **Notificaciones:** pendientes.
-- **Gráficos, predicciones e IA:** pendientes.
+- **Animaciones avanzadas, assets, gráficos, predicciones e IA:** pendientes.
 - **Sincronización remota:** pendiente.
 
 La sesión productiva utiliza Firebase Authentication y el onboarding utiliza persistencia local. Las pruebas pueden sustituir ambos repositorios por implementaciones aisladas en memoria.

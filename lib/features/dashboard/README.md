@@ -32,6 +32,8 @@ CRUD de cursos, control del temporizador, gráficos, predicciones, IA generativa
 
 `DashboardState` contiene únicamente `StudentProfile`, `StudyCompanion`, carga y error seguro. `DashboardNotifier` consulta ambos elementos mediante `OnboardingRepository`. `dashboardOnboardingRepositoryProvider` adapta la composición pública existente sin crear otro repositorio.
 
+Sprint 6C consume `companionContextPresentationProvider` como API pública read-only. Dashboard aporta únicamente señales de sesión y disponibilidad analítica; Companion decide mensaje, mood, expression y emphasis. Dashboard no calcula expresiones.
+
 La tarjeta de cursos consume `activeCoursesProvider`, muestra hasta tres cursos activos, la cantidad total o el estado vacío, y navega hacia Academic Tracker. Dashboard no es propietario de `Course` ni importa Data o Presentation de esa feature.
 
 El botón de enfoque consume `activeStudySummaryProvider`, navega a `/focus` y cambia a “Continuar sesión” cuando existe una sesión activa. Dashboard no controla el ticker ni el temporizador.

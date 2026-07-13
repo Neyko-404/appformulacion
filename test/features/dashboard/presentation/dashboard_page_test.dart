@@ -109,8 +109,8 @@ void main() {
           ),
           activeStudySummaryProvider.overrideWithValue(study),
           companionSnapshotProvider.overrideWithValue(companionSnapshot),
-          companionPresentationProvider.overrideWithValue(
-            companionSnapshot == null
+          companionContextPresentationProvider.overrideWith(
+            (ref, input) => companionSnapshot == null
                 ? null
                 : const CompanionPresentationMapper().map(
                     snapshot: companionSnapshot,
@@ -264,11 +264,8 @@ void main() {
         message: 'Buen trabajo.',
       ),
     );
-    expect(find.text('Celebrando'), findsOneWidget);
-    expect(find.text('Contento'), findsOneWidget);
     expect(find.text('Buen trabajo.'), findsOneWidget);
-    expect(find.text('Animación futura'), findsOneWidget);
-    expect(find.bySemanticsLabel(RegExp('Estado Celebrando')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Kumo')), findsWidgets);
   });
 
   testWidgets('primary action distinguishes running and paused sessions', (
