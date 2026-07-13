@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_interruption.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 import 'package:focusly/features/study_engine/domain/failures/study_session_failure.dart';
 import 'package:focusly/features/study_engine/domain/services/study_session_engine.dart';
@@ -14,10 +15,17 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
   Timer? _ticker;
   StreamSubscription<StudySession?>? _subscription;
   int _sequence = 0;
+  int _activeRevision = 0;
   bool _isReconciling = false;
+  bool _isLifecycleOperating = false;
+  StudyInterruption? _openInterruption;
+  String? _openInterruptionSessionId;
 
   @override
   StudyEngineState build() {
+    _ticker?.cancel();
+    _openInterruption = null;
+    _openInterruptionSessionId = null;
     final userId = ref.watch(publicAuthSessionProvider).user?.id;
     ref.listen(activeCoursesProvider, (_, next) {
       final selected = state.selectedCourseId;
@@ -61,11 +69,13 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
           ? Duration(minutes: preferred!)
           : const Duration(minutes: 25);
       final recent = await repository.recent(userId);
+      final counts = await _interruptionCounts(userId, recent);
       state = state.copyWith(
         isInitializing: false,
         selectedDuration: duration,
         recentSessions: recent,
         companion: companion,
+        interruptionCounts: counts,
         clearFeedback: true,
       );
       _subscription = repository
@@ -99,6 +109,88 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
   void clearFinishedResult() =>
       state = state.copyWith(clearLastFinished: true, clearFeedback: true);
 
+  void dismissInterruptionFeedback() =>
+      state = state.copyWith(clearInterruptionFeedback: true);
+
+  Future<void> handleAppBackgrounded() async {
+    final session = state.activeSession;
+    if (session?.status != StudySessionStatus.running ||
+        _openInterruption != null ||
+        _isLifecycleOperating) {
+      return;
+    }
+    _isLifecycleOperating = true;
+    try {
+      final now = ref.read(studyClockProvider).now();
+      final interruption = StudyInterruption(
+        id: 'interruption-${session!.id}-${now.microsecondsSinceEpoch}',
+        startedAt: now,
+        reason: StudyInterruptionReason.appBackgrounded,
+        createdAt: now,
+      );
+      await ref
+          .read(studyInterruptionRepositoryProvider)
+          .saveOpen(session.ownerId, session.id, interruption);
+      _openInterruption = interruption;
+      _openInterruptionSessionId = session.id;
+    } on Object {
+      state = state.copyWith(
+        errorMessage: 'No pudimos registrar la salida de Focusly.',
+      );
+    } finally {
+      _isLifecycleOperating = false;
+    }
+  }
+
+  Future<void> handleAppResumed() async {
+    if (_isLifecycleOperating) return;
+    _isLifecycleOperating = true;
+    try {
+      final session = state.activeSession;
+      if (session == null) return;
+      _openInterruption ??= await ref
+          .read(studyInterruptionRepositoryProvider)
+          .open(session.ownerId, session.id);
+      _openInterruptionSessionId ??= _openInterruption == null
+          ? null
+          : session.id;
+      final relevant = await _closeOpenInterruption(session);
+      await reconcile();
+      if (relevant != null && state.activeSession != null) {
+        final count = await ref
+            .read(studyInterruptionRepositoryProvider)
+            .count(session.ownerId, session.id);
+        state = state.copyWith(
+          lastRelevantInterruption: relevant,
+          interruptionCounts: {...state.interruptionCounts, session.id: count},
+        );
+      }
+    } on Object {
+      state = state.copyWith(
+        errorMessage: 'No pudimos reconciliar la interrupción.',
+      );
+    } finally {
+      _isLifecycleOperating = false;
+    }
+  }
+
+  Future<StudyInterruption?> _closeOpenInterruption(
+    StudySession session,
+  ) async {
+    final open = _openInterruption;
+    if (open == null || _openInterruptionSessionId != session.id) return null;
+    final closed = open.close(ref.read(studyClockProvider).now());
+    final repository = ref.read(studyInterruptionRepositoryProvider);
+    _openInterruption = null;
+    _openInterruptionSessionId = null;
+    if (!ref.read(interruptionPolicyProvider).isRelevant(closed.duration)) {
+      await repository.discard(session.ownerId, closed.id);
+      return null;
+    }
+    await repository.saveClosed(session.ownerId, session.id, closed);
+    return closed;
+  }
+
   Future<void> refreshHistory() async {
     final ownerId = ref.read(publicAuthSessionProvider).user?.id;
     if (ownerId == null || state.isOperating) return;
@@ -107,7 +199,11 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
       final history = await ref
           .read(studySessionRepositoryProvider)
           .recent(ownerId);
-      state = state.copyWith(isOperating: false, recentSessions: history);
+      state = state.copyWith(
+        isOperating: false,
+        recentSessions: history,
+        interruptionCounts: await _interruptionCounts(ownerId, history),
+      );
     } on Object {
       state = state.copyWith(
         isOperating: false,
@@ -154,14 +250,25 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
     });
   }
 
-  Future<void> pause() =>
-      _transition((engine, session) => engine.pause(session));
+  Future<void> pause() async {
+    final session = state.activeSession;
+    if (session != null) await _closeOpenInterruption(session);
+    await _transition((engine, session) => engine.pause(session));
+  }
+
   Future<void> resume() =>
       _transition((engine, session) => engine.resume(session));
-  Future<void> complete() =>
-      _transition((engine, session) => engine.complete(session));
-  Future<void> cancel() =>
-      _transition((engine, session) => engine.cancel(session));
+  Future<void> complete() async {
+    final session = state.activeSession;
+    if (session != null) await _closeOpenInterruption(session);
+    await _transition((engine, session) => engine.complete(session));
+  }
+
+  Future<void> cancel() async {
+    final session = state.activeSession;
+    if (session != null) await _closeOpenInterruption(session);
+    await _transition((engine, session) => engine.cancel(session));
+  }
 
   Future<void> reconcile() async {
     if (_isReconciling) return;
@@ -232,23 +339,38 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
   }
 
   Future<void> _acceptActive(StudySession? session) async {
+    final revision = ++_activeRevision;
     _ticker?.cancel();
     if (session == null) {
       final ownerId = ref.read(publicAuthSessionProvider).user?.id;
       final history = ownerId == null
           ? const <StudySession>[]
           : await ref.read(studySessionRepositoryProvider).recent(ownerId);
-      if (!ref.mounted) return;
+      if (!ref.mounted || revision != _activeRevision) return;
+      final counts = ownerId == null
+          ? const <String, int>{}
+          : await _interruptionCounts(ownerId, history);
+      if (!ref.mounted || revision != _activeRevision) return;
       state = state.copyWith(
         clearActive: true,
         remaining: Duration.zero,
         recentSessions: history,
+        interruptionCounts: counts,
       );
       return;
     }
     state = state.copyWith(activeSession: session);
     _refreshRemaining();
     if (session.status == StudySessionStatus.running) {
+      final storedOpen = await ref
+          .read(studyInterruptionRepositoryProvider)
+          .open(session.ownerId, session.id);
+      if (!ref.mounted || revision != _activeRevision) return;
+      if (storedOpen != null && _openInterruption == null) {
+        _openInterruption = storedOpen;
+        _openInterruptionSessionId = session.id;
+        unawaited(handleAppResumed());
+      }
       if (state.remaining <= Duration.zero) {
         await reconcile();
         return;
@@ -261,6 +383,17 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
         }
       });
     }
+  }
+
+  Future<Map<String, int>> _interruptionCounts(
+    String ownerId,
+    List<StudySession> sessions,
+  ) async {
+    final repository = ref.read(studyInterruptionRepositoryProvider);
+    return {
+      for (final session in sessions)
+        session.id: await repository.count(ownerId, session.id),
+    };
   }
 
   void _refreshRemaining() {

@@ -69,4 +69,9 @@ void main() {
       'Ya comenzaste.',
     );
   });
+
+  test('interrupted return is deterministic and neutral', () {
+    expect(service.interruptedReturnMessage(), 'Ya estás de vuelta.');
+    expect(service.interruptedReturnMessage(), 'Ya estás de vuelta.');
+  });
 }

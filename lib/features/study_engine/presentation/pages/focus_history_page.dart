@@ -47,6 +47,8 @@ class FocusHistoryPage extends ConsumerWidget {
                         ?.name;
                     return _HistoryTile(
                       session: session,
+                      interruptionCount:
+                          state.interruptionCounts[session.id] ?? 0,
                       courseLabel:
                           courseName ??
                           (session.courseId == null
@@ -123,16 +125,26 @@ final class _HistoryError extends StatelessWidget {
 }
 
 final class _HistoryTile extends StatelessWidget {
-  const _HistoryTile({required this.session, required this.courseLabel});
+  const _HistoryTile({
+    required this.session,
+    required this.courseLabel,
+    required this.interruptionCount,
+  });
 
   final StudySession session;
   final String courseLabel;
+  final int interruptionCount;
 
   @override
   Widget build(BuildContext context) {
     final completed = session.status == StudySessionStatus.completed;
     final local = session.updatedAt.toLocal();
     final date = '${local.day}/${local.month}/${local.year}';
+    final interruptionLabel = switch (interruptionCount) {
+      0 => 'Sin interrupciones registradas',
+      1 => '1 interrupción',
+      _ => '$interruptionCount interrupciones',
+    };
     return Card(
       child: ListTile(
         isThreeLine: true,
@@ -143,10 +155,15 @@ final class _HistoryTile extends StatelessWidget {
               : Theme.of(context).colorScheme.secondary,
         ),
         title: Text(completed ? 'Sesión completada' : 'Sesión cancelada'),
+        trailing: Text(
+          interruptionLabel,
+          textAlign: TextAlign.end,
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
         subtitle: Text(
           '$courseLabel\n'
           '${focusDurationLabel(session.accumulatedFocusDuration)} · $date',
-          maxLines: 3,
+          maxLines: 4,
           overflow: TextOverflow.ellipsis,
         ),
       ),

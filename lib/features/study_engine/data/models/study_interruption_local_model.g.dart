@@ -1,0 +1,2188 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'study_interruption_local_model.dart';
+
+// **************************************************************************
+// IsarCollectionGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+extension GetStudyInterruptionLocalModelCollection on Isar {
+  IsarCollection<StudyInterruptionLocalModel>
+  get studyInterruptionLocalModels => this.collection();
+}
+
+const StudyInterruptionLocalModelSchema = CollectionSchema(
+  name: r'StudyInterruptionLocalModel',
+  id: -5806907590622646163,
+  properties: {
+    r'createdAt': PropertySchema(
+      id: 0,
+      name: r'createdAt',
+      type: IsarType.dateTime,
+    ),
+    r'durationSeconds': PropertySchema(
+      id: 1,
+      name: r'durationSeconds',
+      type: IsarType.long,
+    ),
+    r'endedAt': PropertySchema(
+      id: 2,
+      name: r'endedAt',
+      type: IsarType.dateTime,
+    ),
+    r'interruptionId': PropertySchema(
+      id: 3,
+      name: r'interruptionId',
+      type: IsarType.string,
+    ),
+    r'ownerId': PropertySchema(id: 4, name: r'ownerId', type: IsarType.string),
+    r'reason': PropertySchema(id: 5, name: r'reason', type: IsarType.string),
+    r'sessionId': PropertySchema(
+      id: 6,
+      name: r'sessionId',
+      type: IsarType.string,
+    ),
+    r'startedAt': PropertySchema(
+      id: 7,
+      name: r'startedAt',
+      type: IsarType.dateTime,
+    ),
+  },
+
+  estimateSize: _studyInterruptionLocalModelEstimateSize,
+  serialize: _studyInterruptionLocalModelSerialize,
+  deserialize: _studyInterruptionLocalModelDeserialize,
+  deserializeProp: _studyInterruptionLocalModelDeserializeProp,
+  idName: r'id',
+  indexes: {
+    r'interruptionId': IndexSchema(
+      id: 3152844393120499439,
+      name: r'interruptionId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'interruptionId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        ),
+      ],
+    ),
+    r'ownerId': IndexSchema(
+      id: -7594796109721319539,
+      name: r'ownerId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'ownerId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        ),
+      ],
+    ),
+    r'sessionId': IndexSchema(
+      id: 6949518585047923839,
+      name: r'sessionId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'sessionId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        ),
+      ],
+    ),
+  },
+  links: {},
+  embeddedSchemas: {},
+
+  getId: _studyInterruptionLocalModelGetId,
+  getLinks: _studyInterruptionLocalModelGetLinks,
+  attach: _studyInterruptionLocalModelAttach,
+  version: '3.3.2',
+);
+
+int _studyInterruptionLocalModelEstimateSize(
+  StudyInterruptionLocalModel object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.interruptionId.length * 3;
+  bytesCount += 3 + object.ownerId.length * 3;
+  bytesCount += 3 + object.reason.length * 3;
+  bytesCount += 3 + object.sessionId.length * 3;
+  return bytesCount;
+}
+
+void _studyInterruptionLocalModelSerialize(
+  StudyInterruptionLocalModel object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeDateTime(offsets[0], object.createdAt);
+  writer.writeLong(offsets[1], object.durationSeconds);
+  writer.writeDateTime(offsets[2], object.endedAt);
+  writer.writeString(offsets[3], object.interruptionId);
+  writer.writeString(offsets[4], object.ownerId);
+  writer.writeString(offsets[5], object.reason);
+  writer.writeString(offsets[6], object.sessionId);
+  writer.writeDateTime(offsets[7], object.startedAt);
+}
+
+StudyInterruptionLocalModel _studyInterruptionLocalModelDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = StudyInterruptionLocalModel();
+  object.createdAt = reader.readDateTime(offsets[0]);
+  object.durationSeconds = reader.readLong(offsets[1]);
+  object.endedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.id = id;
+  object.interruptionId = reader.readString(offsets[3]);
+  object.ownerId = reader.readString(offsets[4]);
+  object.reason = reader.readString(offsets[5]);
+  object.sessionId = reader.readString(offsets[6]);
+  object.startedAt = reader.readDateTime(offsets[7]);
+  return object;
+}
+
+P _studyInterruptionLocalModelDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readDateTime(offset)) as P;
+    case 1:
+      return (reader.readLong(offset)) as P;
+    case 2:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readDateTime(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+Id _studyInterruptionLocalModelGetId(StudyInterruptionLocalModel object) {
+  return object.id;
+}
+
+List<IsarLinkBase<dynamic>> _studyInterruptionLocalModelGetLinks(
+  StudyInterruptionLocalModel object,
+) {
+  return [];
+}
+
+void _studyInterruptionLocalModelAttach(
+  IsarCollection<dynamic> col,
+  Id id,
+  StudyInterruptionLocalModel object,
+) {
+  object.id = id;
+}
+
+extension StudyInterruptionLocalModelQueryWhereSort
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QWhere
+        > {
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhere
+  >
+  anyId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+}
+
+extension StudyInterruptionLocalModelQueryWhere
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QWhereClause
+        > {
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  idEqualTo(Id id) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  idNotEqualTo(Id id) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            )
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            )
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  idGreaterThan(Id id, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  idLessThan(Id id, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  idBetween(
+    Id lowerId,
+    Id upperId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  interruptionIdEqualTo(String interruptionId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(
+          indexName: r'interruptionId',
+          value: [interruptionId],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  interruptionIdNotEqualTo(String interruptionId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'interruptionId',
+                lower: [],
+                upper: [interruptionId],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'interruptionId',
+                lower: [interruptionId],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'interruptionId',
+                lower: [interruptionId],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'interruptionId',
+                lower: [],
+                upper: [interruptionId],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  ownerIdEqualTo(String ownerId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'ownerId', value: [ownerId]),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  ownerIdNotEqualTo(String ownerId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'ownerId',
+                lower: [],
+                upper: [ownerId],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'ownerId',
+                lower: [ownerId],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'ownerId',
+                lower: [ownerId],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'ownerId',
+                lower: [],
+                upper: [ownerId],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  sessionIdEqualTo(String sessionId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'sessionId', value: [sessionId]),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterWhereClause
+  >
+  sessionIdNotEqualTo(String sessionId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'sessionId',
+                lower: [],
+                upper: [sessionId],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'sessionId',
+                lower: [sessionId],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'sessionId',
+                lower: [sessionId],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'sessionId',
+                lower: [],
+                upper: [sessionId],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+}
+
+extension StudyInterruptionLocalModelQueryFilter
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QFilterCondition
+        > {
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  createdAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'createdAt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  createdAtGreaterThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'createdAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  createdAtLessThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'createdAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  createdAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'createdAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  durationSecondsEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'durationSeconds', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  durationSecondsGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'durationSeconds',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  durationSecondsLessThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'durationSeconds',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  durationSecondsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'durationSeconds',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  endedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'endedAt'),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  endedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'endedAt'),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  endedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'endedAt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  endedAtGreaterThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'endedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  endedAtLessThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'endedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  endedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'endedAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  idEqualTo(Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  idGreaterThan(Id value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  idLessThan(Id value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  idBetween(
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'interruptionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'interruptionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'interruptionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'interruptionId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'interruptionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'interruptionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'interruptionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'interruptionId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'interruptionId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  interruptionIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'interruptionId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'ownerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'ownerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'ownerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'ownerId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'ownerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'ownerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'ownerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'ownerId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'ownerId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  ownerIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'ownerId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'reason',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'reason',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'reason',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'reason',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'reason',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'reason',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'reason',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'reason',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'reason', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  reasonIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'reason', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'sessionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'sessionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'sessionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'sessionId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'sessionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'sessionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'sessionId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'sessionId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'sessionId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  sessionIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'sessionId', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  startedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'startedAt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  startedAtGreaterThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'startedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  startedAtLessThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'startedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterFilterCondition
+  >
+  startedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'startedAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+}
+
+extension StudyInterruptionLocalModelQueryObject
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QFilterCondition
+        > {}
+
+extension StudyInterruptionLocalModelQueryLinks
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QFilterCondition
+        > {}
+
+extension StudyInterruptionLocalModelQuerySortBy
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QSortBy
+        > {
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByCreatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByDurationSeconds() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'durationSeconds', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByDurationSecondsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'durationSeconds', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByEndedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByEndedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByInterruptionId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'interruptionId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByInterruptionIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'interruptionId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByOwnerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ownerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByOwnerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ownerId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByReason() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'reason', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByReasonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'reason', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortBySessionId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sessionId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortBySessionIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sessionId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByStartedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  sortByStartedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedAt', Sort.desc);
+    });
+  }
+}
+
+extension StudyInterruptionLocalModelQuerySortThenBy
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QSortThenBy
+        > {
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByCreatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByDurationSeconds() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'durationSeconds', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByDurationSecondsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'durationSeconds', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByEndedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByEndedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenById() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByInterruptionId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'interruptionId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByInterruptionIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'interruptionId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByOwnerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ownerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByOwnerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ownerId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByReason() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'reason', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByReasonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'reason', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenBySessionId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sessionId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenBySessionIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sessionId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByStartedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QAfterSortBy
+  >
+  thenByStartedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedAt', Sort.desc);
+    });
+  }
+}
+
+extension StudyInterruptionLocalModelQueryWhereDistinct
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QDistinct
+        > {
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'createdAt');
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctByDurationSeconds() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'durationSeconds');
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctByEndedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'endedAt');
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctByInterruptionId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'interruptionId',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctByOwnerId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'ownerId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctByReason({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'reason', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctBySessionId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sessionId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<
+    StudyInterruptionLocalModel,
+    StudyInterruptionLocalModel,
+    QDistinct
+  >
+  distinctByStartedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'startedAt');
+    });
+  }
+}
+
+extension StudyInterruptionLocalModelQueryProperty
+    on
+        QueryBuilder<
+          StudyInterruptionLocalModel,
+          StudyInterruptionLocalModel,
+          QQueryProperty
+        > {
+  QueryBuilder<StudyInterruptionLocalModel, int, QQueryOperations>
+  idProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, DateTime, QQueryOperations>
+  createdAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'createdAt');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, int, QQueryOperations>
+  durationSecondsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'durationSeconds');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, DateTime?, QQueryOperations>
+  endedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'endedAt');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, String, QQueryOperations>
+  interruptionIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'interruptionId');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, String, QQueryOperations>
+  ownerIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'ownerId');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, String, QQueryOperations>
+  reasonProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'reason');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, String, QQueryOperations>
+  sessionIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sessionId');
+    });
+  }
+
+  QueryBuilder<StudyInterruptionLocalModel, DateTime, QQueryOperations>
+  startedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'startedAt');
+    });
+  }
+}

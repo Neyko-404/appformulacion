@@ -11,6 +11,7 @@ import 'package:focusly/features/onboarding/data/repositories/in_memory_onboardi
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
+import 'package:focusly/features/study_engine/data/repositories/in_memory_study_interruption_repository.dart';
 import 'package:focusly/features/study_engine/data/repositories/in_memory_study_session_repository.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 import 'package:focusly/features/study_engine/domain/repositories/study_session_repository.dart';
@@ -202,6 +203,66 @@ void main() {
       expect(await harness.repository.getActive('user-1'), isNull);
     },
   );
+
+  test('lifecycle ignores missing and paused sessions', () async {
+    final harness = await _Harness.create();
+    addTearDown(harness.dispose);
+    await harness.notifier.handleAppBackgrounded();
+    expect(await harness.interruptions.open('user-1', 'missing'), isNull);
+
+    await harness.notifier.start();
+    await harness.notifier.pause();
+    await harness.notifier.handleAppBackgrounded();
+    expect(
+      await harness.interruptions.open(
+        'user-1',
+        harness.state.activeSession!.id,
+      ),
+      isNull,
+    );
+  });
+
+  test(
+    'brief exits are discarded and relevant exits show feedback once',
+    () async {
+      final harness = await _Harness.create();
+      addTearDown(harness.dispose);
+      await harness.notifier.start();
+      final sessionId = harness.state.activeSession!.id;
+
+      await harness.notifier.handleAppBackgrounded();
+      await harness.notifier.handleAppBackgrounded();
+      harness.clock.advance(const Duration(seconds: 4));
+      await harness.notifier.handleAppResumed();
+      expect(await harness.interruptions.count('user-1', sessionId), 0);
+      expect(harness.state.lastRelevantInterruption, isNull);
+
+      await harness.notifier.handleAppBackgrounded();
+      harness.clock.advance(const Duration(seconds: 6));
+      await harness.notifier.handleAppResumed();
+      expect(await harness.interruptions.count('user-1', sessionId), 1);
+      expect(harness.state.currentInterruptionCount, 1);
+      expect(harness.state.lastRelevantInterruption, isNotNull);
+      harness.notifier.dismissInterruptionFeedback();
+      expect(harness.state.lastRelevantInterruption, isNull);
+    },
+  );
+
+  test('resuming after expiry prioritizes completed result', () async {
+    final harness = await _Harness.create();
+    addTearDown(harness.dispose);
+    harness.notifier.selectDuration(const Duration(minutes: 15));
+    await harness.notifier.start();
+    await harness.notifier.handleAppBackgrounded();
+    harness.clock.advance(const Duration(minutes: 16));
+    await harness.notifier.handleAppResumed();
+    expect(harness.state.activeSession, isNull);
+    expect(
+      harness.state.lastFinishedSession?.status,
+      StudySessionStatus.completed,
+    );
+    expect(harness.state.lastRelevantInterruption, isNull);
+  });
 }
 
 Course _course() {
@@ -218,10 +279,17 @@ Course _course() {
 }
 
 final class _Harness {
-  _Harness(this.container, this.repository, this.clock, this.subscription);
+  _Harness(
+    this.container,
+    this.repository,
+    this.interruptions,
+    this.clock,
+    this.subscription,
+  );
 
   final ProviderContainer container;
   final _CountingRepository repository;
+  final InMemoryStudyInterruptionRepository interruptions;
   final _FakeClock clock;
   final ProviderSubscription<StudyEngineState> subscription;
   StudyEngineNotifier get notifier =>
@@ -235,6 +303,7 @@ final class _Harness {
   }) async {
     final clock = _FakeClock(DateTime.utc(2026, 7, 12, 10));
     final repository = _CountingRepository(countSaves: countSaves);
+    final interruptions = InMemoryStudyInterruptionRepository();
     final container = ProviderContainer(
       overrides: [
         publicAuthSessionProvider.overrideWithValue(
@@ -247,6 +316,7 @@ final class _Harness {
           InMemoryOnboardingRepository(),
         ),
         studySessionRepositoryProvider.overrideWithValue(repository),
+        studyInterruptionRepositoryProvider.overrideWithValue(interruptions),
         studyClockProvider.overrideWithValue(clock),
         activeCoursesProvider.overrideWith((ref) {
           final values = coursesProvider == null
@@ -264,7 +334,7 @@ final class _Harness {
       if (!next.isInitializing && !ready.isCompleted) ready.complete();
     }, fireImmediately: true);
     await ready.future;
-    return _Harness(container, repository, clock, subscription);
+    return _Harness(container, repository, interruptions, clock, subscription);
   }
 
   void dispose() {

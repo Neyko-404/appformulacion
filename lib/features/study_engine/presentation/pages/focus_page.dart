@@ -5,6 +5,7 @@ import 'package:focusly/app/router/route_names.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/features/study_engine/companion_message_service.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_interruption.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 import 'package:focusly/features/study_engine/presentation/widgets/focus_experience_widgets.dart';
 import 'package:focusly/features/study_engine/study_engine_providers.dart';
@@ -19,28 +20,8 @@ class FocusPage extends ConsumerStatefulWidget {
   ConsumerState<FocusPage> createState() => _FocusPageState();
 }
 
-class _FocusPageState extends ConsumerState<FocusPage>
-    with WidgetsBindingObserver {
+class _FocusPageState extends ConsumerState<FocusPage> {
   bool _isExitDialogOpen = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.read(studyEngineNotifierProvider.notifier).reconcile();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +47,11 @@ class _FocusPageState extends ConsumerState<FocusPage>
         appBar: AppBar(
           title: const Text('Modo enfoque'),
           actions: [
+            IconButton(
+              onPressed: _showInterruptionPrivacy,
+              icon: const Icon(Icons.privacy_tip_outlined),
+              tooltip: 'Privacidad de interrupciones',
+            ),
             IconButton(
               onPressed: () => context.push(RoutePaths.focusHistory),
               icon: const Icon(Icons.history_outlined),
@@ -152,31 +138,55 @@ class _FocusPageState extends ConsumerState<FocusPage>
                                 plannedDuration: state.selectedDuration,
                               ),
                             )
-                          : _ActiveSessionView(
-                              session: active,
-                              remaining: state.remaining,
-                              courseLabel:
-                                  activeCourse?.name ??
-                                  (active.courseId == null
-                                      ? 'Sesión libre'
-                                      : 'Curso asociado'),
-                              isOperating: state.isOperating,
-                              onPause: () async {
-                                await HapticFeedback.selectionClick();
-                                await notifier.pause();
-                              },
-                              onResume: () async {
-                                await HapticFeedback.selectionClick();
-                                await notifier.resume();
-                              },
-                              onCancel: _confirmCancellation,
-                              companionName: companion?.name,
-                              companionAppearance: companion?.appearance,
-                              companionMessage: messageService.message(
-                                status: active.status,
-                                remaining: state.remaining,
-                                plannedDuration: active.plannedDuration,
-                              ),
+                          : Column(
+                              children: [
+                                if (state.lastRelevantInterruption != null) ...[
+                                  _InterruptionFeedback(
+                                    interruption:
+                                        state.lastRelevantInterruption!,
+                                    isOperating: state.isOperating,
+                                    onContinue:
+                                        notifier.dismissInterruptionFeedback,
+                                    onPause: () async {
+                                      notifier.dismissInterruptionFeedback();
+                                      await notifier.pause();
+                                    },
+                                    onCancel: _confirmCancellation,
+                                  ),
+                                  const SizedBox(height: AppSpacing.large),
+                                ],
+                                _ActiveSessionView(
+                                  session: active,
+                                  remaining: state.remaining,
+                                  courseLabel:
+                                      activeCourse?.name ??
+                                      (active.courseId == null
+                                          ? 'Sesión libre'
+                                          : 'Curso asociado'),
+                                  isOperating: state.isOperating,
+                                  onPause: () async {
+                                    await HapticFeedback.selectionClick();
+                                    await notifier.pause();
+                                  },
+                                  onResume: () async {
+                                    await HapticFeedback.selectionClick();
+                                    await notifier.resume();
+                                  },
+                                  onCancel: _confirmCancellation,
+                                  companionName: companion?.name,
+                                  companionAppearance: companion?.appearance,
+                                  companionMessage:
+                                      state.lastRelevantInterruption != null
+                                      ? messageService
+                                            .interruptedReturnMessage()
+                                      : messageService.message(
+                                          status: active.status,
+                                          remaining: state.remaining,
+                                          plannedDuration:
+                                              active.plannedDuration,
+                                        ),
+                                ),
+                              ],
                             ),
                     ),
                   ),
@@ -185,6 +195,26 @@ class _FocusPageState extends ConsumerState<FocusPage>
       ),
     );
   }
+
+  Future<void> _showInterruptionPrivacy() => showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Privacidad de interrupciones'),
+      content: const Text(
+        'Focusly solo registra cuando la aplicación deja de estar visible '
+        'durante una sesión activa. No sabe qué aplicación usaste ni solicita '
+        'acceso al uso de otras aplicaciones. Los registros se guardan '
+        'localmente en tu dispositivo y no se envían a un servidor. El '
+        'objetivo es ayudarte a retomar la sesión.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: dialogContext.pop,
+          child: const Text('Entendido'),
+        ),
+      ],
+    ),
+  );
 
   Future<void> _showExitOptions() async {
     if (_isExitDialogOpen || !mounted) return;
@@ -370,6 +400,80 @@ final class _PreparationView extends StatelessWidget {
         ],
       ],
     );
+  }
+}
+
+final class _InterruptionFeedback extends StatelessWidget {
+  const _InterruptionFeedback({
+    required this.interruption,
+    required this.isOperating,
+    required this.onContinue,
+    required this.onPause,
+    required this.onCancel,
+  });
+
+  final StudyInterruption interruption;
+  final bool isOperating;
+  final VoidCallback onContinue;
+  final VoidCallback onPause;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final durationLabel = _durationLabel(interruption.duration);
+    return Semantics(
+      container: true,
+      label: 'Ya estás de vuelta. Interrupción de $durationLabel.',
+      child: Card(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.large),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Ya estás de vuelta.',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppSpacing.xSmall),
+              Text('Focusly no estuvo visible durante $durationLabel.'),
+              const SizedBox(height: AppSpacing.medium),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: AppSpacing.small,
+                children: [
+                  TextButton(
+                    onPressed: isOperating ? null : onCancel,
+                    child: const Text('Cancelar sesión'),
+                  ),
+                  OutlinedButton(
+                    onPressed: isOperating ? null : onPause,
+                    child: const Text('Pausar'),
+                  ),
+                  FilledButton(
+                    onPressed: isOperating ? null : onContinue,
+                    child: const Text('Continuar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _durationLabel(Duration duration) {
+    final seconds = duration.inSeconds;
+    if (seconds < 60) return seconds == 1 ? '1 segundo' : '$seconds segundos';
+    final minutes = duration.inMinutes;
+    final remainingSeconds = seconds.remainder(60);
+    final minutesLabel = minutes == 1 ? '1 minuto' : '$minutes minutos';
+    if (remainingSeconds == 0) return minutesLabel;
+    final secondsLabel = remainingSeconds == 1
+        ? '1 segundo'
+        : '$remainingSeconds segundos';
+    return '$minutesLabel y $secondsLabel';
   }
 }
 

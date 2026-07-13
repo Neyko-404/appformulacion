@@ -1,4 +1,5 @@
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_interruption.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 
 final class StudyEngineState {
@@ -14,6 +15,8 @@ final class StudyEngineState {
     this.errorMessage,
     this.message,
     this.companion,
+    this.lastRelevantInterruption,
+    this.interruptionCounts = const {},
   });
   final bool isInitializing;
   final StudySession? activeSession;
@@ -26,6 +29,11 @@ final class StudyEngineState {
   final String? errorMessage;
   final String? message;
   final StudyCompanion? companion;
+  final StudyInterruption? lastRelevantInterruption;
+  final Map<String, int> interruptionCounts;
+
+  int get currentInterruptionCount =>
+      activeSession == null ? 0 : interruptionCounts[activeSession!.id] ?? 0;
 
   StudyEngineState copyWith({
     bool? isInitializing,
@@ -43,6 +51,9 @@ final class StudyEngineState {
     String? message,
     bool clearFeedback = false,
     StudyCompanion? companion,
+    StudyInterruption? lastRelevantInterruption,
+    bool clearInterruptionFeedback = false,
+    Map<String, int>? interruptionCounts,
   }) => StudyEngineState(
     isInitializing: isInitializing ?? this.isInitializing,
     activeSession: clearActive ? null : activeSession ?? this.activeSession,
@@ -59,5 +70,9 @@ final class StudyEngineState {
     errorMessage: clearFeedback ? null : errorMessage ?? this.errorMessage,
     message: clearFeedback ? null : message ?? this.message,
     companion: companion ?? this.companion,
+    lastRelevantInterruption: clearInterruptionFeedback
+        ? null
+        : lastRelevantInterruption ?? this.lastRelevantInterruption,
+    interruptionCounts: interruptionCounts ?? this.interruptionCounts,
   );
 }
