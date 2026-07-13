@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focusly/features/analytics/application/providers/analytics_providers.dart';
+import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/study_engine/study_analytics_read_api.dart';
 
@@ -13,6 +14,7 @@ final class TodayAnalyticsProjection {
     this.hasData = true,
     this.mostStudiedCourseName,
     this.errorMessage,
+    this.weeklyTrend,
   });
 
   final bool isLoading;
@@ -23,6 +25,17 @@ final class TodayAnalyticsProjection {
   final bool hasData;
   final String? mostStudiedCourseName;
   final String? errorMessage;
+  final DashboardTrendProjection? weeklyTrend;
+}
+
+final class DashboardTrendProjection {
+  const DashboardTrendProjection({
+    required this.message,
+    required this.direction,
+  });
+
+  final String message;
+  final TrendDirection direction;
 }
 
 final todayAnalyticsProvider = Provider<TodayAnalyticsProjection>((ref) {
@@ -37,6 +50,11 @@ final todayAnalyticsProvider = Provider<TodayAnalyticsProjection>((ref) {
     interruptionDuration: daily?.interruptionDuration ?? Duration.zero,
     mostStudiedCourseName: daily?.mostStudiedCourse?.courseName,
     errorMessage: state.errorMessage,
+    weeklyTrend: daily == null || state.summary == null
+        ? null
+        : projectDashboardWeeklyTrend(
+            state.summary!.trends.weekly.focusedMinutes,
+          ),
   );
 });
 
@@ -53,5 +71,38 @@ final dashboardTodayAnalyticsProvider =
         interruptionCount: daily.interruptionCount,
         interruptionDuration: daily.interruptionDuration,
         mostStudiedCourseName: daily.mostStudiedCourse?.courseName,
+        weeklyTrend: projectDashboardWeeklyTrend(
+          summary.trends.weekly.focusedMinutes,
+        ),
       );
     });
+
+DashboardTrendProjection? projectDashboardWeeklyTrend(TrendComparison value) {
+  final percentage = value.percentageVariation;
+  if (value.currentValue == 0 && value.previousValue == 0) return null;
+  if (value.currentValue == 0 && value.previousValue > 0) {
+    return const DashboardTrendProjection(
+      message: 'Esta semana aún no registras tiempo de estudio.',
+      direction: TrendDirection.down,
+    );
+  }
+  if (value.direction == TrendDirection.stable) {
+    return const DashboardTrendProjection(
+      message: 'Mantienes un ritmo similar a la semana pasada.',
+      direction: TrendDirection.stable,
+    );
+  }
+  if (percentage == null) {
+    return DashboardTrendProjection(
+      message: 'Comenzaste a sumar tiempo de estudio esta semana.',
+      direction: value.direction,
+    );
+  }
+  final amount = percentage.abs().round();
+  return DashboardTrendProjection(
+    message: value.direction == TrendDirection.up
+        ? '$amount % más tiempo que la semana pasada.'
+        : '$amount % menos tiempo que la semana pasada.',
+    direction: value.direction,
+  );
+}

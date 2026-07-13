@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/academic_tracker/domain/entities/course.dart';
 import 'package:focusly/features/analytics/analytics_public_providers.dart';
+import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
+import 'package:focusly/features/analytics/domain/services/trend_calculator.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
@@ -23,6 +25,23 @@ import 'package:focusly/features/study_engine/domain/entities/study_session.dart
 import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 
 void main() {
+  test('dashboard trend distinguishes all zero-data cases', () {
+    const calculator = TrendCalculator();
+    expect(projectDashboardWeeklyTrend(calculator.compare(0, 0)), isNull);
+    expect(
+      projectDashboardWeeklyTrend(calculator.compare(30, 0))?.message,
+      'Comenzaste a sumar tiempo de estudio esta semana.',
+    );
+    expect(
+      projectDashboardWeeklyTrend(calculator.compare(0, 30))?.message,
+      'Esta semana aún no registras tiempo de estudio.',
+    );
+    expect(
+      projectDashboardWeeklyTrend(calculator.compare(30, 30))?.message,
+      'Mantienes un ritmo similar a la semana pasada.',
+    );
+  });
+
   Future<void> pumpDashboard(
     WidgetTester tester, {
     ActiveStudySummary study = const ActiveStudySummary(
@@ -164,6 +183,10 @@ void main() {
         interruptionCount: 2,
         interruptionDuration: Duration(minutes: 4),
         mostStudiedCourseName: 'Cálculo',
+        weeklyTrend: DashboardTrendProjection(
+          message: '15 % más tiempo que la semana pasada.',
+          direction: TrendDirection.up,
+        ),
       ),
     );
     expect(find.text('1 h 25 min'), findsOneWidget);
@@ -171,6 +194,9 @@ void main() {
     expect(find.textContaining('Cálculo'), findsOneWidget);
     expect(find.text('2'), findsOneWidget);
     expect(find.text('Ver progreso'), findsOneWidget);
+    expect(find.text('Tendencia'), findsOneWidget);
+    expect(find.textContaining('15 % más tiempo'), findsOneWidget);
+    expect(find.byIcon(Icons.trending_up), findsOneWidget);
   });
 
   testWidgets('primary action exposes Study Engine entry point', (

@@ -62,6 +62,7 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
             errorMessage: analyticsAsync.hasError
                 ? 'No pudimos actualizar el resumen de hoy.'
                 : analyticsValue.errorMessage,
+            weeklyTrend: analyticsValue.weeklyTrend,
           );
 
     return Scaffold(
