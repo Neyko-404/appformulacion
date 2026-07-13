@@ -13,6 +13,7 @@ abstract final class RouteNames {
   static const focus = 'focus';
   static const focusHistory = 'focus-history';
   static const analytics = 'analytics';
+  static const companionCustomization = 'companion-customization';
 }
 
 abstract final class RoutePaths {
@@ -31,4 +32,5 @@ abstract final class RoutePaths {
   static const focus = '/focus';
   static const focusHistory = '/focus/history';
   static const analytics = '/analytics';
+  static const companionCustomization = '/companion/customization';
 }

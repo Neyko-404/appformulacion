@@ -21,6 +21,7 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 5C — Trends & Progress:** implementado con comparaciones locales semanales, mensuales y por curso.
 - **Sprint 5D — Personalized Insights Engine:** implementado con reglas deterministas, locales y no persistentes.
 - **Sprint 6A — Companion State & Progression:** implementado como estado académico derivado, neutral y no persistente.
+- **Sprint 6B — Companion Personalization:** implementado con identidad visual y personalización local explícita.
 - **Horarios y calificaciones:** pendientes.
 - **Pomodoro:** pendiente.
 - **Mascota interactiva:** pendiente.

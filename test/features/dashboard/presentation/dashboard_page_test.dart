@@ -12,9 +12,13 @@ import 'package:focusly/features/analytics/domain/services/trend_calculator.dart
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/companion/companion_customization_public.dart';
 import 'package:focusly/features/companion/companion_public_providers.dart';
+import 'package:focusly/features/companion/domain/entities/companion_customization.dart'
+    as customization;
 import 'package:focusly/features/companion/domain/entities/companion_state.dart'
     hide StudyCompanion;
+import 'package:focusly/features/companion/domain/services/companion_presentation_mapper.dart';
 import 'package:focusly/features/dashboard/dashboard_providers.dart';
 import 'package:focusly/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/courses_card.dart';
@@ -105,6 +109,24 @@ void main() {
           ),
           activeStudySummaryProvider.overrideWithValue(study),
           companionSnapshotProvider.overrideWithValue(companionSnapshot),
+          companionPresentationProvider.overrideWithValue(
+            companionSnapshot == null
+                ? null
+                : const CompanionPresentationMapper().map(
+                    snapshot: companionSnapshot,
+                    customization: customization.CompanionCustomization(
+                      ownerId: 'user-1',
+                      identity: customization.CompanionIdentity(
+                        displayName: companionName,
+                        selectedTheme: customization.CompanionTheme.ocean,
+                        selectedAvatar:
+                            customization.CompanionAppearance.nature,
+                        preferredExpressionStyle:
+                            customization.CompanionExpressionStyle.standard,
+                      ),
+                    ),
+                  ),
+          ),
           if (analyticsLoader != null)
             dashboardTodayAnalyticsProvider.overrideWith(
               (ref) => analyticsLoader(),

@@ -10,6 +10,7 @@ import 'package:focusly/features/authentication/presentation/pages/login_page.da
 import 'package:focusly/features/authentication/presentation/pages/register_page.dart';
 import 'package:focusly/features/authentication/presentation/pages/verify_email_page.dart';
 import 'package:focusly/features/authentication/presentation/providers/auth_providers.dart';
+import 'package:focusly/features/companion/presentation/pages/companion_customization_page.dart';
 import 'package:focusly/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
 import 'package:focusly/features/onboarding/presentation/pages/onboarding_error_page.dart';
@@ -78,6 +79,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           location == RoutePaths.focus || location == RoutePaths.focusHistory;
       return location == RoutePaths.dashboard ||
               location == RoutePaths.analytics ||
+              location == RoutePaths.companionCustomization ||
               isCourseRoute ||
               isFocusRoute
           ? null
@@ -154,6 +156,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: RouteNames.analytics,
         path: RoutePaths.analytics,
         builder: (context, state) => const AnalyticsPage(),
+      ),
+      GoRoute(
+        name: RouteNames.companionCustomization,
+        path: RoutePaths.companionCustomization,
+        builder: (context, state) => const CompanionCustomizationPage(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRoutePage(location: state.uri),
