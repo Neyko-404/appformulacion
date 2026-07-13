@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:focusly/app/router/route_names.dart';
+import 'package:focusly/features/analytics/analytics_public_providers.dart';
 import 'package:focusly/features/analytics/application/providers/analytics_providers.dart';
+import 'package:focusly/features/analytics/domain/entities/study_insight.dart';
+import 'package:focusly/features/analytics/insights_public_widgets.dart';
 import 'package:focusly/features/analytics/presentation/widgets/analytics_widgets.dart';
 import 'package:focusly/shared/presentation/app_spacing.dart';
+import 'package:go_router/go_router.dart';
 
 final class AnalyticsPage extends ConsumerWidget {
   const AnalyticsPage({super.key});
@@ -12,6 +17,7 @@ final class AnalyticsPage extends ConsumerWidget {
     final state = ref.watch(analyticsNotifierProvider);
     final notifier = ref.read(analyticsNotifierProvider.notifier);
     final summary = state.summary;
+    final insights = ref.watch(analyticsInsightsProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Progreso de estudio'),
@@ -68,6 +74,15 @@ final class AnalyticsPage extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSpacing.large),
                     TrendComparisonCard.monthly(summary.trends.monthly),
+                    if (insights.values.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.large),
+                      StudyInsightsSection(
+                        title: 'Insights',
+                        collection: insights,
+                        maxItems: 3,
+                        onAction: (action) => _openInsight(context, action),
+                      ),
+                    ],
                     if (summary.courses.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.large),
                       Text(
@@ -84,6 +99,17 @@ final class AnalyticsPage extends ConsumerWidget {
               ),
       ),
     );
+  }
+
+  void _openInsight(BuildContext context, InsightAction action) {
+    final path = switch (action) {
+      InsightAction.continueFocus ||
+      InsightAction.startFocus => RoutePaths.focus,
+      InsightAction.openCourses => RoutePaths.courses,
+      InsightAction.openAnalytics || InsightAction.reviewProgress => null,
+      InsightAction.none => null,
+    };
+    if (path != null) context.push(path);
   }
 }
 

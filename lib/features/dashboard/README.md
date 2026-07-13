@@ -52,6 +52,8 @@ Dashboard muestra el resumen read-only de hoy: tiempo estudiado, sesiones comple
 
 Sprint 5C añade una línea compacta de tendencia semanal con iconografía Material y copy neutral. El mensaje y la dirección llegan en la proyección pública de Analytics; Dashboard no compara periodos, no calcula porcentajes y no accede a fuentes históricas.
 
+Sprint 5D añade “Recomendaciones” con un máximo de dos insights. La colección llega calculada desde la API pública de Analytics; Dashboard únicamente presenta icono, título, mensaje y acción opcional. No contiene reglas, no deduplica resultados y no genera copy.
+
 ## Dashboard Intelligence
 
 La jerarquía visual es: encabezado, acción principal, insight, compañero, resumen de hoy, objetivo y cursos. La acción principal se deriva de `activeStudySummaryProvider`: inicia cuando no hay sesión, continúa una sesión activa o retoma una sesión pausada.
@@ -81,3 +83,4 @@ Esta feature implementa Dashboard Intelligence Sprint 5B mediante reglas determi
 | 0.1.0 | 12 de julio de 2026 | En desarrollo | Base responsive del Dashboard Sprint 3A. | Equipo Focusly |
 | 0.2.0 | 12 de julio de 2026 | Implementado | Dashboard Intelligence Sprint 5B. | Equipo Focusly |
 | 0.2.1 | 12 de julio de 2026 | Implementado | Proyección visual de tendencia semanal Sprint 5C. | Equipo Focusly |
+| 0.2.2 | 12 de julio de 2026 | Implementado | Recomendaciones públicas de Personalized Insights Sprint 5D. | Equipo Focusly |

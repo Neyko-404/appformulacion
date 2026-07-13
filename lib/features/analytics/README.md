@@ -4,8 +4,8 @@
 | --- | --- |
 | Feature | Analytics |
 | Requisito | RF-009 |
-| Sprint | 5C |
-| Estado | Trends & Progress implementado |
+| Sprint | 5D |
+| Estado | Personalized Insights Engine implementado |
 
 ## Propósito y alcance
 
@@ -43,9 +43,17 @@ Sprint 5C compara semana actual con anterior y mes actual con anterior para tiem
 
 `AnalyticsRepository` ofrece una única lectura normalizada por propietario. `GetAnalyticsSummary` coordina reloj, rangos, lectura y calculador. No existen casos de uso que solo reenvíen llamadas.
 
+## Personalized Insights Engine
+
+`StudyInsightEngine` transforma `StudyAnalyticsSummary`, `StudyTrendSummary`, `InsightDashboardSummary` e `InsightProfileProjection` en una `InsightCollection`. Es un servicio puro: no usa Flutter, Riverpod, repositorios, Isar, Firebase, reloj, red, IA, aprendizaje ni aleatoriedad. Los resultados no contienen fechas y nunca se persisten.
+
+Las categorías disponibles son progress, consistency, focus, interruption, course, motivation y general. Las prioridades critical, high, medium y low ordenan la presentación y no representan gravedad clínica. Las acciones son continueFocus, startFocus, openAnalytics, openCourses, reviewProgress y none.
+
+Las únicas reglas actuales son: ausencia de actividad hoy, varias interrupciones hoy, aumento o disminución semanal comparable, cambio de curso dominante, al menos cinco días activos y ausencia de cursos. El lenguaje es neutral. Las candidatas se ordenan por prioridad, se deduplican por identidad y categoría, y se limitan a tres resultados.
+
 ## Estado, API pública y navegación
 
-`AnalyticsNotifier` modela carga, datos, error y refresh conservando el último resumen válido. `analytics_public_providers.dart` expone a Dashboard `dashboardTodayAnalyticsProvider`, una proyección futura read-only de hoy y una tendencia semanal resumida, sin Notifier ni operaciones de escritura. `/analytics` muestra cards de hoy, semana, mes, comparaciones y cursos sin gráficos.
+`AnalyticsNotifier` modela carga, datos, error y refresh conservando el último resumen válido. `analytics_public_providers.dart` expone proyecciones read-only de resumen, tendencia e insights sin Notifier ni operaciones de escritura. `/analytics` muestra cards de hoy, semana, mes, comparaciones, hasta tres insights y cursos sin gráficos.
 
 La estrategia carga al montar el consumidor, permite invalidación explícita desde Dashboard y escucha una revisión pública de Study Engine. La revisión cambia únicamente ante sesiones persistentes o conteos de interrupciones relevantes; excluye el tiempo restante, por lo que los ticks normales no consultan Analytics. Las señales simultáneas se agrupan en una sola recarga pendiente.
 
@@ -65,7 +73,7 @@ Las pruebas usan reloj y fuentes fake, sin Firebase, Isar, red ni paquetes de mo
 
 ## AI CONTEXT
 
-Analytics implementa RF-009 hasta Sprint 5C y es estrictamente read-only. Una IA debe mantener agregaciones y tendencias en servicios puros, consumir contratos públicos, aislar por `ownerId` y no añadir persistencia, gráficos, predicciones, IA o gamificación sin autorización.
+Analytics implementa RF-009 hasta Sprint 5D y es estrictamente read-only. Una IA debe mantener agregaciones, tendencias e insights en servicios puros, consumir contratos públicos, aislar por `ownerId` y no añadir persistencia, gráficos, predicciones, IA o gamificación sin autorización.
 
 ## Historial de cambios
 
@@ -74,3 +82,4 @@ Analytics implementa RF-009 hasta Sprint 5C y es estrictamente read-only. Una IA
 | 0.1.0 | 12 de julio de 2026 | Implementado | Analytics Foundation read-only. | Equipo Focusly |
 | 0.1.1 | 12 de julio de 2026 | Implementado | Proyección diaria read-only para Dashboard Intelligence. | Equipo Focusly |
 | 0.2.0 | 12 de julio de 2026 | Implementado | Comparaciones locales de Trends & Progress. | Equipo Focusly |
+| 0.3.0 | 12 de julio de 2026 | Implementado | Personalized Insights Engine determinista. | Equipo Focusly |

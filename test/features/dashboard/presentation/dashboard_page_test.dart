@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/academic_tracker/domain/entities/course.dart';
 import 'package:focusly/features/analytics/analytics_public_providers.dart';
+import 'package:focusly/features/analytics/domain/entities/study_insight.dart';
 import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
 import 'package:focusly/features/analytics/domain/services/trend_calculator.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
@@ -187,16 +188,29 @@ void main() {
           message: '15 % más tiempo que la semana pasada.',
           direction: TrendDirection.up,
         ),
+        insights: InsightCollection([
+          StudyInsight(
+            id: 'progress.test',
+            category: InsightCategory.progress,
+            priority: InsightPriority.medium,
+            title: 'Tu progreso aumentó',
+            message: 'Has aumentado tu tiempo de estudio.',
+            action: InsightAction.reviewProgress,
+            createdFromRule: 'test',
+          ),
+        ]),
       ),
     );
     expect(find.text('1 h 25 min'), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
     expect(find.textContaining('Cálculo'), findsOneWidget);
     expect(find.text('2'), findsOneWidget);
-    expect(find.text('Ver progreso'), findsOneWidget);
+    expect(find.text('Ver progreso'), findsWidgets);
     expect(find.text('Tendencia'), findsOneWidget);
     expect(find.textContaining('15 % más tiempo'), findsOneWidget);
-    expect(find.byIcon(Icons.trending_up), findsOneWidget);
+    expect(find.byIcon(Icons.trending_up), findsWidgets);
+    expect(find.text('Recomendaciones'), findsOneWidget);
+    expect(find.text('Tu progreso aumentó'), findsOneWidget);
   });
 
   testWidgets('primary action exposes Study Engine entry point', (
