@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:focusly/features/companion/domain/entities/companion_state.dart'
-    hide StudyCompanion;
+import 'package:focusly/features/companion/companion_customization_public.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/shared/presentation/focus_companion_card.dart';
 
@@ -8,17 +7,26 @@ class StudyCompanionCard extends StatelessWidget {
   const StudyCompanionCard({
     required this.companion,
     required this.message,
-    this.snapshot,
+    required this.onCustomize,
+    this.presentation,
     super.key,
   });
 
   final StudyCompanion companion;
   final String message;
-  final CompanionSnapshot? snapshot;
+  final CompanionPresentationModel? presentation;
+  final VoidCallback onCustomize;
 
   @override
   Widget build(BuildContext context) {
-    final state = snapshot;
+    final state = presentation;
+    final visual = state == null
+        ? null
+        : CompanionVisualMapper.map(
+            context,
+            theme: state.theme,
+            avatar: state.avatar,
+          );
     return Semantics(
       container: true,
       label: state == null
@@ -28,11 +36,46 @@ class StudyCompanionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FocusCompanionCard(
-            name: companion.name,
-            appearance: companion.appearance,
-            message: message,
-          ),
+          if (state == null)
+            FocusCompanionCard(
+              name: companion.name,
+              appearance: companion.appearance,
+              message: message,
+            )
+          else
+            Card(
+              color: visual!.background,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(visual.icon, size: 52, color: visual.foreground),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            state.displayName,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(color: visual.foreground),
+                          ),
+                          Text(
+                            visual.themeLabel,
+                            style: TextStyle(color: visual.foreground),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            state.message,
+                            style: TextStyle(color: visual.foreground),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (state != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -52,6 +95,14 @@ class StudyCompanionCard extends StatelessWidget {
                 ],
               ),
             ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: onCustomize,
+              icon: const Icon(Icons.tune),
+              label: const Text('Personalizar'),
+            ),
+          ),
         ],
       ),
     );

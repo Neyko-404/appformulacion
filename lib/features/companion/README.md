@@ -3,8 +3,8 @@
 | Campo | Valor |
 | --- | --- |
 | Feature | Companion |
-| Sprint | 6A |
-| Estado | Companion State & Progression implementado |
+| Sprint | 6B |
+| Estado | Companion Personalization implementado |
 
 ## Objetivo
 
@@ -22,6 +22,14 @@ Derivar un estado académico cercano para el compañero sin convertirlo en una m
 
 `companion_public_providers.dart` consume exclusivamente proyecciones públicas read-only de Analytics y expone `companionSnapshotProvider`. El snapshot se recalcula y no se persiste. No hay repositorios, Isar, Firebase, IA, Random, assets ni animaciones.
 
+`companion_customization_public.dart` es el único punto de consumo para Dashboard. Expone la personalización local y el modelo de presentación combinado. Solo `CompanionCustomization` se guarda por usuario en Isar; mood, expression, progress y snapshot continúan siendo derivados y nunca se persisten.
+
+Onboarding proporciona el nombre inicial mediante una API pública mínima y read-only. Después del primer guardado, `CompanionCustomization.displayName` es la fuente oficial para Presentation. Companion no escribe cambios de vuelta en Onboarding ni mantiene dos escrituras sincronizadas; cuando no existe personalización, utiliza el nombre de Onboarding como fallback.
+
+## Identidad visual
+
+La identidad permite editar explícitamente el nombre, elegir uno de cinco temas (classic, forest, ocean, sunset y night) y uno de cinco avatares Material. Domain conserva únicamente enums y texto; el mapeo a `IconData` y colores temáticos vive en Presentation. La vista previa no escribe datos y Guardar es la única acción persistente.
+
 ## Fuera de alcance
 
 Hambre, sueño como necesidad, vida, muerte, monedas, inventario, logros, niveles, batallas, microtransacciones, IA, predicciones, notificaciones y persistencia remota.
@@ -34,4 +42,5 @@ Companion Sprint 6A refleja exclusivamente contexto académico local. Una IA no 
 
 | Versión | Fecha | Estado | Descripción | Autor |
 | --- | --- | --- | --- | --- |
+| 0.2.0 | 12 de julio de 2026 | Implementado | Companion Personalization Sprint 6B. | Equipo Focusly |
 | 0.1.0 | 12 de julio de 2026 | Implementado | Companion State & Progression Sprint 6A. | Equipo Focusly |
