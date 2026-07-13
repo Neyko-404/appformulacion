@@ -32,9 +32,15 @@ void main() {
 
       final state = container.read(analyticsNotifierProvider);
       final public = container.read(todayAnalyticsProvider);
+      final companion = container.read(companionAnalyticsProvider);
       expect(state.summary?.isEmpty, isTrue);
       expect(public.focusedDuration, Duration.zero);
       expect(public.completedSessions, 0);
+      expect(companion?.focusMinutesToday, 0);
+      expect(companion?.completedSessionsToday, 0);
+      expect(companion?.interruptionCountToday, 0);
+      expect(companion?.activeDaysThisWeek, 0);
+      expect(companion?.weeklyTrend, isNull);
       expect(repository.calls, 1);
     },
   );

@@ -12,6 +12,9 @@ import 'package:focusly/features/analytics/domain/services/trend_calculator.dart
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/companion/companion_public_providers.dart';
+import 'package:focusly/features/companion/domain/entities/companion_state.dart'
+    hide StudyCompanion;
 import 'package:focusly/features/dashboard/dashboard_providers.dart';
 import 'package:focusly/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/courses_card.dart';
@@ -65,6 +68,7 @@ void main() {
     double textScale = 1,
     OnboardingRepository? onboardingRepository,
     Future<TodayAnalyticsProjection> Function()? analyticsLoader,
+    CompanionSnapshot? companionSnapshot,
   }) async {
     final now = DateTime.utc(2026, 7, 12);
     final repository = InMemoryOnboardingRepository();
@@ -100,6 +104,7 @@ void main() {
             onboardingRepository ?? repository,
           ),
           activeStudySummaryProvider.overrideWithValue(study),
+          companionSnapshotProvider.overrideWithValue(companionSnapshot),
           if (analyticsLoader != null)
             dashboardTodayAnalyticsProvider.overrideWith(
               (ref) => analyticsLoader(),
@@ -222,6 +227,28 @@ void main() {
     expect(button, findsOneWidget);
   });
 
+  testWidgets('companion shows derived state accessibly', (tester) async {
+    await pumpDashboard(
+      tester,
+      companionSnapshot: const CompanionSnapshot(
+        mood: CompanionMood.celebrating,
+        expression: CompanionExpression.happy,
+        progress: CompanionProgress(
+          focusMinutesToday: 50,
+          completedSessionsToday: 2,
+          activeDays: 5,
+          weeklyTrend: TrendDirection.up,
+        ),
+        message: 'Buen trabajo.',
+      ),
+    );
+    expect(find.text('Celebrando'), findsOneWidget);
+    expect(find.text('Contento'), findsOneWidget);
+    expect(find.text('Buen trabajo.'), findsOneWidget);
+    expect(find.text('Animación futura'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Estado Celebrando')), findsOneWidget);
+  });
+
   testWidgets('primary action distinguishes running and paused sessions', (
     tester,
   ) async {
@@ -311,6 +338,17 @@ void main() {
       companionName: 'Compañero de estudio con nombre muy largo',
       textScale: 2,
       theme: ThemeData.dark(),
+      companionSnapshot: const CompanionSnapshot(
+        mood: CompanionMood.focused,
+        expression: CompanionExpression.normal,
+        progress: CompanionProgress(
+          focusMinutesToday: 50,
+          completedSessionsToday: 2,
+          activeDays: 3,
+          weeklyTrend: TrendDirection.stable,
+        ),
+        message: 'Buen trabajo. Sigamos cuando quieras.',
+      ),
       courses: [
         Course(
           id: 'course-1',
