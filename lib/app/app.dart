@@ -4,6 +4,7 @@ import 'package:focusly/app/router/app_router.dart';
 import 'package:focusly/app/theme/app_theme.dart';
 import 'package:focusly/app/theme/theme_mode_provider.dart';
 import 'package:focusly/config/app_config.dart';
+import 'package:focusly/features/study_engine/presentation/widgets/study_lifecycle_observer.dart';
 
 class FocuslyApp extends ConsumerWidget {
   const FocuslyApp({super.key});
@@ -20,6 +21,8 @@ class FocuslyApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
       routerConfig: router,
+      builder: (context, child) =>
+          StudyLifecycleObserver(child: child ?? const SizedBox.shrink()),
     );
   }
 }

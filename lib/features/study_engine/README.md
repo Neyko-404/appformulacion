@@ -4,8 +4,8 @@
 | --- | --- |
 | Feature | Study Engine |
 | Requisito | RF-005 |
-| Sprint | 4B |
-| Estado | Focus Experience implementada |
+| Sprint | 4D |
+| Estado | Anti-Distraction Foundation implementada |
 
 ## Propósito y alcance
 
@@ -64,6 +64,18 @@ Sprint 4C integra al compañero de estudio como apoyo visual discreto en ready, 
 ## AI CONTEXT
 
 Esta feature implementa RF-005 Sprint 4A. Una IA debe preservar timestamps como fuente temporal, reloj inyectable, aislamiento y API pública. No puede añadir background permanente, notificaciones, bloqueo, estadísticas o gamificación sin autorización.
+
+## Sprint 4D — Anti-Distraction Foundation
+
+Una interrupción representa que Focusly dejó de estar visible mientras una sesión estaba en estado running. `AppLifecycleState` no permite conocer qué aplicación se abrió ni qué hizo el usuario fuera de Focusly. Presentation agrupa `inactive`, `hidden`, `paused` y `detached` como una única salida, y reconcilia al recibir `resumed`.
+
+`InterruptionPolicy` clasifica como relevante una salida de al menos cinco segundos. Las salidas más breves se descartan y no generan feedback. El tiempo continúa derivándose de timestamps; al regresar, la sesión puede completarse si venció fuera de la aplicación.
+
+Las interrupciones relevantes se almacenan como entidades Isar separadas, aisladas por propietario y sesión. Esto mantiene `StudySession` pequeño, facilita el historial y permite restaurar una interrupción abierta después de la terminación del proceso. Solo se reconcilian timestamps al iniciar: no se promete observación mientras el proceso estuvo terminado.
+
+El retorno presenta copy neutral y acciones para continuar, pausar o cancelar. El compañero usa `interruptedReturn` sin IA, aleatoriedad, penalizaciones ni cambios permanentes. El historial muestra únicamente el conteo relevante por sesión.
+
+Privacidad: los registros permanecen localmente, no incluyen nombres ni paquetes de otras aplicaciones, no se envían a servidores y no requieren acceso al uso de aplicaciones. Usage Access queda pendiente de auditoría futura. También permanecen pendientes las notificaciones y la anti-distracción avanzada.
 
 ## Historial de cambios
 

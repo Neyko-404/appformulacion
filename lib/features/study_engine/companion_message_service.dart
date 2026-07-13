@@ -9,6 +9,7 @@ enum CompanionMessagePhase {
   paused,
   completed,
   cancelled,
+  interruptedReturn,
 }
 
 final class CompanionMessageService {
@@ -63,5 +64,8 @@ final class CompanionMessageService {
     CompanionMessagePhase.completed => 'Buen trabajo. Ahora descansa un poco.',
     CompanionMessagePhase.cancelled =>
       'No pasa nada. Puedes intentarlo nuevamente.',
+    CompanionMessagePhase.interruptedReturn => 'Ya estás de vuelta.',
   };
+
+  String interruptedReturnMessage() => 'Ya estás de vuelta.';
 }

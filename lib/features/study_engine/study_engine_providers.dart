@@ -1,9 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:focusly/features/study_engine/data/data_sources/isar_study_interruption_local_data_source.dart';
 import 'package:focusly/features/study_engine/data/data_sources/isar_study_session_local_data_source.dart';
+import 'package:focusly/features/study_engine/data/data_sources/study_interruption_local_data_source.dart';
 import 'package:focusly/features/study_engine/data/data_sources/study_session_local_data_source.dart';
+import 'package:focusly/features/study_engine/data/repositories/in_memory_study_interruption_repository.dart';
 import 'package:focusly/features/study_engine/data/repositories/in_memory_study_session_repository.dart';
+import 'package:focusly/features/study_engine/data/repositories/isar_study_interruption_repository.dart';
 import 'package:focusly/features/study_engine/data/repositories/isar_study_session_repository.dart';
+import 'package:focusly/features/study_engine/domain/repositories/study_interruption_repository.dart';
 import 'package:focusly/features/study_engine/domain/repositories/study_session_repository.dart';
+import 'package:focusly/features/study_engine/domain/services/interruption_policy.dart';
 import 'package:focusly/features/study_engine/domain/services/study_clock.dart';
 import 'package:focusly/features/study_engine/domain/services/study_session_engine.dart';
 import 'package:focusly/features/study_engine/presentation/notifiers/study_engine_notifier.dart';
@@ -24,6 +30,24 @@ final studySessionRepositoryProvider = Provider<StudySessionRepository>((ref) {
     ref.watch(studySessionLocalDataSourceProvider),
   );
 });
+final studyInterruptionLocalDataSourceProvider =
+    Provider<StudyInterruptionLocalDataSource>((ref) {
+      final database = ref.watch(localDatabaseProvider);
+      if (database == null) throw StateError('Local database unavailable');
+      return IsarStudyInterruptionLocalDataSource(database);
+    });
+final studyInterruptionRepositoryProvider =
+    Provider<StudyInterruptionRepository>((ref) {
+      if (ref.watch(localDatabaseProvider) == null) {
+        return InMemoryStudyInterruptionRepository();
+      }
+      return IsarStudyInterruptionRepository(
+        ref.watch(studyInterruptionLocalDataSourceProvider),
+      );
+    });
+final interruptionPolicyProvider = Provider<InterruptionPolicy>(
+  (ref) => const InterruptionPolicy(),
+);
 final studyClockProvider = Provider<StudyClock>(
   (ref) => const SystemStudyClock(),
 );

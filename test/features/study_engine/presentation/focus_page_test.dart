@@ -10,12 +10,15 @@ import 'package:focusly/features/onboarding/data/repositories/in_memory_onboardi
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
 import 'package:focusly/features/onboarding/onboarding_providers.dart';
+import 'package:focusly/features/study_engine/data/repositories/in_memory_study_interruption_repository.dart';
 import 'package:focusly/features/study_engine/data/repositories/in_memory_study_session_repository.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_interruption.dart';
 import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 import 'package:focusly/features/study_engine/domain/services/study_clock.dart';
 import 'package:focusly/features/study_engine/presentation/notifiers/study_engine_notifier.dart';
 import 'package:focusly/features/study_engine/presentation/pages/focus_history_page.dart';
 import 'package:focusly/features/study_engine/presentation/pages/focus_page.dart';
+import 'package:focusly/features/study_engine/presentation/widgets/study_lifecycle_observer.dart';
 import 'package:focusly/features/study_engine/study_engine_providers.dart';
 import 'package:go_router/go_router.dart';
 
@@ -197,6 +200,17 @@ void main() {
         now: now,
       ),
     );
+    await harness.interruptions.saveClosed(
+      'user-1',
+      'completed',
+      StudyInterruption(
+        id: 'interruption-1',
+        startedAt: now,
+        endedAt: now.add(const Duration(seconds: 6)),
+        reason: StudyInterruptionReason.appBackgrounded,
+        createdAt: now,
+      ),
+    );
     await harness.notifier.refreshHistory();
     await tester.pump();
 
@@ -205,7 +219,103 @@ void main() {
     expect(find.textContaining('1 minuto'), findsOneWidget);
     expect(find.textContaining('2 minutos'), findsOneWidget);
     expect(find.textContaining(_longCourseName), findsOneWidget);
+    expect(find.text('1 interrupción'), findsOneWidget);
+    expect(find.text('Sin interrupciones registradas'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
+  });
+
+  testWidgets('relevant return shows neutral feedback and can continue', (
+    tester,
+  ) async {
+    final harness = await _FocusHarness.pump(tester);
+    addTearDown(harness.dispose);
+    await harness.notifier.start();
+    await harness.notifier.handleAppBackgrounded();
+    harness.clock.advance(const Duration(seconds: 6));
+    await harness.notifier.handleAppResumed();
+    await _pumpInteraction(tester);
+
+    expect(find.text('Ya estás de vuelta.'), findsWidgets);
+    expect(find.textContaining('6 segundos'), findsOneWidget);
+    expect(find.textContaining('distrajiste'), findsNothing);
+    expect(find.textContaining('otra aplicación'), findsNothing);
+    await tester.tap(find.widgetWithText(FilledButton, 'Continuar'));
+    await _pumpInteraction(tester);
+    expect(find.textContaining('6 segundos'), findsNothing);
+  });
+
+  testWidgets('privacy explanation states the exact collection limits', (
+    tester,
+  ) async {
+    final harness = await _FocusHarness.pump(tester);
+    addTearDown(harness.dispose);
+    await tester.tap(find.byTooltip('Privacidad de interrupciones'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('deja de estar visible'), findsOneWidget);
+    expect(find.textContaining('qué aplicación usaste'), findsOneWidget);
+    expect(find.textContaining('localmente'), findsOneWidget);
+    expect(find.textContaining('no se envían'), findsOneWidget);
+  });
+
+  testWidgets('global observer records one interruption from Dashboard', (
+    tester,
+  ) async {
+    final harness = await _FocusHarness.pump(tester);
+    addTearDown(harness.dispose);
+    await harness.notifier.start();
+    final sessionId = harness.container
+        .read(studyEngineNotifierProvider)
+        .activeSession!
+        .id;
+    harness.router.go('/dashboard');
+    await tester.pumpAndSettle();
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    harness.clock.advance(const Duration(seconds: 6));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+
+    expect(await harness.interruptions.count('user-1', sessionId), 1);
+  });
+
+  testWidgets('global observer ignores paused sessions on Dashboard', (
+    tester,
+  ) async {
+    final harness = await _FocusHarness.pump(tester);
+    addTearDown(harness.dispose);
+    await harness.notifier.start();
+    await harness.notifier.pause();
+    final sessionId = harness.container
+        .read(studyEngineNotifierProvider)
+        .activeSession!
+        .id;
+    harness.router.go('/dashboard');
+    await tester.pumpAndSettle();
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    harness.clock.advance(const Duration(seconds: 6));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(await harness.interruptions.count('user-1', sessionId), 0);
+  });
+
+  testWidgets('global observer is removed with its widget', (tester) async {
+    final harness = await _FocusHarness.pump(tester);
+    addTearDown(harness.dispose);
+    await harness.notifier.start();
+    final sessionId = harness.container
+        .read(studyEngineNotifierProvider)
+        .activeSession!
+        .id;
+    await tester.pumpWidget(const SizedBox.shrink());
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    harness.clock.advance(const Duration(seconds: 6));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    expect(await harness.interruptions.count('user-1', sessionId), 0);
+    expect(await harness.interruptions.open('user-1', sessionId), isNull);
   });
 }
 
@@ -218,10 +328,17 @@ const _longCourseName =
     'Cálculo diferencial e integral para ingeniería aplicada';
 
 final class _FocusHarness {
-  _FocusHarness(this.router, this.repository, this.clock, this.container);
+  _FocusHarness(
+    this.router,
+    this.repository,
+    this.interruptions,
+    this.clock,
+    this.container,
+  );
 
   final GoRouter router;
   final InMemoryStudySessionRepository repository;
+  final InMemoryStudyInterruptionRepository interruptions;
   final _FakeClock clock;
   final ProviderContainer container;
 
@@ -233,6 +350,7 @@ final class _FocusHarness {
     bool openHistory = false,
   }) async {
     final repository = InMemoryStudySessionRepository();
+    final interruptions = InMemoryStudyInterruptionRepository();
     final clock = _FakeClock(DateTime.utc(2026, 7, 12, 10));
     final onboarding = InMemoryOnboardingRepository();
     await onboarding.saveOnboarding(
@@ -277,6 +395,7 @@ final class _FocusHarness {
       ),
       onboardingRepositoryProvider.overrideWithValue(onboarding),
       studySessionRepositoryProvider.overrideWithValue(repository),
+      studyInterruptionRepositoryProvider.overrideWithValue(interruptions),
       studyClockProvider.overrideWithValue(clock),
       activeCoursesProvider.overrideWithValue(
         ActiveCoursesSnapshot(
@@ -292,14 +411,16 @@ final class _FocusHarness {
         child: Builder(
           builder: (context) {
             container = ProviderScope.containerOf(context);
-            return MaterialApp.router(routerConfig: router);
+            return StudyLifecycleObserver(
+              child: MaterialApp.router(routerConfig: router),
+            );
           },
         ),
       ),
     );
     router.push(openHistory ? '/focus/history' : '/focus');
     await tester.pumpAndSettle();
-    return _FocusHarness(router, repository, clock, container);
+    return _FocusHarness(router, repository, interruptions, clock, container);
   }
 
   void dispose() {
