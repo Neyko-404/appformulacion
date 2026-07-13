@@ -61,6 +61,8 @@ Sprint 4C integra al compañero de estudio como apoyo visual discreto en ready, 
 
 `FocusCompanionCard` recibe avatar, nombre y mensaje; no consulta repositorios ni controla la sesión. La tarjeta permanece subordinada al temporizador y no incorpora IA, Random, chat, animaciones complejas, sonidos, recompensas, rachas ni notificaciones.
 
+Sprint 6C integra `CompanionPresenceCard` mediante la API pública de Companion en ready, running, paused, retorno, completed y cancelled. Study Engine aporta estado y duraciones ya disponibles; su motor temporal no conoce expresiones y no depende de Companion Domain. El temporizador conserva la jerarquía principal.
+
 ## AI CONTEXT
 
 Esta feature implementa RF-005 Sprint 4A. Una IA debe preservar timestamps como fuente temporal, reloj inyectable, aislamiento y API pública. No puede añadir background permanente, notificaciones, bloqueo, estadísticas o gamificación sin autorización.

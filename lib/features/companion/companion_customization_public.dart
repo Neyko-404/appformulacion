@@ -4,16 +4,20 @@ import 'package:focusly/features/companion/companion_public_providers.dart';
 import 'package:focusly/features/companion/data/repositories/in_memory_companion_customization_repository.dart';
 import 'package:focusly/features/companion/data/repositories/isar_companion_customization_repository.dart';
 import 'package:focusly/features/companion/domain/entities/companion_customization.dart';
+import 'package:focusly/features/companion/domain/entities/companion_expression_state.dart';
 import 'package:focusly/features/companion/domain/entities/companion_presentation_model.dart';
 import 'package:focusly/features/companion/domain/repositories/companion_customization_repository.dart';
+import 'package:focusly/features/companion/domain/services/companion_expression_engine.dart';
 import 'package:focusly/features/companion/domain/services/companion_presentation_mapper.dart';
 import 'package:focusly/features/onboarding/onboarding_companion_read_api.dart';
 import 'package:focusly/services/local_database/local_database_provider.dart';
 
+export 'package:focusly/features/companion/domain/entities/companion_expression_state.dart';
 export 'package:focusly/features/companion/domain/entities/companion_presentation_model.dart';
 export 'package:focusly/features/companion/domain/entities/companion_state.dart'
     show CompanionExpression, CompanionMood;
 export 'package:focusly/features/companion/presentation/companion_visual_mapper.dart';
+export 'package:focusly/features/companion/presentation/widgets/companion_presence_card.dart';
 
 final companionCustomizationRepositoryProvider =
     Provider<CompanionCustomizationRepository>((ref) {
@@ -40,6 +44,20 @@ final companionPresentationProvider = Provider<CompanionPresentationModel?>((
     customization: customization,
   );
 });
+
+final companionContextPresentationProvider = Provider.autoDispose
+    .family<CompanionPresentationModel?, CompanionExpressionInput>((
+      ref,
+      input,
+    ) {
+      final customization = ref.watch(companionCustomizationProvider).value;
+      if (customization == null) return null;
+      final expression = const CompanionExpressionEngine().derive(input);
+      return const CompanionPresentationMapper().mapExpression(
+        expressionState: expression,
+        customization: customization,
+      );
+    });
 
 final class CompanionCustomizationNotifier
     extends AsyncNotifier<CompanionCustomization?> {

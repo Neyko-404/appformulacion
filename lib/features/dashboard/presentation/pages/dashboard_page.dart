@@ -41,7 +41,6 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
     final study = ref.watch(activeStudySummaryProvider);
     final courses = ref.watch(activeCoursesProvider);
     final analyticsAsync = ref.watch(dashboardTodayAnalyticsProvider);
-    final companionPresentation = ref.watch(companionPresentationProvider);
     final analyticsValue = analyticsAsync.value;
     final analytics = analyticsValue == null
         ? TodayAnalyticsProjection(
@@ -69,6 +68,22 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
             weeklyTrend: analyticsValue.weeklyTrend,
             insights: analyticsValue.insights,
           );
+    final companionPresentation = ref.watch(
+      companionContextPresentationProvider(
+        CompanionExpressionInput(
+          isRunning: study.isRunning,
+          isPaused: study.isPaused,
+          remainingDuration: study.remaining,
+          plannedDuration: study.session?.plannedDuration,
+          hasWeeklyProgress:
+              study.session == null && analytics.completedSessions > 0,
+          hasNoActivity:
+              study.session == null &&
+              analytics.completedSessions == 0 &&
+              analytics.focusedDuration == Duration.zero,
+        ),
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(

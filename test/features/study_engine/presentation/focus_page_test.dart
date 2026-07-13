@@ -34,8 +34,8 @@ void main() {
     expect(find.text('Sesión libre'), findsOneWidget);
     expect(find.byTooltip('Ver historial de enfoque'), findsOneWidget);
     expect(find.text('Mitsuky'), findsOneWidget);
-    expect(find.text('Todo listo. Comienza cuando quieras.'), findsOneWidget);
-    expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
+    expect(find.text('Comienza cuando quieras.'), findsOneWidget);
+    expect(find.byIcon(Icons.pets), findsOneWidget);
     expect(find.textContaining('apariencia'), findsNothing);
 
     await tester.tap(find.text('15 min'));
@@ -81,10 +81,7 @@ void main() {
 
     await harness.notifier.pause();
     await _pumpInteraction(tester);
-    expect(
-      find.text('Tómate un momento. Continúa cuando estés listo.'),
-      findsOneWidget,
-    );
+    expect(find.text('Continúa cuando estés listo.'), findsOneWidget);
   });
 
   testWidgets('paused state is clear and cancellation is confirmed', (
@@ -111,7 +108,7 @@ void main() {
     await _pumpInteraction(tester);
 
     expect(find.text('Sesión cancelada'), findsOneWidget);
-    expect(find.textContaining('cuando quieras'), findsOneWidget);
+    expect(find.textContaining('cuando quieras'), findsWidgets);
     expect(find.text('Sesión completada'), findsNothing);
     expect((await harness.repository.recent('user-1')), hasLength(1));
   });
