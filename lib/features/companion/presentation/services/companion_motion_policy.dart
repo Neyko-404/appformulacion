@@ -15,7 +15,10 @@ abstract final class CompanionMotionPolicy {
     final focus = variant == CompanionCardVariant.focus;
     return CompanionMotionProfile(
       breathingDuration: const Duration(milliseconds: 3200),
-      blinkDuration: const Duration(milliseconds: 4200),
+      blinkDuration: const Duration(milliseconds: 180),
+      blinkInterval: pose.blinkEnabled
+          ? const Duration(milliseconds: 4200)
+          : Duration.zero,
       tailDuration: Duration(milliseconds: focus ? 3600 : 2800),
       poseTransitionDuration: enabled
           ? const Duration(milliseconds: 300)
@@ -29,8 +32,18 @@ abstract final class CompanionMotionPolicy {
       tailAmplitude: enabled && pose.tailMotionEnabled && !compact
           ? (focus ? .06 : .12)
           : 0,
-      celebrationLift: enabled && pose.celebrationEnabled ? .09 : 0,
-      animationsEnabled: enabled,
+      celebrationLift:
+          enabled &&
+              pose.celebrationEnabled &&
+              context == CompanionContext.sessionCompleted
+          ? .09
+          : 0,
+      animationsEnabled:
+          enabled &&
+          (pose.breatheEnabled ||
+              pose.blinkEnabled ||
+              pose.tailMotionEnabled ||
+              pose.celebrationEnabled),
     );
   }
 }

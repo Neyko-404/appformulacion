@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:focusly/features/academic_tracker/course_public_providers.dart';
 import 'package:focusly/features/analytics/analytics_public_providers.dart';
 import 'package:focusly/features/analytics/application/providers/analytics_providers.dart';
 import 'package:focusly/features/analytics/domain/repositories/analytics_repository.dart';
@@ -9,13 +10,44 @@ import 'package:focusly/features/analytics/domain/services/analytics_date_ranges
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_interruption.dart';
+import 'package:focusly/features/study_engine/domain/entities/study_session.dart';
 import 'package:focusly/features/study_engine/study_analytics_read_api.dart';
+import 'package:focusly/features/study_engine/study_analytics_reader.dart';
+import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 
 void main() {
   test(
-    'loads empty success and public projection exposes only values',
+    'dashboard and progress projections share one analytics snapshot',
     () async {
-      final repository = _Repository();
+      final completedAt = DateTime(2026, 7, 12, 10);
+      final repository = _Repository(
+        records: [
+          StudyAnalyticsRecord(
+            session: StudySession(
+              id: 'session-1',
+              ownerId: 'user-1',
+              mode: StudyMode.focus,
+              status: StudySessionStatus.completed,
+              plannedDuration: const Duration(minutes: 30),
+              accumulatedFocusDuration: const Duration(minutes: 30),
+              startedAt: completedAt.subtract(const Duration(minutes: 30)),
+              completedAt: completedAt,
+              createdAt: completedAt.subtract(const Duration(minutes: 30)),
+              updatedAt: completedAt,
+            ),
+            interruptions: [
+              StudyInterruption(
+                id: 'interruption-1',
+                startedAt: completedAt.subtract(const Duration(minutes: 20)),
+                endedAt: completedAt.subtract(const Duration(minutes: 18)),
+                reason: StudyInterruptionReason.appBackgrounded,
+                createdAt: completedAt.subtract(const Duration(minutes: 20)),
+              ),
+            ],
+          ),
+        ],
+      );
       final container = _container(repository);
       addTearDown(container.dispose);
       final ready = Completer<void>();
@@ -32,15 +64,21 @@ void main() {
 
       final state = container.read(analyticsNotifierProvider);
       final public = container.read(todayAnalyticsProvider);
+      final dashboard = await container.read(
+        dashboardTodayAnalyticsProvider.future,
+      );
       final companion = container.read(companionAnalyticsProvider);
-      expect(state.summary?.isEmpty, isTrue);
-      expect(public.focusedDuration, Duration.zero);
-      expect(public.completedSessions, 0);
-      expect(companion?.focusMinutesToday, 0);
-      expect(companion?.completedSessionsToday, 0);
-      expect(companion?.interruptionCountToday, 0);
-      expect(companion?.activeDaysThisWeek, 0);
-      expect(companion?.weeklyTrend, isNull);
+      expect(state.summary?.daily.focusedDuration, const Duration(minutes: 30));
+      expect(public.focusedDuration, state.summary?.daily.focusedDuration);
+      expect(public.completedSessions, state.summary?.daily.completedSessions);
+      expect(public.interruptionCount, state.summary?.daily.interruptionCount);
+      expect(dashboard.focusedDuration, public.focusedDuration);
+      expect(dashboard.completedSessions, public.completedSessions);
+      expect(dashboard.interruptionCount, public.interruptionCount);
+      expect(companion?.focusMinutesToday, 30);
+      expect(companion?.completedSessionsToday, 1);
+      expect(companion?.interruptionCountToday, 1);
+      expect(companion?.activeDaysThisWeek, 1);
       expect(repository.calls, 1);
     },
   );
@@ -218,6 +256,12 @@ ProviderContainer _container(_Repository repository) => ProviderContainer(
     analyticsRepositoryProvider.overrideWithValue(repository),
     analyticsClockProvider.overrideWithValue(_Clock(DateTime(2026, 7, 12))),
     studyAnalyticsRevisionProvider.overrideWithValue(0),
+    activeCoursesProvider.overrideWithValue(
+      const ActiveCoursesSnapshot(courses: [], isLoading: false),
+    ),
+    activeStudySummaryProvider.overrideWithValue(
+      const ActiveStudySummary(remaining: Duration.zero),
+    ),
   ],
 );
 
@@ -229,8 +273,9 @@ final class _Clock implements AnalyticsClock {
 }
 
 final class _Repository implements AnalyticsRepository {
-  _Repository({this.fail = false});
+  _Repository({this.fail = false, this.records = const []});
   final bool fail;
+  final List<StudyAnalyticsRecord> records;
   int calls = 0;
   int concurrent = 0;
   int maxConcurrent = 0;
@@ -255,6 +300,6 @@ final class _Repository implements AnalyticsRepository {
     await Future<void>.value();
     concurrent--;
     if (fail) throw StateError('source');
-    return const AnalyticsSourceSnapshot(records: [], courses: []);
+    return AnalyticsSourceSnapshot(records: records, courses: const []);
   }
 }

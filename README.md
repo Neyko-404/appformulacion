@@ -23,7 +23,7 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 6A — Companion State & Progression:** implementado como estado académico derivado, neutral y no persistente.
 - **Sprint 6B — Companion Personalization:** implementado con identidad visual y personalización local explícita.
 - **Sprint 6C — Companion Expressions:** implementado con presencia contextual determinista y microtransiciones nativas accesibles.
-- **Sprint 7A — Animated Companion Framework:** implementado con gato vectorial nativo, movimiento determinista y reduce motion.
+- **Sprint 7A — Animated Companion Framework:** implementado con gato vectorial nativo, apariencias vectoriales, movimiento determinista, fallback seguro y reduce motion testeable.
 - **Horarios y calificaciones:** pendientes.
 - **Pomodoro:** pendiente.
 - **Mascota interactiva:** pendiente.

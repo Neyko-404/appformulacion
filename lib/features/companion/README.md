@@ -20,7 +20,7 @@ Derivar un estado académico cercano para el compañero sin convertirlo en una m
 
 ## API pública y persistencia
 
-`companion_public_providers.dart` consume exclusivamente proyecciones públicas read-only de Analytics y expone `companionSnapshotProvider`. El snapshot se recalcula y no se persiste. No hay repositorios, Isar, Firebase, IA, Random, assets ni animaciones.
+`companion_public_providers.dart` consume exclusivamente proyecciones públicas read-only de Analytics y expone `companionSnapshotProvider`. El snapshot se recalcula y no se persiste. No hay Firebase, IA, Random ni assets visuales externos.
 
 `companion_customization_public.dart` es el único punto de consumo para Dashboard. Expone la personalización local y el modelo de presentación combinado. Solo `CompanionCustomization` se guarda por usuario en Isar; mood, expression, progress y snapshot continúan siendo derivados y nunca se persisten.
 
@@ -42,9 +42,9 @@ Dashboard y Focus consumen la API pública de Companion y no calculan mood o exp
 
 `AnimatedCompanionAvatar` reemplaza el placeholder principal por un gato vectorial nativo dibujado con `CustomPainter`. Cabeza, orejas, ojos, boca, cuerpo, patas y cola se adaptan mediante `CatPose` y `CatMouthStyle`. `CompanionCatPoseMapper` convierte expression, personalización y variante de card en una pose determinista; no modifica el engine ni persiste valores visuales.
 
-`CompanionCatPalette` deriva todos los colores desde `CompanionTheme`, `ThemeData` y `ColorScheme`. `CompanionMotionProfile` y `CompanionMotionPolicy` limitan respiración, parpadeo y cola; Focus reduce amplitudes, compact minimiza movimiento, sleeping permanece quieto y completed permite una celebración breve al entrar en el contexto. Reduce motion detiene controladores y muestra la pose final.
+`CompanionCatPalette` deriva todos los colores desde `CompanionTheme`, `ThemeData` y `ColorScheme`. Cada `CompanionAppearance` produce una marca vectorial distinta sin duplicar ni persistir la apariencia. `CompanionMotionProfile` y `CompanionMotionPolicy` limitan respiración, parpadeo y cola mediante ciclos independientes y deterministas; Focus reduce amplitudes, compact y sleeping permanecen quietos y completed permite una celebración breve una sola vez al entrar en el contexto. Reduce motion y el fallback detienen los controladores repetitivos y muestran una pose estática.
 
-El painter está dentro de `RepaintBoundary`, implementa `shouldRepaint` por pose/paleta/fase y no anuncia movimientos mediante Semantics. Tamaños inválidos usan `Icons.pets` como fallback. Dashboard y Focus reciben el widget mediante la API pública; ninguno conoce `CatPose` ni administra controllers. Assets avanzados, sonidos, Rive, Lottie, sprites y animaciones complejas quedan pendientes de evaluación.
+`StudyCatPainter` está dentro de `RepaintBoundary`, implementa `shouldRepaint` por pose, paleta y fase y no anuncia movimientos mediante Semantics. Tamaños inválidos usan `Icons.pets` como fallback sin iniciar tickers. Dashboard y Focus reciben el widget mediante la API pública; ninguno conoce `CatPose` ni administra controllers. Las pruebas generales activan reduce motion y las pruebas de movimiento avanzan frames con duraciones controladas. Assets avanzados, sonidos, Rive, Lottie, sprites y animaciones complejas quedan pendientes de evaluación.
 
 ## Fuera de alcance
 

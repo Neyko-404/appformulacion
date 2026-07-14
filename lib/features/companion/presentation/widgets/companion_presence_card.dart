@@ -26,13 +26,17 @@ class CompanionPresenceCard extends StatelessWidget {
       emphasis: model.emphasis,
     );
     final reducedMotion = MediaQuery.disableAnimationsOf(context);
-    final content = Row(
+    Widget mainContent() => Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         AnimatedCompanionAvatar(
           model: model,
           variant: variant,
-          size: variant == CompanionCardVariant.focus ? 72 : 64,
+          size: switch (variant) {
+            CompanionCardVariant.compact => 56,
+            CompanionCardVariant.standard => 80,
+            CompanionCardVariant.focus => 96,
+          },
           semanticLabel: '${model.displayName}, ${model.semanticLabel}',
         ),
         const SizedBox(width: 16),
@@ -61,8 +65,34 @@ class CompanionPresenceCard extends StatelessWidget {
             ],
           ),
         ),
-        if (action case final action?) ...[const SizedBox(width: 8), action],
       ],
+    );
+    final content = LayoutBuilder(
+      builder: (context, constraints) {
+        final stackAction =
+            action != null &&
+            (constraints.maxWidth < 360 ||
+                MediaQuery.textScalerOf(context).scale(1) > 1.3);
+        if (stackAction) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              mainContent(),
+              const SizedBox(height: 8),
+              Align(alignment: Alignment.centerRight, child: action),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: mainContent()),
+            if (action case final action?) ...[
+              const SizedBox(width: 8),
+              action,
+            ],
+          ],
+        );
+      },
     );
     return Semantics(
       container: true,

@@ -14,6 +14,19 @@ final class CompanionCatPoseMapper {
   }) {
     final compact = variant == CompanionCardVariant.compact;
     final focus = variant == CompanionCardVariant.focus;
+    final accentStyle = switch (customization.identity.selectedAvatar) {
+      CompanionAppearance.pet => CatAccentStyle.forehead,
+      CompanionAppearance.pets => CatAccentStyle.ears,
+      CompanionAppearance.face => CatAccentStyle.mask,
+      CompanionAppearance.nature => CatAccentStyle.cheeks,
+      CompanionAppearance.satisfied => CatAccentStyle.chest,
+    };
+    final expressionScale =
+        switch (customization.identity.preferredExpressionStyle) {
+          CompanionExpressionStyle.soft => .75,
+          CompanionExpressionStyle.standard => 1.0,
+          CompanionExpressionStyle.expressive => 1.15,
+        };
     final base = switch (state.expression) {
       CompanionExpression.normal => const CatPose(
         eyeOpenness: 1,
@@ -89,16 +102,21 @@ final class CompanionCatPoseMapper {
     return CatPose(
       eyeOpenness: base.eyeOpenness,
       mouthStyle: base.mouthStyle,
-      earTilt: base.earTilt,
-      headTilt: base.headTilt,
+      earTilt: base.earTilt * expressionScale,
+      headTilt: base.headTilt * expressionScale,
       bodyScale: base.bodyScale,
-      tailAngle: base.tailAngle,
-      pawLift: base.pawLift,
-      verticalOffset: base.verticalOffset,
+      tailAngle: base.tailAngle * expressionScale,
+      pawLift: base.pawLift * expressionScale,
+      verticalOffset: base.verticalOffset * expressionScale,
       blinkEnabled: base.blinkEnabled && !compact,
       breatheEnabled: base.breatheEnabled && !compact,
       tailMotionEnabled: base.tailMotionEnabled && !compact,
-      celebrationEnabled: base.celebrationEnabled && !compact && !focus,
+      celebrationEnabled:
+          base.celebrationEnabled &&
+          state.emphasis == CompanionEmphasis.celebratory &&
+          !compact &&
+          !focus,
+      accentStyle: accentStyle,
     );
   }
 }

@@ -1,5 +1,7 @@
 enum CatMouthStyle { neutral, smile, focused, relaxed, cheering }
 
+enum CatAccentStyle { forehead, ears, mask, cheeks, chest }
+
 final class CatPose {
   const CatPose({
     required this.eyeOpenness,
@@ -14,7 +16,14 @@ final class CatPose {
     required this.breatheEnabled,
     required this.tailMotionEnabled,
     required this.celebrationEnabled,
-  });
+    this.accentStyle = CatAccentStyle.forehead,
+  }) : assert(eyeOpenness >= 0 && eyeOpenness <= 1),
+       assert(earTilt >= -0.5 && earTilt <= 0.5),
+       assert(headTilt >= -0.5 && headTilt <= 0.5),
+       assert(bodyScale >= 0.8 && bodyScale <= 1.2),
+       assert(tailAngle >= -1 && tailAngle <= 1),
+       assert(pawLift >= 0 && pawLift <= 1),
+       assert(verticalOffset >= -0.2 && verticalOffset <= 0.2);
 
   final double eyeOpenness;
   final CatMouthStyle mouthStyle;
@@ -28,6 +37,7 @@ final class CatPose {
   final bool breatheEnabled;
   final bool tailMotionEnabled;
   final bool celebrationEnabled;
+  final CatAccentStyle accentStyle;
 
   @override
   bool operator ==(Object other) =>
@@ -43,7 +53,8 @@ final class CatPose {
       other.blinkEnabled == blinkEnabled &&
       other.breatheEnabled == breatheEnabled &&
       other.tailMotionEnabled == tailMotionEnabled &&
-      other.celebrationEnabled == celebrationEnabled;
+      other.celebrationEnabled == celebrationEnabled &&
+      other.accentStyle == accentStyle;
 
   @override
   int get hashCode => Object.hash(
@@ -59,5 +70,6 @@ final class CatPose {
     breatheEnabled,
     tailMotionEnabled,
     celebrationEnabled,
+    accentStyle,
   );
 }

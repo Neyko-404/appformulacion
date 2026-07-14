@@ -6,6 +6,7 @@ import 'package:focusly/features/academic_tracker/domain/entities/course.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
+import 'package:focusly/features/companion/companion_customization_public.dart';
 import 'package:focusly/features/onboarding/data/repositories/in_memory_onboarding_repository.dart';
 import 'package:focusly/features/onboarding/domain/entities/student_profile.dart';
 import 'package:focusly/features/onboarding/domain/entities/study_companion.dart';
@@ -35,7 +36,16 @@ void main() {
     expect(find.byTooltip('Ver historial de enfoque'), findsOneWidget);
     expect(find.text('Mitsuky'), findsOneWidget);
     expect(find.text('Comienza cuando quieras.'), findsOneWidget);
+    expect(find.byType(AnimatedCompanionAvatar), findsOneWidget);
     expect(find.byType(CustomPaint), findsWidgets);
+    expect(
+      tester.getSize(find.byKey(AnimatedCompanionAvatar.avatarKey)),
+      const Size.square(96),
+    );
+    expect(
+      tester.getSize(find.byKey(AnimatedCompanionAvatar.paintKey)),
+      const Size.square(96),
+    );
     expect(find.textContaining('apariencia'), findsNothing);
 
     await tester.tap(find.text('15 min'));

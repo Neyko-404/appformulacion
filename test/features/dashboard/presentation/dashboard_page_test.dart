@@ -139,6 +139,13 @@ void main() {
                   ? const AsyncLoading()
                   : AsyncData(analytics),
             ),
+          if (analyticsLoader != null)
+            analyticsRefreshProvider.overrideWith(
+              (ref) => () async {
+                ref.invalidate(dashboardTodayAnalyticsProvider);
+                await ref.read(dashboardTodayAnalyticsProvider.future);
+              },
+            ),
           activeCoursesProvider.overrideWithValue(
             ActiveCoursesSnapshot(
               courses: courses,
@@ -268,6 +275,15 @@ void main() {
       ),
     );
     expect(find.text('Buen trabajo.'), findsOneWidget);
+    expect(find.byType(AnimatedCompanionAvatar), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(AnimatedCompanionAvatar.avatarKey)),
+      const Size.square(80),
+    );
+    expect(
+      tester.getSize(find.byKey(AnimatedCompanionAvatar.paintKey)),
+      const Size.square(80),
+    );
     expect(find.bySemanticsLabel(RegExp('Kumo')), findsWidgets);
   });
 

@@ -63,7 +63,7 @@ Sprint 4C integra al compañero de estudio como apoyo visual discreto en ready, 
 
 Sprint 6C integra `CompanionPresenceCard` mediante la API pública de Companion en ready, running, paused, retorno, completed y cancelled. Study Engine aporta estado y duraciones ya disponibles; su motor temporal no conoce expresiones y no depende de Companion Domain. El temporizador conserva la jerarquía principal.
 
-Sprint 7A incorpora presencia vectorial animada debajo del temporizador. Focus usa movimiento reducido durante running y la celebración breve de completed, pero Study Engine no conoce `CatPose`, painters ni `AnimationController`; el tiempo y sus ticks permanecen independientes.
+Sprint 7A incorpora presencia vectorial animada debajo del temporizador. Focus usa respiración y cola mínimas durante running, pose relajada durante pausa y una celebración no repetitiva al entrar en completed. Con reduce motion conserva la pose contextual sin iniciar animaciones continuas. Study Engine no conoce `CatPose`, painters ni `AnimationController`; el tiempo y sus ticks permanecen independientes.
 
 ## AI CONTEXT
 
