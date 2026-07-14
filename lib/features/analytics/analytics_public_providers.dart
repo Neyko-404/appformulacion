@@ -5,8 +5,7 @@ import 'package:focusly/features/analytics/domain/entities/study_analytics.dart'
 import 'package:focusly/features/analytics/domain/entities/study_insight.dart';
 import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
 import 'package:focusly/features/analytics/domain/services/study_insight_engine.dart';
-import 'package:focusly/features/authentication/auth_session_provider.dart';
-import 'package:focusly/features/study_engine/study_analytics_read_api.dart';
+import 'package:focusly/features/analytics/presentation/state/analytics_state.dart';
 import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 
 final class TodayAnalyticsProjection {
@@ -63,22 +62,11 @@ final class CompanionAnalyticsProjection {
 
 final todayAnalyticsProvider = Provider<TodayAnalyticsProjection>((ref) {
   final state = ref.watch(analyticsNotifierProvider);
-  final daily = state.summary?.daily;
-  return TodayAnalyticsProjection(
-    isLoading: state.isLoading,
-    hasData: daily != null,
-    focusedDuration: daily?.focusedDuration ?? Duration.zero,
-    completedSessions: daily?.completedSessions ?? 0,
-    interruptionCount: daily?.interruptionCount ?? 0,
-    interruptionDuration: daily?.interruptionDuration ?? Duration.zero,
-    mostStudiedCourseName: daily?.mostStudiedCourse?.courseName,
-    errorMessage: state.errorMessage,
-    weeklyTrend: daily == null || state.summary == null
-        ? null
-        : projectDashboardWeeklyTrend(
-            state.summary!.trends.weekly.focusedMinutes,
-          ),
-  );
+  return _projectToday(state);
+});
+
+final analyticsRefreshProvider = Provider<Future<void> Function()>((ref) {
+  return () => ref.read(analyticsNotifierProvider.notifier).refresh();
 });
 
 final analyticsInsightsProvider = Provider<InsightCollection>((ref) {
@@ -110,25 +98,39 @@ final companionAnalyticsProvider = Provider<CompanionAnalyticsProjection?>((
 
 final dashboardTodayAnalyticsProvider =
     FutureProvider<TodayAnalyticsProjection>((ref) async {
-      ref.watch(studyAnalyticsRevisionProvider);
-      final ownerId = ref.watch(publicAuthSessionProvider).user?.id;
+      final state = ref.watch(analyticsNotifierProvider);
+      final summary = state.summary;
+      if (summary == null) {
+        final error = state.errorMessage;
+        if (error != null) throw StateError(error);
+        return _projectToday(state);
+      }
       final courses = ref.watch(activeCoursesProvider);
       final study = ref.watch(activeStudySummaryProvider);
-      final summary = await ref.watch(getAnalyticsSummaryProvider)(ownerId);
-      final daily = summary.daily;
-      return TodayAnalyticsProjection(
-        isLoading: false,
-        focusedDuration: daily.focusedDuration,
-        completedSessions: daily.completedSessions,
-        interruptionCount: daily.interruptionCount,
-        interruptionDuration: daily.interruptionDuration,
-        mostStudiedCourseName: daily.mostStudiedCourse?.courseName,
-        weeklyTrend: projectDashboardWeeklyTrend(
-          summary.trends.weekly.focusedMinutes,
-        ),
-        insights: _insights(summary, courses, study),
-      );
+      return _projectToday(state, insights: _insights(summary, courses, study));
     });
+
+TodayAnalyticsProjection _projectToday(
+  AnalyticsState state, {
+  InsightCollection insights = const InsightCollection.empty(),
+}) {
+  final summary = state.summary;
+  final daily = summary?.daily;
+  return TodayAnalyticsProjection(
+    isLoading: state.isLoading,
+    hasData: daily != null,
+    focusedDuration: daily?.focusedDuration ?? Duration.zero,
+    completedSessions: daily?.completedSessions ?? 0,
+    interruptionCount: daily?.interruptionCount ?? 0,
+    interruptionDuration: daily?.interruptionDuration ?? Duration.zero,
+    mostStudiedCourseName: daily?.mostStudiedCourse?.courseName,
+    errorMessage: state.errorMessage,
+    weeklyTrend: summary == null
+        ? null
+        : projectDashboardWeeklyTrend(summary.trends.weekly.focusedMinutes),
+    insights: insights,
+  );
+}
 
 InsightCollection _insights(
   StudyAnalyticsSummary summary,

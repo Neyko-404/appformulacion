@@ -34,6 +34,8 @@ CRUD de cursos, control del temporizador, gráficos, predicciones, IA generativa
 
 Sprint 6C consume `companionContextPresentationProvider` como API pública read-only. Dashboard aporta únicamente señales de sesión y disponibilidad analítica; Companion decide mensaje, mood, expression y emphasis. Dashboard no calcula expresiones.
 
+Sprint 7A muestra el gato vectorial animado mediante `CompanionPresenceCard` y la API pública. La animación es discreta, conserva theme, apariencia, nombre y acción Personalizar; Dashboard no crea poses ni controla animaciones. Reduce motion presenta la misma información con una pose estática y permite montar Dashboard en pruebas sin tickers permanentes.
+
 La tarjeta de cursos consume `activeCoursesProvider`, muestra hasta tres cursos activos, la cantidad total o el estado vacío, y navega hacia Academic Tracker. Dashboard no es propietario de `Course` ni importa Data o Presentation de esa feature.
 
 El botón de enfoque consume `activeStudySummaryProvider`, navega a `/focus` y cambia a “Continuar sesión” cuando existe una sesión activa. Dashboard no controla el ticker ni el temporizador.

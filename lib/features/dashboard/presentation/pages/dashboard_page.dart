@@ -127,8 +127,9 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
                           analyticsAvailable:
                               analyticsAsync.hasValue &&
                               !analyticsAsync.hasError,
-                          onRefreshAnalytics: () =>
-                              ref.invalidate(dashboardTodayAnalyticsProvider),
+                          onRefreshAnalytics: () {
+                            ref.read(analyticsRefreshProvider)();
+                          },
                         ),
                       ),
                     ),
@@ -151,7 +152,7 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Future<void> _performRefresh() async {
-    final analytics = ref.refresh(dashboardTodayAnalyticsProvider.future);
+    final analytics = ref.read(analyticsRefreshProvider)();
     await ref.read(dashboardNotifierProvider.notifier).load();
     try {
       await analytics;

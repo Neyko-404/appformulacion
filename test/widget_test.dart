@@ -102,6 +102,9 @@ void main() {
   });
 
   testWidgets('completed onboarding redirects to dashboard', (tester) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     final authRepository = InMemoryAuthRepository(
       seedAccounts: const {'student@focusly.dev': 'password123'},
     );

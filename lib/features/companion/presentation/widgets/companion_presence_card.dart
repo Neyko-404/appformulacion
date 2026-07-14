@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:focusly/features/companion/domain/entities/companion_presentation_model.dart';
 import 'package:focusly/features/companion/presentation/companion_visual_mapper.dart';
-
-enum CompanionCardVariant { compact, standard, focus }
+import 'package:focusly/features/companion/presentation/models/companion_card_variant.dart';
+import 'package:focusly/features/companion/presentation/widgets/animated_companion_avatar.dart';
 
 class CompanionPresenceCard extends StatelessWidget {
   const CompanionPresenceCard({
@@ -26,34 +26,18 @@ class CompanionPresenceCard extends StatelessWidget {
       emphasis: model.emphasis,
     );
     final reducedMotion = MediaQuery.disableAnimationsOf(context);
-    final content = Row(
+    Widget mainContent() => Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            CircleAvatar(
-              radius: visual.iconSize / 2,
-              backgroundColor: visual.background,
-              foregroundColor: visual.foreground,
-              child: Icon(visual.icon),
-            ),
-            Positioned(
-              right: -4,
-              bottom: -4,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: visual.border),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: Icon(visual.expressionIcon, size: 16),
-                ),
-              ),
-            ),
-          ],
+        AnimatedCompanionAvatar(
+          model: model,
+          variant: variant,
+          size: switch (variant) {
+            CompanionCardVariant.compact => 56,
+            CompanionCardVariant.standard => 80,
+            CompanionCardVariant.focus => 96,
+          },
+          semanticLabel: '${model.displayName}, ${model.semanticLabel}',
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -81,8 +65,34 @@ class CompanionPresenceCard extends StatelessWidget {
             ],
           ),
         ),
-        if (action case final action?) ...[const SizedBox(width: 8), action],
       ],
+    );
+    final content = LayoutBuilder(
+      builder: (context, constraints) {
+        final stackAction =
+            action != null &&
+            (constraints.maxWidth < 360 ||
+                MediaQuery.textScalerOf(context).scale(1) > 1.3);
+        if (stackAction) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              mainContent(),
+              const SizedBox(height: 8),
+              Align(alignment: Alignment.centerRight, child: action),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: mainContent()),
+            if (action case final action?) ...[
+              const SizedBox(width: 8),
+              action,
+            ],
+          ],
+        );
+      },
     );
     return Semantics(
       container: true,

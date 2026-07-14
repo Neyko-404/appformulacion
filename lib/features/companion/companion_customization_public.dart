@@ -17,6 +17,8 @@ export 'package:focusly/features/companion/domain/entities/companion_presentatio
 export 'package:focusly/features/companion/domain/entities/companion_state.dart'
     show CompanionExpression, CompanionMood;
 export 'package:focusly/features/companion/presentation/companion_visual_mapper.dart';
+export 'package:focusly/features/companion/presentation/models/companion_card_variant.dart';
+export 'package:focusly/features/companion/presentation/widgets/animated_companion_avatar.dart';
 export 'package:focusly/features/companion/presentation/widgets/companion_presence_card.dart';
 
 final companionCustomizationRepositoryProvider =
