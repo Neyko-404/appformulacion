@@ -17,6 +17,7 @@ import 'package:focusly/features/dashboard/presentation/widgets/dashboard_insigh
 import 'package:focusly/features/dashboard/presentation/widgets/focus_goal_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/primary_study_action_card.dart';
 import 'package:focusly/features/dashboard/presentation/widgets/study_companion_card.dart';
+import 'package:focusly/features/goals/goals_public_providers.dart';
 import 'package:focusly/features/study_engine/companion_message_service.dart';
 import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 import 'package:focusly/shared/presentation/app_spacing.dart';
@@ -41,6 +42,7 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
     final study = ref.watch(activeStudySummaryProvider);
     final courses = ref.watch(activeCoursesProvider);
     final analyticsAsync = ref.watch(dashboardTodayAnalyticsProvider);
+    final goals = ref.watch(goalsDashboardSummaryProvider);
     final analyticsValue = analyticsAsync.value;
     final analytics = analyticsValue == null
         ? TodayAnalyticsProjection(
@@ -123,12 +125,16 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
                           study: study,
                           courses: courses,
                           analytics: analytics,
+                          goals: goals,
                           companionPresentation: companionPresentation,
                           analyticsAvailable:
                               analyticsAsync.hasValue &&
                               !analyticsAsync.hasError,
                           onRefreshAnalytics: () {
                             ref.read(analyticsRefreshProvider)();
+                          },
+                          onRefreshGoals: () {
+                            ref.read(goalsRefreshProvider)();
                           },
                         ),
                       ),
@@ -153,11 +159,12 @@ final class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   Future<void> _performRefresh() async {
     final analytics = ref.read(analyticsRefreshProvider)();
+    final goals = ref.read(goalsRefreshProvider)();
     await ref.read(dashboardNotifierProvider.notifier).load();
     try {
-      await analytics;
+      await Future.wait([analytics, goals]);
     } on Object {
-      // The Analytics section renders its own safe, recoverable error.
+      // Secondary sections render their own safe, recoverable errors.
     }
   }
 }
@@ -169,9 +176,11 @@ final class _DashboardContent extends StatelessWidget {
     required this.study,
     required this.courses,
     required this.analytics,
+    required this.goals,
     required this.companionPresentation,
     required this.analyticsAvailable,
     required this.onRefreshAnalytics,
+    required this.onRefreshGoals,
   });
 
   final String? email;
@@ -179,9 +188,11 @@ final class _DashboardContent extends StatelessWidget {
   final ActiveStudySummary study;
   final ActiveCoursesSnapshot courses;
   final TodayAnalyticsProjection analytics;
+  final GoalsDashboardSummary goals;
   final CompanionPresentationModel? companionPresentation;
   final bool analyticsAvailable;
   final VoidCallback onRefreshAnalytics;
+  final VoidCallback onRefreshGoals;
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +266,12 @@ final class _DashboardContent extends StatelessWidget {
           ),
         ],
         const SizedBox(height: AppSpacing.large),
-        FocusGoalCard(profile: profile),
+        FocusGoalCard(
+          profile: profile,
+          goals: goals,
+          onOpen: () => context.push(RoutePaths.goals),
+          onRetry: onRefreshGoals,
+        ),
         const SizedBox(height: AppSpacing.large),
         const CoursesCard(),
       ],

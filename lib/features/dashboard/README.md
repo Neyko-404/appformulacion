@@ -24,7 +24,7 @@ CRUD de cursos, control del temporizador, gráficos, predicciones, IA generativa
 - `PrimaryStudyActionCard`: inicia, continúa o retoma la sesión según el estado público.
 - `DashboardInsightCard`: presenta una recomendación determinista y su acción asociada.
 - `StudyCompanionCard`: nombre y mensaje del compañero.
-- `FocusGoalCard`: objetivo y duración preferida.
+- `FocusGoalCard`: metas cuantitativas y progreso recibido desde la API pública de Goals; conserva el objetivo cualitativo como contexto secundario.
 - `AnalyticsSummaryCard`: resumen compacto de tiempo, sesiones, interrupciones y curso destacado.
 - `CoursesCard`: vista resumida de cursos activos y acceso a Academic Tracker.
 
@@ -68,6 +68,8 @@ La carga inicial solo bloquea por perfil y compañero, datos esenciales de esta 
 
 Dashboard integra Authentication, Onboarding, Study Engine, Academic Tracker y Analytics exclusivamente mediante APIs públicas. No importa capas Data o Presentation ajenas, no duplica cálculos analíticos y no controla el temporizador.
 
+Sprint 8A integra `goalsDashboardSummaryProvider`. Dashboard presenta únicamente las metas activas y sus ratios ya calculados, aísla carga o error dentro de `FocusGoalCard` y navega a `/goals` para configurar o editar. No consulta el repositorio de Goals, no lee Analytics para las metas y no calcula progreso.
+
 ## Pruebas
 
 Las pruebas usan sesión y repositorio en memoria mediante overrides. No usan Firebase, red ni disco.
@@ -88,3 +90,4 @@ Esta feature implementa Dashboard Intelligence Sprint 5B mediante reglas determi
 | 0.2.0 | 12 de julio de 2026 | Implementado | Dashboard Intelligence Sprint 5B. | Equipo Focusly |
 | 0.2.1 | 12 de julio de 2026 | Implementado | Proyección visual de tendencia semanal Sprint 5C. | Equipo Focusly |
 | 0.2.2 | 12 de julio de 2026 | Implementado | Recomendaciones públicas de Personalized Insights Sprint 5D. | Equipo Focusly |
+| 0.3.0 | 20 de julio de 2026 | Implementado | Metas cuantitativas read-only desde Goals Sprint 8A. | Equipo Focusly |

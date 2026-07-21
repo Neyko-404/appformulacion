@@ -191,8 +191,14 @@ void main() {
     expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
     expect(find.textContaining('apariencia'), findsNothing);
     expect(find.byType(FocusGoalCard), findsOneWidget);
-    expect(find.text('Prepararme para evaluaciones'), findsOneWidget);
-    expect(find.text('Sesiones sugeridas de 25 min'), findsOneWidget);
+    expect(
+      find.text('Objetivo personal: Prepararme para evaluaciones'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Todavía no configuraste metas de estudio.'),
+      findsOneWidget,
+    );
     expect(find.byType(FocusStreakCard), findsNothing);
     expect(find.byType(CoursesCard), findsOneWidget);
     expect(find.text('Hoy'), findsOneWidget);

@@ -24,11 +24,13 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 6B — Companion Personalization:** implementado con identidad visual y personalización local explícita.
 - **Sprint 6C — Companion Expressions:** implementado con presencia contextual determinista y microtransiciones nativas accesibles.
 - **Sprint 7A — Animated Companion Framework:** implementado con gato vectorial nativo, apariencias vectoriales, movimiento determinista, fallback seguro y reduce motion testeable.
+- **Sprint 7B — Alpha Stabilization:** completado con auditoría transversal, aislamiento de resultados asíncronos y validación automatizada.
+- **Sprint 8A — Study Goals & Healthy Habits:** implementado con metas opcionales, persistencia local y progreso derivado desde Analytics.
 - **Horarios y calificaciones:** pendientes.
 - **Pomodoro:** pendiente.
 - **Mascota interactiva:** pendiente.
 - **Detección de aplicaciones específicas:** no implementada.
-- **Notificaciones:** pendientes.
+- **Hábitos avanzados, planner y notificaciones:** pendientes.
 - **Assets avanzados, sonidos, Rive/Lottie, gráficos, predicciones e IA:** pendientes.
 - **Sincronización remota:** pendiente.
 
