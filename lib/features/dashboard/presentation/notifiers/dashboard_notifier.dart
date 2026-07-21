@@ -7,18 +7,23 @@ import 'package:focusly/features/dashboard/presentation/state/dashboard_state.da
 
 final class DashboardNotifier extends Notifier<DashboardState> {
   Future<void>? _loadOperation;
+  int _generation = 0;
 
   @override
   DashboardState build() {
     ref.watch(publicAuthSessionProvider).user?.id;
-    scheduleMicrotask(load);
+    final generation = ++_generation;
+    _loadOperation = null;
+    scheduleMicrotask(() => load(generation: generation));
     return const DashboardState();
   }
 
-  Future<void> load() {
+  Future<void> load({int? generation}) {
+    final requestedGeneration = generation ?? _generation;
+    if (requestedGeneration != _generation) return Future.value();
     final activeOperation = _loadOperation;
     if (activeOperation != null) return activeOperation;
-    final operation = _performLoad();
+    final operation = _performLoad(requestedGeneration);
     _loadOperation = operation;
     operation.whenComplete(() {
       if (identical(_loadOperation, operation)) _loadOperation = null;
@@ -26,7 +31,7 @@ final class DashboardNotifier extends Notifier<DashboardState> {
     return operation;
   }
 
-  Future<void> _performLoad() async {
+  Future<void> _performLoad(int generation) async {
     final userId = ref.read(publicAuthSessionProvider).user?.id;
     if (userId == null) {
       state = const DashboardState(
@@ -46,7 +51,10 @@ final class DashboardNotifier extends Notifier<DashboardState> {
       final companionFuture = repository.getCompanion(userId);
       final profile = await profileFuture;
       final companion = await companionFuture;
-      if (ref.read(publicAuthSessionProvider).user?.id != userId) return;
+      if (generation != _generation ||
+          ref.read(publicAuthSessionProvider).user?.id != userId) {
+        return;
+      }
       if (profile == null || companion == null) {
         state = const DashboardState(
           isLoading: false,
@@ -60,7 +68,10 @@ final class DashboardNotifier extends Notifier<DashboardState> {
         isLoading: false,
       );
     } on Object {
-      if (ref.read(publicAuthSessionProvider).user?.id != userId) return;
+      if (generation != _generation ||
+          ref.read(publicAuthSessionProvider).user?.id != userId) {
+        return;
+      }
       state = hasContent
           ? state.copyWith(isLoading: false)
           : const DashboardState(

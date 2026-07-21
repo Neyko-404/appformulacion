@@ -16,6 +16,7 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
   StreamSubscription<StudySession?>? _subscription;
   int _sequence = 0;
   int _activeRevision = 0;
+  int _generation = 0;
   bool _isReconciling = false;
   bool _isLifecycleOperating = false;
   StudyInterruption? _openInterruption;
@@ -27,6 +28,7 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
     _openInterruption = null;
     _openInterruptionSessionId = null;
     final userId = ref.watch(publicAuthSessionProvider).user?.id;
+    final generation = ++_generation;
     ref.listen(activeCoursesProvider, (_, next) {
       final selected = state.selectedCourseId;
       if (selected != null &&
@@ -43,11 +45,11 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
       _ticker?.cancel();
       unawaited(_subscription?.cancel());
     });
-    scheduleMicrotask(() => _initialize(userId));
+    scheduleMicrotask(() => _initialize(userId, generation));
     return const StudyEngineState();
   }
 
-  Future<void> _initialize(String? userId) async {
+  Future<void> _initialize(String? userId, int generation) async {
     await _subscription?.cancel();
     if (userId == null) {
       state = const StudyEngineState(
@@ -70,6 +72,7 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
           : const Duration(minutes: 25);
       final recent = await repository.recent(userId);
       final counts = await _interruptionCounts(userId, recent);
+      if (!_isCurrent(userId, generation)) return;
       state = state.copyWith(
         isInitializing: false,
         selectedDuration: duration,
@@ -81,13 +84,20 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
       _subscription = repository
           .watchActive(userId)
           .listen(
-            (session) => _acceptActive(session),
-            onError: (_) => state = state.copyWith(
-              isInitializing: false,
-              errorMessage: 'No pudimos restaurar la sesión.',
-            ),
+            (session) {
+              if (_isCurrent(userId, generation)) _acceptActive(session);
+            },
+            onError: (_) {
+              if (_isCurrent(userId, generation)) {
+                state = state.copyWith(
+                  isInitializing: false,
+                  errorMessage: 'No pudimos restaurar la sesión.',
+                );
+              }
+            },
           );
     } on Object {
+      if (!_isCurrent(userId, generation)) return;
       state = state.copyWith(
         isInitializing: false,
         errorMessage: 'No pudimos preparar el modo enfoque.',
@@ -404,4 +414,8 @@ final class StudyEngineNotifier extends Notifier<StudyEngineState> {
       );
     }
   }
+
+  bool _isCurrent(String? userId, int generation) =>
+      generation == _generation &&
+      ref.read(publicAuthSessionProvider).user?.id == userId;
 }

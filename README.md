@@ -9,7 +9,7 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sprint 1.5 — Firebase Foundation:** completado.
 - **Sprint 2 — Onboarding:** completado con persistencia local.
 - **Firestore:** no configurado.
-- **Datos académicos:** todavía no implementados.
+- **Datos académicos:** cursos implementados localmente; horarios y calificaciones pendientes.
 - **Sprint 3A — Dashboard Foundation:** completado.
 - **Sprint 3B — Academic Courses:** implementado con persistencia local.
 - **Sprint 4A — Study Engine Core:** completado con temporizador persistente basado en timestamps e historial básico.
@@ -33,6 +33,16 @@ Focusly es un compañero inteligente para aprender mejor.
 - **Sincronización remota:** pendiente.
 
 La sesión productiva utiliza Firebase Authentication y el onboarding utiliza persistencia local. Las pruebas pueden sustituir ambos repositorios por implementaciones aisladas en memoria.
+
+## Alpha Stabilization
+
+Focusly se encuentra en estado Alpha. El recorrido auditado comprende autenticación, onboarding, Dashboard, cursos, sesiones de enfoque, historial, Analytics y personalización del compañero.
+
+- **Módulos auditados:** Authentication, Onboarding, Dashboard, Academic Tracker, Study Engine, Analytics, Companion, navegación y persistencia local.
+- **Bugs corregidos:** resultados asíncronos obsoletos ya no pueden actualizar el estado visible después de cambiar de usuario; Dashboard inicia una lectura independiente para la nueva sesión; los fallos inesperados al archivar, restaurar o eliminar cursos liberan el estado de escritura y muestran un mensaje seguro.
+- **Validación automatizada:** formato, análisis estático, pruebas unitarias y de widgets, consistencia del diff y restauración limpia de dependencias.
+- **Limitaciones conocidas:** Firebase Authentication requiere conectividad; la información académica, las sesiones y la personalización permanecen locales y no tienen sincronización remota.
+- **Validación manual pendiente:** recorrido completo con dos cuentas de prueba, verificación de correo, cierre y reapertura real del proceso, y matriz visual completa de dispositivos y accesibilidad.
 
 ## Sprint 1.5 — Firebase Foundation
 

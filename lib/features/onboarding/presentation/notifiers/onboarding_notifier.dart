@@ -143,12 +143,14 @@ final class OnboardingNotifier extends Notifier<OnboardingState> {
               createdAt: now,
             ),
           );
+      if (state.userId != userId) return;
       state = state.copyWith(
         isSaving: false,
         isCompleted: true,
         clearMessages: true,
       );
     } on Object {
+      if (state.userId != userId) return;
       state = state.copyWith(
         isSaving: false,
         errorMessage:

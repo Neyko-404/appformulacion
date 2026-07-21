@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:focusly/features/academic_tracker/academic_tracker_providers.dart';
 import 'package:focusly/features/academic_tracker/data/repositories/in_memory_course_repository.dart';
 import 'package:focusly/features/academic_tracker/domain/entities/course.dart';
+import 'package:focusly/features/academic_tracker/domain/repositories/course_repository.dart';
 import 'package:focusly/features/authentication/auth_session_provider.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_session.dart';
 import 'package:focusly/features/authentication/domain/entities/auth_user.dart';
@@ -86,4 +87,63 @@ void main() {
     await ready.future;
     expect(container.read(courseNotifierProvider).errorMessage, isNotNull);
   });
+
+  test('unexpected write failure is safe and releases the form', () async {
+    final repository = _FailingWriteCourseRepository();
+    final container = ProviderContainer.test(
+      overrides: [
+        publicAuthSessionProvider.overrideWithValue(session),
+        courseRepositoryProvider.overrideWithValue(repository),
+      ],
+    );
+    addTearDown(container.dispose);
+    final ready = Completer<void>();
+    final subscription = container.listen(courseNotifierProvider, (_, next) {
+      if (!next.isInitializing && !ready.isCompleted) ready.complete();
+    }, fireImmediately: true);
+    addTearDown(subscription.close);
+    await ready.future;
+
+    await container.read(courseNotifierProvider.notifier).archive('course-1');
+
+    final state = container.read(courseNotifierProvider);
+    expect(state.isWriting, isFalse);
+    expect(state.errorMessage, 'No pudimos actualizar el curso.');
+  });
+}
+
+final class _FailingWriteCourseRepository implements CourseRepository {
+  @override
+  Stream<List<Course>> watch(String ownerId) => Stream.value(const []);
+
+  @override
+  Future<void> archive(String ownerId, String courseId, DateTime updatedAt) =>
+      Future.error(StateError('technical detail'));
+
+  @override
+  Future<bool> codeExists(
+    String ownerId,
+    String code, {
+    String? excludingId,
+  }) async => false;
+
+  @override
+  Future<void> delete(String ownerId, String courseId) async {}
+
+  @override
+  Future<Course?> getById(String ownerId, String courseId) async => null;
+
+  @override
+  Future<List<Course>> getByStatus(String ownerId, CourseStatus status) async =>
+      const [];
+
+  @override
+  Future<void> restore(
+    String ownerId,
+    String courseId,
+    DateTime updatedAt,
+  ) async {}
+
+  @override
+  Future<void> save(Course course) async {}
 }

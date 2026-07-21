@@ -278,6 +278,55 @@ void main() {
     await Future.wait([firstSave, secondSave]);
     expect(container.read(onboardingNotifierProvider).isCompleted, isTrue);
   });
+
+  test('save completion cannot mark a different user as onboarded', () async {
+    final repository = _ControlledRepository(blockSave: true);
+    final authRepository = InMemoryAuthRepository(
+      seedAccounts: const {
+        'first@focusly.dev': 'password123',
+        'second@focusly.dev': 'password456',
+      },
+    );
+    await authRepository.signIn(
+      email: 'first@focusly.dev',
+      password: 'password123',
+    );
+    final container = ProviderContainer.test(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(authRepository),
+        onboardingRepositoryProvider.overrideWithValue(repository),
+        onboardingClockProvider.overrideWithValue(() => now),
+      ],
+    );
+    addTearDown(container.dispose);
+    addTearDown(authRepository.dispose);
+    final subscription = container.listen(
+      onboardingNotifierProvider,
+      (_, _) {},
+      fireImmediately: true,
+    );
+    addTearDown(subscription.close);
+    await Future<void>.delayed(Duration.zero);
+    final notifier = container.read(onboardingNotifierProvider.notifier);
+    _fillValidDraft(notifier);
+    final save = notifier.complete();
+    await Future<void>.delayed(Duration.zero);
+
+    await authRepository.signOut();
+    await authRepository.signIn(
+      email: 'second@focusly.dev',
+      password: 'password456',
+    );
+    await Future<void>.delayed(Duration.zero);
+    repository.saveCompletion.complete();
+    await save;
+    await Future<void>.delayed(Duration.zero);
+
+    final state = container.read(onboardingNotifierProvider);
+    expect(state.userId, 'memory-2');
+    expect(state.isCompleted, isFalse);
+    expect(state.draft.companionName, isEmpty);
+  });
 }
 
 void _fillValidDraft(OnboardingNotifier notifier) {

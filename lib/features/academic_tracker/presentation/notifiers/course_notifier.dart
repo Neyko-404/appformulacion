@@ -11,16 +11,18 @@ import 'package:focusly/features/authentication/auth_session_provider.dart';
 final class CourseNotifier extends Notifier<CourseState> {
   StreamSubscription<List<Course>>? _subscription;
   int _idSequence = 0;
+  int _generation = 0;
 
   @override
   CourseState build() {
     final userId = ref.watch(publicAuthSessionProvider).user?.id;
+    final generation = ++_generation;
     ref.onDispose(() => unawaited(_subscription?.cancel()));
-    scheduleMicrotask(() => _observe(userId));
+    scheduleMicrotask(() => _observe(userId, generation));
     return const CourseState();
   }
 
-  Future<void> _observe(String? userId) async {
+  Future<void> _observe(String? userId, int generation) async {
     await _subscription?.cancel();
     if (userId == null) {
       state = const CourseState(
@@ -34,7 +36,7 @@ final class CourseNotifier extends Notifier<CourseState> {
         .watch(userId)
         .listen(
           (courses) {
-            if (ref.read(publicAuthSessionProvider).user?.id != userId) return;
+            if (!_isCurrent(userId, generation)) return;
             state = state.copyWith(
               isInitializing: false,
               activeCourses: courses
@@ -47,6 +49,7 @@ final class CourseNotifier extends Notifier<CourseState> {
             );
           },
           onError: (Object _) {
+            if (!_isCurrent(userId, generation)) return;
             state = state.copyWith(
               isInitializing: false,
               errorMessage: 'No pudimos cargar tus cursos.',
@@ -81,6 +84,7 @@ final class CourseNotifier extends Notifier<CourseState> {
       return false;
     }
     state = state.copyWith(isWriting: true, clearFeedback: true);
+    final generation = _generation;
     try {
       final repository = ref.read(courseRepositoryProvider);
       final existing = courseId == null
@@ -102,18 +106,21 @@ final class CourseNotifier extends Notifier<CourseState> {
           updatedAt: now,
         ),
       );
+      if (!_isCurrent(userId, generation)) return false;
       state = state.copyWith(
         isWriting: false,
         message: courseId == null ? 'Curso creado.' : 'Curso actualizado.',
       );
       return true;
     } on CourseFailure catch (failure) {
+      if (!_isCurrent(userId, generation)) return false;
       state = state.copyWith(
         isWriting: false,
         errorMessage: failure.safeMessage,
       );
       return false;
     } on Object {
+      if (!_isCurrent(userId, generation)) return false;
       state = state.copyWith(
         isWriting: false,
         errorMessage: 'No pudimos guardar el curso.',
@@ -144,18 +151,31 @@ final class CourseNotifier extends Notifier<CourseState> {
     final userId = ref.read(publicAuthSessionProvider).user?.id;
     if (userId == null) return;
     state = state.copyWith(isWriting: true, clearFeedback: true);
+    final generation = _generation;
     try {
       await action(
         ref.read(courseRepositoryProvider),
         userId,
         ref.read(courseClockProvider)(),
       );
+      if (!_isCurrent(userId, generation)) return;
       state = state.copyWith(isWriting: false);
     } on CourseFailure catch (failure) {
+      if (!_isCurrent(userId, generation)) return;
       state = state.copyWith(
         isWriting: false,
         errorMessage: failure.safeMessage,
       );
+    } on Object {
+      if (!_isCurrent(userId, generation)) return;
+      state = state.copyWith(
+        isWriting: false,
+        errorMessage: 'No pudimos actualizar el curso.',
+      );
     }
   }
+
+  bool _isCurrent(String? userId, int generation) =>
+      generation == _generation &&
+      ref.read(publicAuthSessionProvider).user?.id == userId;
 }

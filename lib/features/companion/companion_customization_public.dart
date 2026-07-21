@@ -104,6 +104,7 @@ final class CompanionCustomizationNotifier
     _isSaving = true;
     try {
       await ref.read(companionCustomizationRepositoryProvider).save(updated);
+      if (ref.read(publicAuthSessionProvider).user?.id != userId) return false;
       state = AsyncData(updated);
       return true;
     } on Object {
