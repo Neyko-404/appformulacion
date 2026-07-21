@@ -68,6 +68,7 @@ void main() {
         dashboardTodayAnalyticsProvider.future,
       );
       final companion = container.read(companionAnalyticsProvider);
+      final goals = container.read(focusGoalsAnalyticsProvider);
       expect(state.summary?.daily.focusedDuration, const Duration(minutes: 30));
       expect(public.focusedDuration, state.summary?.daily.focusedDuration);
       expect(public.completedSessions, state.summary?.daily.completedSessions);
@@ -79,6 +80,9 @@ void main() {
       expect(companion?.completedSessionsToday, 1);
       expect(companion?.interruptionCountToday, 1);
       expect(companion?.activeDaysThisWeek, 1);
+      expect(goals?.focusMinutesToday, 30);
+      expect(goals?.completedSessionsThisWeek, 1);
+      expect(goals?.activeDaysThisWeek, 1);
       expect(repository.calls, 1);
     },
   );

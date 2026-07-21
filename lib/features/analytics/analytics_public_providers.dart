@@ -5,6 +5,7 @@ import 'package:focusly/features/analytics/domain/entities/study_analytics.dart'
 import 'package:focusly/features/analytics/domain/entities/study_insight.dart';
 import 'package:focusly/features/analytics/domain/entities/study_trends.dart';
 import 'package:focusly/features/analytics/domain/services/study_insight_engine.dart';
+import 'package:focusly/features/analytics/focus_goals_analytics_projection.dart';
 import 'package:focusly/features/analytics/presentation/state/analytics_state.dart';
 import 'package:focusly/features/study_engine/study_engine_public_providers.dart';
 
@@ -93,6 +94,18 @@ final companionAnalyticsProvider = Provider<CompanionAnalyticsProjection?>((
     weeklyTrend: weeklyFocus.currentValue == 0 && weeklyFocus.previousValue == 0
         ? null
         : weeklyFocus.direction,
+  );
+});
+
+final focusGoalsAnalyticsProvider = Provider<FocusGoalsAnalyticsProjection?>((
+  ref,
+) {
+  final summary = ref.watch(analyticsNotifierProvider).summary;
+  if (summary == null) return null;
+  return FocusGoalsAnalyticsProjection(
+    focusMinutesToday: summary.daily.focusedDuration.inMinutes,
+    completedSessionsThisWeek: summary.weekly.completedSessions,
+    activeDaysThisWeek: summary.weekly.activeStudyDays,
   );
 });
 

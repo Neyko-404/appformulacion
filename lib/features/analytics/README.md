@@ -57,6 +57,8 @@ Las únicas reglas actuales son: ausencia de actividad hoy, varias interrupcione
 
 Para Companion, `companionAnalyticsProvider` expone exclusivamente `focusMinutesToday`, `completedSessionsToday`, `interruptionCountToday`, `activeDaysThisWeek` y `weeklyTrend`. `activeDaysThisWeek` reutiliza el valor semanal ya calculado; no introduce métricas, lecturas ni cálculos nuevos y no expone el resumen interno.
 
+Para Goals, `focusGoalsAnalyticsProvider` expone exclusivamente `focusMinutesToday`, `completedSessionsThisWeek` y `activeDaysThisWeek`. La proyección reutiliza el resumen diario y semanal ya calculado; no añade definiciones, agregaciones, persistencia ni operaciones de escritura.
+
 La estrategia carga al montar el consumidor, permite invalidación explícita desde Dashboard y escucha una revisión pública de Study Engine. La revisión cambia únicamente ante sesiones persistentes o conteos de interrupciones relevantes; excluye el tiempo restante, por lo que los ticks normales no consultan Analytics. Las señales simultáneas se agrupan en una sola recarga pendiente.
 
 ## Dashboard, privacidad y limitaciones
@@ -85,3 +87,4 @@ Analytics implementa RF-009 hasta Sprint 5D y es estrictamente read-only. Una IA
 | 0.1.1 | 12 de julio de 2026 | Implementado | Proyección diaria read-only para Dashboard Intelligence. | Equipo Focusly |
 | 0.2.0 | 12 de julio de 2026 | Implementado | Comparaciones locales de Trends & Progress. | Equipo Focusly |
 | 0.3.0 | 12 de julio de 2026 | Implementado | Personalized Insights Engine determinista. | Equipo Focusly |
+| 0.3.1 | 20 de julio de 2026 | Implementado | Proyección pública mínima para progreso de FocusGoal. | Equipo Focusly |

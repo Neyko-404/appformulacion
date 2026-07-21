@@ -156,6 +156,10 @@ void main() {
     container.read(routerProvider).go('/analytics');
     await tester.pumpAndSettle();
     expect(find.text('Progreso de estudio'), findsOneWidget);
+
+    container.read(routerProvider).go('/goals');
+    await tester.pumpAndSettle();
+    expect(find.text('Metas de estudio'), findsWidgets);
   });
 
   testWidgets('storage failure redirects to recovery instead of onboarding', (
